@@ -141,6 +141,8 @@ export default function RegisterWizard() {
   const [step, setStep] = React.useState<Step>("account");
   const [verifiedEmail, setVerifiedEmail] = React.useState(false);
   const [showCongrats, setShowCongrats] = React.useState(false);
+  const [showVerificationCode, setShowVerificationCode] = React.useState(false);
+  const [serverVerificationCode, setServerVerificationCode] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [sendingCode, setSendingCode] = React.useState(false);
@@ -212,6 +214,13 @@ export default function RegisterWizard() {
     setStep(next);
   }
 
+  function revealVerificationCode(code: string | null) {
+    if (!code) return;
+    setServerVerificationCode(code);
+    update("verificationCodeInput", code);
+    setShowVerificationCode(true);
+  }
+
   const accountValid = isEmailValid(f.email) && f.password.trim().length >= 6;
   const parentValid = f.parentFirstName.trim() && f.parentLastName.trim();
   const studentValid =
@@ -239,6 +248,8 @@ export default function RegisterWizard() {
       const msg = json?.error || "Registration failed.";
       throw new Error(msg);
     }
+
+    return typeof json?.verificationCode === "string" ? json.verificationCode : null;
   }
 
   async function verifyEmailCode() {
@@ -277,6 +288,8 @@ export default function RegisterWizard() {
       const msg = json?.error || "Could not resend code.";
       throw new Error(msg);
     }
+
+    return typeof json?.verificationCode === "string" ? json.verificationCode : null;
   }
 
   return (
@@ -328,7 +341,7 @@ export default function RegisterWizard() {
                           onChange={(e) => update("email", e.target.value)}
                           required
                         />
-                        <div className="text-white/70 text-xs mt-1">We’ll send a verification code.</div>
+                        <div className="text-white/70 text-xs mt-1">You’ll receive a verification code (temporarily via popup alert).</div>
                       </div>
                       <div>
                         <FieldLabel>Password</FieldLabel>
@@ -352,9 +365,9 @@ export default function RegisterWizard() {
                           }
                           setSubmitting(true);
                           try {
-                            await registerStudentAccount();
+                            const code = await registerStudentAccount();
                             setVerifiedEmail(false);
-                            update("verificationCodeInput", "");
+                            revealVerificationCode(code);
                             go("verify");
                           } catch (e: any) {
                             setError(e?.message || "Registration failed.");
@@ -386,7 +399,7 @@ export default function RegisterWizard() {
                       <div>
                         <h2 className="text-white text-xl md:text-2xl font-extrabold">Verify your email</h2>
                         <p className="text-white/80 text-sm mt-2">
-                          We sent a 6-digit code to <span className="text-white font-semibold">{f.email}</span>.
+                          We’ll show your verification code in a popup modal.
                         </p>
                       </div>
                       <button
@@ -396,7 +409,8 @@ export default function RegisterWizard() {
                           setSendingCode(true);
                           setError(null);
                           try {
-                            await resendCode();
+                            const code = await resendCode();
+                            revealVerificationCode(code);
                           } catch (e: any) {
                             setError(e?.message || "Could not resend code.");
                           } finally {
@@ -408,19 +422,20 @@ export default function RegisterWizard() {
                       </button>
                     </div>
 
-                    <div>
-                      <FieldLabel>Verification code</FieldLabel>
-                      <Input
-                        inputMode="numeric"
-                        placeholder="123456"
-                        value={f.verificationCodeInput}
-                        onChange={(e) =>
-                          update(
-                            "verificationCodeInput",
-                            e.target.value.replace(/[^\d]/g, "").slice(0, 6)
-                          )
-                        }
-                      />
+                    <div className="border-2 border-[#2D2D2D] rounded-xl bg-white/10 px-4 py-3 text-white/85 text-sm">
+                      {serverVerificationCode ? (
+                        <>
+                          Your code is ready.{" "}
+                          <button className="underline text-white" onClick={() => setShowVerificationCode(true)}>
+                            View code
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          Click{" "}
+                          <span className="text-white font-semibold">Resend code</span> to generate a code for now.
+                        </>
+                      )}
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
@@ -433,7 +448,7 @@ export default function RegisterWizard() {
                         Back
                       </ActionButton>
                       <ActionButton
-                        disabled={verifiedEmail || f.verificationCodeInput.trim().length !== 6 || submitting}
+                        disabled={verifiedEmail || !serverVerificationCode || serverVerificationCode.trim().length !== 6 || submitting}
                         onClick={async () => {
                           setSubmitting(true);
                           setError(null);
@@ -756,6 +771,75 @@ export default function RegisterWizard() {
               <button
                 className="mt-4 text-white/70 underline text-sm"
                 onClick={() => setShowCongrats(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Verification code modal (temporary) */}
+      {showVerificationCode ? (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60"
+            aria-hidden="true"
+            onClick={() => setShowVerificationCode(false)}
+          />
+          <div className="relative w-full max-w-[640px] border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center">
+            <div className="p-8 md:p-10 bg-[#000237]/60 backdrop-blur-sm text-center">
+              <h2 className="text-white text-2xl md:text-4xl font-extrabold">Verification code</h2>
+              <p className="text-white/85 mt-3 md:text-lg">
+                Use this code to verify <span className="text-white font-semibold">{f.email}</span>.
+              </p>
+
+              <div className="mt-6 flex items-center justify-center">
+                <div className="inline-block bg-white/90 text-[#212429] px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] font-extrabold text-3xl tracking-[0.35em] font-mono">
+                  {(serverVerificationCode || "------").split("").join(" ")}
+                </div>
+              </div>
+
+              <div className="mt-7 grid gap-3 md:grid-cols-2 max-w-[460px] mx-auto">
+                <ActionButton
+                  variant="secondary"
+                  onClick={async () => {
+                    const code = serverVerificationCode;
+                    if (!code) return;
+                    try {
+                      await navigator.clipboard.writeText(code);
+                    } catch {
+                      // ignore
+                    }
+                    setShowVerificationCode(false);
+                  }}
+                >
+                  Copy code
+                </ActionButton>
+                <ActionButton
+                  disabled={!serverVerificationCode || serverVerificationCode.trim().length !== 6 || submitting}
+                  onClick={async () => {
+                    setSubmitting(true);
+                    setError(null);
+                    try {
+                      await verifyEmailCode();
+                      setVerifiedEmail(true);
+                      setShowVerificationCode(false);
+                      go("parent");
+                    } catch (e: any) {
+                      setError(e?.message || "Verification failed.");
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  }}
+                >
+                  {submitting ? "Verifying..." : "Verify & Continue"}
+                </ActionButton>
+              </div>
+
+              <button
+                className="mt-4 text-white/70 underline text-sm"
+                onClick={() => setShowVerificationCode(false)}
               >
                 Close
               </button>
