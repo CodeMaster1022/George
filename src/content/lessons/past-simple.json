@@ -1,0 +1,33 @@
+{
+  "slug": "past-simple",
+  "title": "Past Simple (Regular Verbs)",
+  "level": "A2",
+  "tags": ["grammar", "writing"],
+  "summary": "Learn how to talk about completed actions in the past using regular verbs.",
+  "sections": [
+    {
+      "type": "explanation",
+      "title": "Form",
+      "paragraphs": [
+        "For regular verbs, add -ed: walk → walked, play → played.",
+        "After a consonant + y, change y to i and add -ed: study → studied."
+      ],
+      "points": [
+        "Positive: I played.",
+        "Negative: I did not (didn't) play.",
+        "Question: Did you play?"
+      ]
+    },
+    {
+      "type": "practice",
+      "title": "Practice",
+      "instructions": "Write the past form.",
+      "items": [
+        { "prompt": "walk", "answer": "walked" },
+        { "prompt": "play", "answer": "played" },
+        { "prompt": "study", "answer": "studied" }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,42 @@
+{
+  "slug": "greetings",
+  "title": "Greetings & Introductions",
+  "level": "A1",
+  "tags": ["basics", "speaking"],
+  "summary": "Learn simple greetings and how to introduce yourself politely.",
+  "sections": [
+    {
+      "type": "explanation",
+      "title": "Key phrases",
+      "points": [
+        "Hello / Hi",
+        "Good morning / Good afternoon / Good evening",
+        "My name is ...",
+        "Nice to meet you.",
+        "How are you? — I'm fine, thanks."
+      ]
+    },
+    {
+      "type": "dialogue",
+      "title": "Mini dialogue",
+      "lines": [
+        { "speaker": "Ava", "text": "Hi! My name is Ava. What's your name?" },
+        { "speaker": "Noah", "text": "Hello Ava. I'm Noah. Nice to meet you." },
+        { "speaker": "Ava", "text": "Nice to meet you too. How are you?" },
+        { "speaker": "Noah", "text": "I'm good, thanks. And you?" },
+        { "speaker": "Ava", "text": "I'm fine!" }
+      ]
+    },
+    {
+      "type": "practice",
+      "title": "Practice",
+      "instructions": "Answer with a short, natural sentence.",
+      "items": [
+        { "prompt": "Introduce yourself.", "answer": "Hi, my name is ____." },
+        { "prompt": "Say you are fine.", "answer": "I'm fine, thanks." },
+        { "prompt": "Ask someone's name.", "answer": "What's your name?" }
+      ]
+    }
+  ]
+}
+

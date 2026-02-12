@@ -1,0 +1,13 @@
+{
+  "id": "space-basics",
+  "title": "Space Basics Vocabulary",
+  "level": "A1",
+  "words": [
+    { "term": "planet", "meaning": "a large round object in space that moves around a star", "example": "Mars is a planet." },
+    { "term": "star", "meaning": "a bright object in space that gives light and heat", "example": "The Sun is a star." },
+    { "term": "rocket", "meaning": "a vehicle that travels into space", "example": "The rocket launches at 9 a.m." },
+    { "term": "astronaut", "meaning": "a person trained to travel in space", "example": "The astronaut works on the station." },
+    { "term": "mission", "meaning": "a planned task or journey (often for space exploration)", "example": "The mission lasts six months." }
+  ]
+}
+

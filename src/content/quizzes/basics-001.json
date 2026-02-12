@@ -1,0 +1,30 @@
+{
+  "id": "basics-001",
+  "title": "Basics Quiz 001",
+  "level": "A1",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "mcq",
+      "prompt": "Choose the best greeting for the morning.",
+      "choices": ["Good night", "Good morning", "Goodbye", "See you"],
+      "answerIndex": 1,
+      "explanation": "We say “Good morning” in the morning."
+    },
+    {
+      "id": "q2",
+      "type": "fill",
+      "prompt": "Complete: Nice to ____ you.",
+      "answer": "meet",
+      "explanation": "The common phrase is “Nice to meet you.”"
+    },
+    {
+      "id": "q3",
+      "type": "mcq",
+      "prompt": "Which question asks for a name?",
+      "choices": ["How old are you?", "Where are you?", "What's your name?", "How are you?"],
+      "answerIndex": 2
+    }
+  ]
+}
+
