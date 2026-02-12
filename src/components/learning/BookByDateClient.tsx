@@ -2,17 +2,17 @@
 
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
+import { useRouter } from "next/navigation";
+import { apiJson, getAuthUser } from "@/utils/backend";
 
 type Teacher = {
-  id: string;
+  id: string; // TeacherProfile._id
   name: string;
   country: string;
-  flag: string;
-  rating: number;
-  likes: number;
-  availableCount: number;
-  bookedCount: number;
   bio: string;
+  ratingAvg: number; // 0..5
+  ratingCount: number;
+  followersCount: number;
   avatarUrl?: string;
 };
 
@@ -91,7 +91,7 @@ function Legend() {
             />
           </svg>
         </span>
-        <span>Available Classes</span>
+        <span>Open slots</span>
       </div>
       <div className="inline-flex items-center gap-2 text-[#86efac]">
         <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 border-[#2D2D2D] bg-white/10">
@@ -105,100 +105,194 @@ function Legend() {
             />
           </svg>
         </span>
-        <span>Booked Classes</span>
+        <span>Booked slots</span>
       </div>
     </div>
   );
 }
 
-const TIMES = [
-  "07:00 AM",
-  "07:30 AM",
-  "08:00 AM",
-  "08:30 AM",
-  "09:00 AM",
-  "09:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "12:00 PM",
-  "12:30 PM",
-  "01:00 PM",
-  "01:30 PM",
-  "02:00 PM",
-  "02:30 PM",
-];
+type Session = {
+  _id: string;
+  teacherId: string;
+  startAt: string;
+  endAt: string;
+  status: "open" | "booked" | "cancelled";
+  priceCredits: number;
+  meetingLink?: string | null;
+};
+
+function dayKey(iso: string) {
+  // Use local date (student perspective)
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
+function localTimeKeyFromIso(iso: string) {
+  const d = new Date(iso);
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function localTimeLabelFromIso(iso: string) {
+  const d = new Date(iso);
+  // Keep a consistent, readable label; value matching uses localTimeKeyFromIso.
+  return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: true });
+}
+
+function safeJoinHref(raw?: string | null) {
+  const v = (raw ?? "").trim();
+  if (!v) return null;
+  const base = v.startsWith("http://") || v.startsWith("https://") ? v : `https://${v.replace(/^\/+/, "")}`;
+
+  // BBB join links in this app require auth; pass JWT via query param so opening in new tab works.
+  try {
+    if (typeof window !== "undefined" && base.includes("/bbb/sessions/") && base.includes("/join")) {
+      const token = localStorage.getItem("auth_token") || "";
+      if (token) {
+        const u = new URL(base);
+        if (!u.searchParams.get("token")) u.searchParams.set("token", token);
+        return u.toString();
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return base;
+}
 
 export default function BookByDateClient() {
-  const teachers: Teacher[] = React.useMemo(
-    () => [
-      {
-        id: "gus",
-        name: "Gus",
-        country: "Mexico",
-        flag: "🇲🇽",
-        rating: 5,
-        likes: 1281,
-        availableCount: 96,
-        bookedCount: 0,
-        bio: "Hola! I am Teacher Gus. A Mexican native Spanish speaker and a very experienced Spanish language specialist!",
-        avatarUrl: "https://unpkg.com/lucide-static@latest/icons/user-round.svg",
-      },
-      {
-        id: "gabbi",
-        name: "Gabbi",
-        country: "Bolivia",
-        flag: "🇧🇴",
-        rating: 5,
-        likes: 1210,
-        availableCount: 84,
-        bookedCount: 0,
-        bio: "Hey kids! I love to travel and learn about cultures and meet new people.",
-        avatarUrl: "https://unpkg.com/lucide-static@latest/icons/user-round.svg",
-      },
-      {
-        id: "roxana",
-        name: "Roxana",
-        country: "Spain",
-        flag: "🇪🇸",
-        rating: 5,
-        likes: 1369,
-        availableCount: 16,
-        bookedCount: 0,
-        bio: "¡Hola! My name is Roxana. I have a Bachelor's Degree in Education and more than eight years of experience.",
-        avatarUrl: "https://unpkg.com/lucide-static@latest/icons/user-round.svg",
-      },
-      {
-        id: "vivi",
-        name: "Vivi",
-        country: "Mexico",
-        flag: "🇲🇽",
-        rating: 5,
-        likes: 2226,
-        availableCount: 77,
-        bookedCount: 0,
-        bio: "¡Hola! I’m Profe Vivi, and I’d love to lead you on your journey through Spanish!",
-        avatarUrl: "https://unpkg.com/lucide-static@latest/icons/user-round.svg",
-      },
-    ],
-    []
-  );
+  const router = useRouter();
 
   const [month, setMonth] = React.useState(() => startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = React.useState<string>("");
   const [q, setQ] = React.useState("");
   const [selectedTeacherId, setSelectedTeacherId] = React.useState<string | null>(null);
 
-  const selectedTeacher = teachers.find((t) => t.id === selectedTeacherId) ?? null;
+  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
+  const [teachersLoading, setTeachersLoading] = React.useState(true);
+  const [teachersError, setTeachersError] = React.useState<string | null>(null);
+
+  const [sessions, setSessions] = React.useState<Session[]>([]);
+  const [sessionsLoading, setSessionsLoading] = React.useState(true);
+  const [sessionsError, setSessionsError] = React.useState<string | null>(null);
+
+  const [creditBalance, setCreditBalance] = React.useState<number>(0);
+  const [creditsError, setCreditsError] = React.useState<string | null>(null);
+
+  const [selectedTimeKey, setSelectedTimeKey] = React.useState<string>("");
+
+  const [bookingBusy, setBookingBusy] = React.useState(false);
+  const [bookingError, setBookingError] = React.useState<string | null>(null);
+  const [bookingInfo, setBookingInfo] = React.useState<string | null>(null);
+  const [bookedMeetLink, setBookedMeetLink] = React.useState<string | null>(null);
+
+  const selectedDay = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    : "";
+
+  const teacherById = React.useMemo(() => {
+    const m = new Map<string, Teacher>();
+    for (const t of teachers) m.set(t.id, t);
+    return m;
+  }, [teachers]);
+
+  const selectedTeacher = selectedTeacherId ? teacherById.get(selectedTeacherId) ?? null : null;
 
   const selectedDateKey = selectedDate ? selectedDate.getTime() : null;
 
   // Reset teacher selection if date/time changes
   React.useEffect(() => {
     setSelectedTeacherId(null);
-  }, [selectedTime, selectedDateKey]);
+    setBookingError(null);
+    setBookingInfo(null);
+    setBookedMeetLink(null);
+  }, [selectedTimeKey, selectedDateKey]);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("auth_token") || "";
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    const u: any = getAuthUser();
+    if (u?.role === "teacher") {
+      router.replace("/teacher");
+      return;
+    }
+  }, [router]);
+
+  async function loadTeachers() {
+    setTeachersError(null);
+    setTeachersLoading(true);
+
+    const r = await apiJson<{ teachers: any[] }>("/teachers", { auth: false });
+    setTeachersLoading(false);
+    if (!r.ok) {
+      setTeachersError(r.error);
+      setTeachers([]);
+      return;
+    }
+
+    const rows = ((r.data as any)?.teachers ?? []) as any[];
+    setTeachers(
+      rows.map((t) => ({
+        id: String(t._id),
+        name: String(t.name || "Teacher"),
+        country: String(t.country || ""),
+        bio: String(t.bio || ""),
+        ratingAvg: Number(t?.stats?.ratingAvg ?? 0),
+        ratingCount: Number(t?.stats?.ratingCount ?? 0),
+        followersCount: Number(t?.stats?.followersCount ?? 0),
+        avatarUrl: String(t.photoUrl || ""),
+      }))
+    );
+  }
+
+  async function loadCredits() {
+    setCreditsError(null);
+    const r = await apiJson<{ balance: number }>("/credits/balance", { auth: true });
+    if (!r.ok) {
+      setCreditsError(r.error);
+      setCreditBalance(0);
+      return;
+    }
+    setCreditBalance(Number((r.data as any)?.balance ?? 0));
+  }
+
+  async function loadSessions() {
+    setSessionsError(null);
+    setSessionsLoading(true);
+    setSelectedTimeKey("");
+    setSelectedTeacherId(null);
+
+    const from = new Date();
+    const to = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const qs = new URLSearchParams({
+      status: "open",
+      from: from.toISOString(),
+      to: to.toISOString(),
+    });
+
+    const r = await apiJson<{ sessions: Session[] }>(`/sessions?${qs.toString()}`, { auth: false });
+    setSessionsLoading(false);
+    if (!r.ok) {
+      setSessionsError(r.error);
+      setSessions([]);
+      return;
+    }
+    const next = (((r.data as any)?.sessions ?? []) as Session[]).filter((s) => s.status === "open");
+    setSessions(next);
+  }
+
+  React.useEffect(() => {
+    loadTeachers();
+    loadSessions();
+    loadCredits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
@@ -213,18 +307,102 @@ export default function BookByDateClient() {
     return cells;
   }, [daysInThisMonth, startWeekday]);
 
+  const daySessions = React.useMemo(() => {
+    if (!selectedDay) return [];
+    return sessions.filter((s) => dayKey(s.startAt) === selectedDay);
+  }, [selectedDay, sessions]);
+
+  const timesForSelectedDay = React.useMemo(() => {
+    const m = new Map<string, { key: string; label: string }>();
+    for (const s of daySessions) {
+      const k = localTimeKeyFromIso(s.startAt);
+      if (!m.has(k)) m.set(k, { key: k, label: localTimeLabelFromIso(s.startAt) });
+    }
+    return Array.from(m.values()).sort((a, b) => a.key.localeCompare(b.key));
+  }, [daySessions]);
+
+  const dayTimeSessions = React.useMemo(() => {
+    const m = new Map<string, Session[]>();
+    for (const s of daySessions) {
+      const k = localTimeKeyFromIso(s.startAt);
+      const arr = m.get(k) ?? [];
+      arr.push(s);
+      m.set(k, arr);
+    }
+    for (const [k, arr] of Array.from(m.entries())) {
+      arr.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+      m.set(k, arr);
+    }
+    return m;
+  }, [daySessions]);
+
+  const sessionsAtTime = selectedTimeKey ? dayTimeSessions.get(selectedTimeKey) ?? [] : [];
+
+  const openCountByTeacherId = React.useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of sessions) m.set(String(s.teacherId), (m.get(String(s.teacherId)) ?? 0) + 1);
+    return m;
+  }, [sessions]);
+
+  const availableTeacherIdsForSlot = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const s of sessionsAtTime) set.add(String(s.teacherId));
+    return set;
+  }, [sessionsAtTime]);
+
   const canShowTime = Boolean(selectedDate);
-  const canShowTeachers = Boolean(selectedDate && selectedTime);
-  const canShowCart = Boolean(selectedTeacher && selectedDate && selectedTime);
+  const canShowTeachers = Boolean(selectedDate && selectedTimeKey);
+  const canShowCart = Boolean(selectedTeacher && selectedDate && selectedTimeKey);
 
   const filteredTeachers = React.useMemo(() => {
     const s = q.trim().toLowerCase();
-    const base = teachers.filter((t) => t.availableCount > 0);
-    return base.filter((t) => !s || t.name.toLowerCase().includes(s));
-  }, [q, teachers]);
+    const base = teachers.filter((t) => (openCountByTeacherId.get(t.id) ?? 0) > 0);
+    const slotFiltered = canShowTeachers ? base.filter((t) => availableTeacherIdsForSlot.has(t.id)) : base;
+    return slotFiltered.filter((t) => !s || t.name.toLowerCase().includes(s) || t.country.toLowerCase().includes(s));
+  }, [availableTeacherIdsForSlot, canShowTeachers, openCountByTeacherId, q, teachers]);
 
-  const purchasing = canShowCart ? 1 : 0;
-  const credits = 0;
+  const selectedSession = React.useMemo(() => {
+    if (!selectedTeacherId || !selectedTimeKey) return null;
+    const slot = sessionsAtTime.filter((ss) => String(ss.teacherId) === String(selectedTeacherId));
+    return slot[0] ?? null;
+  }, [selectedTeacherId, selectedTimeKey, sessionsAtTime]);
+
+  const purchasing = selectedSession?.priceCredits ?? 0;
+  const credits = creditBalance ?? 0;
+
+  const availableDayKeys = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const s of sessions) set.add(dayKey(s.startAt));
+    return set;
+  }, [sessions]);
+
+  async function bookSelectedSession() {
+    if (!selectedSession?._id) return;
+    setBookingBusy(true);
+    setBookingError(null);
+    setBookingInfo(null);
+    setBookedMeetLink(null);
+
+    const r = await apiJson("/bookings", {
+      method: "POST",
+      auth: true,
+      body: JSON.stringify({ sessionId: selectedSession._id }),
+    });
+
+    setBookingBusy(false);
+    if (!r.ok) {
+      setBookingError(r.error);
+      return;
+    }
+
+    const data: any = (r as any).data || {};
+    const meet = data?.session?.meetingLink || "";
+
+    setBookingInfo("Booked successfully.");
+    if (meet) setBookedMeetLink(String(meet));
+    await loadCredits();
+    await loadSessions();
+  }
 
   return (
     <main className="min-h-screen">
@@ -278,22 +456,33 @@ export default function BookByDateClient() {
                       if (!c.d) return <div key={`e-${idx}`} className="h-10" />;
                       const d = new Date(month.getFullYear(), month.getMonth(), c.d);
                       const active = selectedDate ? sameDay(d, selectedDate) : false;
+                      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                      const hasSlots = availableDayKeys.has(k);
                       return (
                         <button
                           key={c.d}
                           type="button"
                           className={[
-                            "h-10 rounded-lg border border-transparent text-sm",
+                            "h-10 rounded-lg border border-transparent text-sm relative",
                             active ? "bg-[#0EA5E9] text-white font-extrabold" : "hover:bg-[#0EA5E9]/10 text-[#212429]/70",
                           ].join(" ")}
                           onClick={() => {
                             setSelectedDate(d);
-                            setSelectedTime("");
+                            setSelectedTimeKey("");
                             setQ("");
                             setSelectedTeacherId(null);
                           }}
                         >
                           {c.d}
+                          {hasSlots ? (
+                            <span
+                              className={[
+                                "absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full",
+                                active ? "bg-white" : "bg-[#0EA5E9]",
+                              ].join(" ")}
+                              aria-hidden="true"
+                            />
+                          ) : null}
                         </button>
                       );
                     })}
@@ -316,6 +505,14 @@ export default function BookByDateClient() {
                       </div>
                     </div>
                   </div>
+
+                  {sessionsError ? (
+                    <div className="mt-4 border-2 border-[#2D2D2D] bg-[#B4005A]/15 text-[#212429] rounded-xl px-4 py-3 text-sm">
+                      {sessionsError}
+                    </div>
+                  ) : sessionsLoading ? (
+                    <div className="mt-4 text-[#212429]/60 text-sm">Loading open sessions…</div>
+                  ) : null}
                 </div>
               </div>
 
@@ -325,21 +522,29 @@ export default function BookByDateClient() {
                   <div className="p-5">
                       <div className="text-white font-extrabold">Select Time</div>
                       <select
-                        value={selectedTime}
-                        onChange={(e) => setSelectedTime(e.target.value)}
+                        value={selectedTimeKey}
+                        onChange={(e) => setSelectedTimeKey(e.target.value)}
                         disabled={!canShowTime}
                         className={[
                           "mt-3 w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9]",
                           !canShowTime ? "opacity-70 cursor-not-allowed" : "",
                         ].join(" ")}
                       >
-                        <option value="">{canShowTime ? "Select Time" : "Select a date first"}</option>
-                        {TIMES.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
+                        <option value="">
+                          {!canShowTime ? "Select a date first" : sessionsLoading ? "Loading times…" : "Select Time"}
+                        </option>
+                        {timesForSelectedDay.map((t) => (
+                          <option key={t.key} value={t.key}>
+                            {t.label}
                           </option>
                         ))}
                       </select>
+
+                    {selectedDate && !sessionsLoading && !timesForSelectedDay.length ? (
+                      <div className="mt-3 border-2 border-[#2D2D2D] bg-white/15 text-white rounded-xl px-4 py-3 text-sm">
+                        No open slots on this date (next 30 days). Try another day.
+                      </div>
+                    ) : null}
 
                     <div className="mt-6">
                       <div className="text-white font-extrabold">Select Your Teacher</div>
@@ -374,9 +579,21 @@ export default function BookByDateClient() {
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
                           Select a time to see available teachers.
                         </div>
+                      ) : teachersError ? (
+                        <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
+                          {teachersError}
+                        </div>
+                      ) : teachersLoading ? (
+                        <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
+                          Loading teachers…
+                        </div>
                       ) : filteredTeachers.length ? (
                         filteredTeachers.map((t) => {
                           const active = selectedTeacherId === t.id;
+                          const openCount = openCountByTeacherId.get(t.id) ?? 0;
+                          const bookedCount = 0;
+                          const avatarSrc = t.avatarUrl?.trim() ? t.avatarUrl.trim() : "/img/martian.png";
+                          const rating = Number.isFinite(t.ratingAvg) ? t.ratingAvg : 0;
                           return (
                             <button
                               key={t.id}
@@ -391,28 +608,28 @@ export default function BookByDateClient() {
                                 <div className="flex items-start gap-3">
                                   <div className="w-12 h-12 rounded-xl border-2 border-[#2D2D2D] bg-white/15 grid place-items-center shrink-0">
                                     <img
-                                      src={t.avatarUrl}
+                                      src={avatarSrc}
                                       alt=""
-                                      className="w-7 h-7 object-contain invert opacity-90"
+                                      className="w-full h-full object-cover"
                                     />
                                   </div>
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between gap-2">
                                       <div className="text-white font-extrabold">
-                                        {t.flag} {t.name}
+                                        {t.name}
                                       </div>
-                                      <Stars rating={t.rating} />
+                                      <Stars rating={rating} />
                                     </div>
                                     <div className="text-white/70 text-xs mt-0.5">{t.country}</div>
                                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-[#2D2D2D] bg-[#0058C9]/35 text-white">
-                                        👍 {t.likes}
-                                      </span>
                                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-[#2D2D2D] bg-[#0058C9]/25 text-white">
-                                        <span className="text-[#60a5fa]">📅</span> {t.availableCount}
+                                        <span className="text-[#60a5fa]">📅</span> {openCount}
                                       </span>
                                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-[#2D2D2D] bg-[#22C55E]/20 text-white">
-                                        <span className="text-[#86efac]">⏰</span> {t.bookedCount}
+                                        <span className="text-[#86efac]">⏰</span> {bookedCount}
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-[#2D2D2D] bg-white/10 text-white">
+                                        ⭐ {rating.toFixed(1)} ({t.ratingCount})
                                       </span>
                                     </div>
                                   </div>
@@ -426,7 +643,7 @@ export default function BookByDateClient() {
                         })
                       ) : (
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                          No teachers match your search.
+                          No teachers available for this time.
                         </div>
                       )}
                     </div>
@@ -450,14 +667,32 @@ export default function BookByDateClient() {
                       </div>
                     </div>
 
-                    {canShowCart && selectedTeacher && selectedDate && selectedTime ? (
+                    {creditsError ? (
+                      <div className="mt-3 border-2 border-[#2D2D2D] bg-[#B4005A]/15 text-[#212429] rounded-xl px-4 py-3 text-sm">
+                        {creditsError}
+                      </div>
+                    ) : null}
+
+                    {bookingError ? (
+                      <div className="mt-3 border-2 border-[#2D2D2D] bg-[#B4005A]/25 text-[#212429] rounded-xl px-4 py-3 text-sm">
+                        {bookingError}
+                      </div>
+                    ) : null}
+
+                    {bookingInfo ? (
+                      <div className="mt-3 border-2 border-[#2D2D2D] bg-[#0058C9]/15 text-[#212429] rounded-xl px-4 py-3 text-sm">
+                        {bookingInfo}
+                      </div>
+                    ) : null}
+
+                    {canShowCart && selectedTeacher && selectedDate && selectedTimeKey && selectedSession ? (
                       <div className="mt-4">
                         <div className="flex items-start gap-2 text-sm text-[#212429]">
                           <span className="mt-0.5 text-[#0058C9]">
                             📅
                           </span>
                           <div className="font-semibold">
-                            {formatCartDateTime(selectedDate, selectedTime)}
+                            {formatCartDateTime(selectedDate, localTimeLabelFromIso(selectedSession.startAt))}
                           </div>
                         </div>
 
@@ -465,32 +700,40 @@ export default function BookByDateClient() {
                           <div className="bg-[#0058C9] text-white px-3 py-2 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full border-2 border-[#2D2D2D] bg-white overflow-hidden grid place-items-center">
                               <img
-                                src={selectedTeacher.avatarUrl}
+                                src={selectedTeacher.avatarUrl?.trim() ? selectedTeacher.avatarUrl.trim() : "/img/martian.png"}
                                 alt=""
-                                className="w-6 h-6 object-contain"
-                                style={{ filter: "invert(0)" }}
+                                className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="flex-1">
                               <div className="font-extrabold leading-tight">{selectedTeacher.name}</div>
                               <div className="text-white/90 text-xs flex items-center gap-2">
-                                <span>{selectedTeacher.flag}</span>
                                 <span className="inline-flex items-center gap-1">
-                                  <span>⭐</span> {selectedTeacher.rating.toFixed(1)}
+                                  <span>⭐</span> {Number.isFinite(selectedTeacher.ratingAvg) ? selectedTeacher.ratingAvg.toFixed(1) : "0.0"}
                                 </span>
                               </div>
                             </div>
                           </div>
                         </div>
 
+                        {bookedMeetLink ? (
+                          <a
+                            href={safeJoinHref(bookedMeetLink) as string}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="mt-4 w-full inline-flex items-center justify-center text-white px-6 py-3 rounded-full bg-[#0058C9] hover:bg-[#0b67de] border-2 border-[#2D2D2D] text-sm font-extrabold"
+                          >
+                            Join class
+                          </a>
+                        ) : null}
+
                         <button
                           type="button"
                           className="mt-4 w-full text-white px-6 py-3 rounded-full bg-[#22C55E] hover:bg-[#22C55E]/90 border-2 border-[#2D2D2D] text-sm font-extrabold"
-                          onClick={() => {
-                            alert("Mock booking confirmed (no backend yet).");
-                          }}
+                          disabled={bookingBusy}
+                          onClick={bookSelectedSession}
                         >
-                          Confirm booking
+                          {bookingBusy ? "Booking…" : "Confirm booking"}
                         </button>
                       </div>
                     ) : (
@@ -498,6 +741,18 @@ export default function BookByDateClient() {
                         Select a date, then a time, then a teacher to add to cart.
                       </div>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await loadSessions();
+                        await loadCredits();
+                      }}
+                      disabled={sessionsLoading || bookingBusy}
+                      className="mt-4 w-full px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white hover:bg-[#0058C9]/10 text-[#212429] text-sm font-extrabold disabled:opacity-70"
+                    >
+                      Refresh availability
+                    </button>
                   </div>
                 </div>
               </div>
