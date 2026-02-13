@@ -15,283 +15,302 @@ export default function HiringPage() {
   };
 
   return (
-    <main className="min-h-screen">
-      {/* Hiring hero (styled like rest of site) */}
-      <section className="relative z-10 max-w-[1700px] mx-auto p-left p-right">
-        <div className="overflow-hidden">
-          <div className="relative">
-            {/* Background */}
-            <div className="absolute inset-0 bg-cover bg-center" aria-hidden="true" />
-            <div className="absolute inset-0" aria-hidden="true" />
+    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Hero Section */}
+      <section className="relative z-10 max-w-[1700px] mx-auto p-left p-right pt-8 md:pt-16 pb-12">
+        <div className="grid gap-12 lg:grid-cols-2 items-center">
+          {/* Left Content */}
+          <div className="text-center lg:text-left">
+            <div className="inline-block mb-6">
+              <div className="text-[#0058C9] text-6xl md:text-8xl font-extrabold leading-none drop-shadow-lg animate-pulse">
+                WE'RE
+              </div>
+              <div className="text-[#B4005A] text-6xl md:text-8xl font-extrabold leading-none drop-shadow-lg mt-2">
+                HIRING!
+              </div>
+            </div>
 
-            <div className="relative py-12 md:py-16">
-              <div className="grid gap-10 md:grid-cols-2 items-center">
-                {/* Left */}
-                <div className="text-center md:text-left">
-                  <div className="inline-block">
-                    <div className="text-white text-5xl md:text-7xl font-extrabold leading-none drop-shadow-[0_6px_0_rgba(0,0,0,0.25)]">
-                      WE’RE
-                    </div>
-                    <div className="text-white text-5xl md:text-7xl font-extrabold leading-none drop-shadow-[0_6px_0_rgba(0,0,0,0.25)]">
-                      HIRING!
-                    </div>
+            <p className="text-gray-700 text-lg md:text-xl leading-8 max-w-[640px] mx-auto lg:mx-0 font-medium mb-8">
+              Join our passionate teaching team and make a difference in students' lives. 
+              Share your expertise and inspire the next generation of learners.
+            </p>
+
+            {/* Benefits */}
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
+              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+                <span className="text-2xl">🌍</span>
+                <span className="text-sm font-bold text-gray-700">Work Remotely</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+                <span className="text-2xl">⏰</span>
+                <span className="text-sm font-bold text-gray-700">Flexible Hours</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+                <span className="text-2xl">💰</span>
+                <span className="text-sm font-bold text-gray-700">Competitive Pay</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Form */}
+          <div className="flex justify-center lg:justify-end">
+            <form
+              id="cv-form"
+              onSubmit={onSubmit}
+              className="w-full max-w-[560px] border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center shadow-2xl transform transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="p-6 md:p-8 bg-[#000237]/70 backdrop-blur-md">
+                <div className="text-center mb-6">
+                  <div className="inline-block p-4 bg-white/10 rounded-full mb-4 animate-bounce">
+                    <span className="text-5xl">📄</span>
                   </div>
-
-                  <p className="text-white/90 mt-6 md:text-lg leading-7 max-w-[640px] mx-auto md:mx-0">
-                    Join our teaching team. If you love helping learners grow, send us your CV and a short
-                    introduction.
+                  <h2 className="text-white text-3xl md:text-4xl font-bold">
+                    Apply Now
+                  </h2>
+                  <p className="text-white/90 text-sm md:text-base mt-3">
+                    Send us your CV and we'll be in touch
                   </p>
-
-                  <div className="mt-8 flex justify-center md:justify-start">
-                    <div className="p-6">
-                      <img src="/img/mars-logo.png" alt="" className="w-[180px] h-[180px] object-contain" />
-                    </div>
-                  </div>
                 </div>
 
-                {/* Right form */}
-                <div className="flex justify-center md:justify-end">
-                  <form
-                    id="cv-form"
-                    onSubmit={onSubmit}
-                    className="w-full max-w-[560px]  rounded-[22px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center"
-                  >
-                    <div className="p-6 md:p-8 bg-[#000237]/50 backdrop-blur-sm">
-                      <h2 className="text-white text-2xl md:text-3xl font-semibold text-center">
-                        Send us your CV!
-                      </h2>
-                      <p className="text-white/80 text-sm md:text-base text-center mt-2">
-                        We’ll review it and contact you if there’s a match.
-                      </p>
+                <div className="grid gap-5">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="block text-white text-sm font-bold mb-2">Full Name *</label>
+                      <input
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        placeholder="John Doe"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white text-sm font-bold mb-2">Email *</label>
+                      <input
+                        type="email"
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        placeholder="you@example.com"
+                        required
+                      />
+                    </div>
+                  </div>
 
-                      <div className="mt-6 grid gap-4">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div>
-                            <label className="block text-white/90 text-sm mb-1">Full name</label>
-                            <input
-                              className="w-full px-4 py-3 rounded-xl bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                              placeholder="Your name"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-white/90 text-sm mb-1">Email</label>
-                            <input
-                              type="email"
-                              className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                              placeholder="you@example.com"
-                              required
-                            />
-                          </div>
-                        </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="block text-white text-sm font-bold mb-2">Phone Number</label>
+                      <input
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        placeholder="+1 555 000 0000"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white text-sm font-bold mb-2">Country</label>
+                      <input
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        placeholder="Your country"
+                      />
+                    </div>
+                  </div>
 
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div>
-                            <label className="block text-white/90 text-sm mb-1">Phone number</label>
-                            <input
-                              className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                              placeholder="+1 555 000 0000"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-white/90 text-sm mb-1">Country</label>
-                            <input
-                              className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                              placeholder="Country"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-white/90 text-sm mb-2">Upload CV (PDF/DOC)</label>
-                          <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                            <label className="inline-flex items-center justify-center px-5 py-3 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white cursor-pointer">
-                              Choose file
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept=".pdf,.doc,.docx"
-                                onChange={(e) => setCvName(e.target.files?.[0]?.name ?? "")}
-                              />
-                            </label>
-                            <div className="flex-1 px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] text-sm flex items-center">
-                              {cvName ? cvName : "No file selected"}
-                            </div>
-                          </div>
-                        </div>
-
-                        <textarea
-                          className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 min-h-[130px] focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                          placeholder="Short introduction / cover letter (optional)"
+                  <div>
+                    <label className="block text-white text-sm font-bold mb-2">Upload CV (PDF/DOC) *</label>
+                    <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                      <label className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-bold cursor-pointer transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                        <span className="mr-2 text-xl">📎</span>
+                        Choose File
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(e) => setCvName(e.target.files?.[0]?.name ?? "")}
                         />
-
-                        <label className="flex items-start gap-2 text-sm text-white/90 mt-1">
-                          <input type="checkbox" className="mt-1" required />
-                          <span>
-                            I agree to the{" "}
-                            <a className="underline text-white" href="/terms-and-conditions">
-                              Terms
-                            </a>{" "}
-                            and{" "}
-                            <a className="underline text-white" href="/privacy-policy">
-                              Privacy Policy
-                            </a>
-                            .
-                          </span>
-                        </label>
-
-                        <button
-                          type="submit"
-                          className="mt-3 w-full text-white px-6 py-3.5 rounded-full bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-base"
-                        >
-                          Submit
-                        </button>
+                      </label>
+                      <div className="flex-1 px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm flex items-center font-medium">
+                        {cvName ? (
+                          <span className="truncate text-green-600">✓ {cvName}</span>
+                        ) : (
+                          <span className="text-gray-500">No file selected</span>
+                        )}
                       </div>
                     </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Two-panel info section (like screenshot) */}
-      <section className="relative z-10 w-full mx-auto p-left p-right pt-14 md:pt-24">
-        <div className="overflow-hidden">
-          {/* Top white panel */}
-          <div className="bg-white">
-            <div className="py-12 md:py-16 max-w-7xl mx-auto">
-              <div className="grid gap-10 md:grid-cols-2 items-center">
-                <div className="flex justify-center md:justify-start">
-                  <div className="bg-[#000237]/5 border-[5px] border-[#2D2D2D] rounded-[26px] p-6">
-                    <img src="/img/martian.png" alt="" className="w-[220px] h-[220px] md:w-[280px] md:h-[280px] object-contain" />
                   </div>
-                </div>
-                <div className="text-center md:text-left">
-                  <h2 className="text-[#B4005A] text-2xl md:text-4xl font-extrabold leading-tight">
-                    We’re looking for energetic, enthusiastic teachers
-                  </h2>
-                  <p className="text-[#212429]/80 mt-4 md:text-lg leading-7">
-                    We create short, interactive lessons and we care a lot about teaching quality.
-                    If you enjoy helping learners grow, we’d love to hear from you.
-                  </p>
-                  <p className="text-[#212429]/70 mt-4 text-sm md:text-base leading-7">
-                    Share your experience, your availability, and a short introduction. Our team will review your
-                    application and contact you if there’s a match.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Diagonal magenta panel */}
-          <div className="relative">
-            <div
-              className="absolute inset-0 bg-[#B4005A]"
-              style={{ clipPath: "polygon(0 0, 100% 18%, 100% 100%, 0 82%)" }}
-              aria-hidden="true"
-            />
-            <div className="relative py-14 md:py-20 max-w-7xl mx-auto">
-              <div className="grid gap-10 md:grid-cols-2 items-center">
-                <div className="text-center md:text-left">
-                  <h3 className="text-white text-2xl md:text-4xl font-extrabold leading-tight">
-                    Work when and where you want
-                  </h3>
-                  <p className="text-white/90 mt-4 md:text-lg leading-7">
-                    Teach online from home with structured lesson materials. You’ll have clear guidance,
-                    support from our team, and a simple process for scheduling.
-                  </p>
-                  <p className="text-white/80 mt-4 text-sm md:text-base leading-7">
-                    We focus on quality: lessons are reviewed and we share coaching suggestions so teachers
-                    can improve continuously.
-                  </p>
-                </div>
-
-                <div className="flex justify-center md:justify-end">
-                  <div className="rounded-[26px] p-6">
-                    <img src="/img/ufo.png" alt="" className="w-[220px] h-[220px] md:w-[280px] md:h-[280px] object-contain" />
+                  <div>
+                    <label className="block text-white text-sm font-bold mb-2">Cover Letter (Optional)</label>
+                    <textarea
+                      className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 min-h-[140px] focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all resize-none"
+                      placeholder="Tell us about yourself, your experience, and why you'd be a great fit for our team..."
+                    />
                   </div>
+
+                  <label className="flex items-start gap-3 text-sm text-white/95 mt-2 cursor-pointer hover:text-white transition-colors">
+                    <input type="checkbox" className="mt-1 w-4 h-4 cursor-pointer accent-[#0058C9]" required />
+                    <span>
+                      I agree to the{" "}
+                      <a className="underline text-white font-bold hover:text-white/80 transition-colors" href="/terms-and-conditions">
+                        Terms & Conditions
+                      </a>{" "}
+                      and{" "}
+                      <a className="underline text-white font-bold hover:text-white/80 transition-colors" href="/privacy-policy">
+                        Privacy Policy
+                      </a>
+                    </span>
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="mt-4 w-full text-white px-6 py-4 rounded-full bg-gradient-to-r from-[#CB4913] to-[#B4005A] hover:from-[#cb6c13f1] hover:to-[#c91066] border-2 border-[#2D2D2D] text-lg font-bold shadow-xl transform transition-all duration-200 hover:scale-105 active:scale-95"
+                  >
+                    Submit Application 🚀
+                  </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Join Us Section */}
+      <section className="relative z-10 w-full mx-auto p-left p-right py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-[#B4005A] text-3xl md:text-5xl font-extrabold mb-4">
+              Why Join Our Team?
+            </h2>
+            <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto">
+              We're building something special, and we want passionate educators to be part of it
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 items-center">
+            <div className="flex justify-center">
+              <div className="bg-gradient-to-br from-[#0058C9]/10 to-[#B4005A]/10 border-[5px] border-[#2D2D2D] rounded-[26px] p-8 shadow-xl">
+                <img src="/img/martian.png" alt="" className="w-[240px] h-[240px] md:w-[320px] md:h-[320px] object-contain" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-[#0058C9] text-2xl md:text-3xl font-bold mb-6">
+                Energetic & Enthusiastic Teachers Welcome
+              </h3>
+              <p className="text-gray-700 text-lg leading-8 mb-4">
+                We create short, interactive lessons and we care deeply about teaching quality.
+                If you enjoy helping learners grow, we'd love to hear from you.
+              </p>
+              <p className="text-gray-600 leading-7">
+                Share your experience, your availability, and a short introduction. Our team will review your
+                application and contact you if there's a match.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Flexibility Section */}
+      <section className="relative z-10 w-full py-16 md:py-24 bg-gradient-to-br from-[#B4005A] to-[#5B2AA6]">
+        <div className="max-w-7xl mx-auto p-left p-right">
+          <div className="grid gap-10 md:grid-cols-2 items-center">
+            <div className="text-center md:text-left text-white">
+              <h3 className="text-3xl md:text-5xl font-extrabold mb-6">
+                Work When & Where You Want
+              </h3>
+              <p className="text-white/95 text-lg md:text-xl leading-8 mb-4">
+                Teach online from home with structured lesson materials. You'll have clear guidance,
+                support from our team, and a simple process for scheduling.
+              </p>
+              <p className="text-white/85 leading-7">
+                We focus on quality: lessons are reviewed and we share coaching suggestions so teachers
+                can improve continuously.
+              </p>
+            </div>
+
+            <div className="flex justify-center md:justify-end">
+              <div className="animate-float">
+                <img src="/img/ufo.png" alt="" className="w-[240px] h-[240px] md:w-[320px] md:h-[320px] object-contain drop-shadow-2xl" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Teacher profile requirements section (like screenshot) */}
-      <section className="relative z-10 w-full p-left p-right">
-        <div className="overflow-hidden">
-          <div className="bg-white px-6 md:px-12 py-12 md:py-16">
-            <div className="grid gap-10 md:grid-cols-2 items-center mx-auto max-w-7xl">
-              <div className="flex justify-center md:justify-start">
-                <div className="bg-[#000237]/5 border-[5px] border-[#2D2D2D] rounded-[26px] p-6">
-                  {/* Placeholder illustration — swap to your hiring artwork later */}
-                  <img
-                    src="/img/lecture.png"
-                    alt=""
-                    className="w-[260px] h-[260px] md:w-[360px] md:h-[360px] object-cover rounded-[18px] border-2 border-[#2D2D2D]"
-                  />
-                </div>
+      {/* Requirements Section */}
+      <section className="relative z-10 w-full p-left p-right py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid gap-12 md:grid-cols-2 items-center">
+            <div className="flex justify-center md:justify-start order-2 md:order-1">
+              <div className="bg-gradient-to-br from-[#0058C9]/10 to-[#5B2AA6]/10 border-[5px] border-[#2D2D2D] rounded-[26px] p-8 shadow-xl">
+                <img
+                  src="/img/lecture.png"
+                  alt=""
+                  className="w-[280px] h-[280px] md:w-[380px] md:h-[380px] object-cover rounded-[20px] border-2 border-[#2D2D2D]"
+                />
               </div>
+            </div>
 
-              <div className="text-center md:text-left">
-                <h2 className="text-[#0058C9] text-2xl md:text-5xl font-extrabold leading-tight">
-                  Perfil de los profesores
-                </h2>
+            <div className="order-1 md:order-2">
+              <h2 className="text-[#0058C9] text-3xl md:text-5xl font-extrabold mb-8">
+                Perfil de los Profesores
+              </h2>
 
-                <ul className="mt-6 space-y-2 text-[#212429]/80 md:text-lg leading-7">
-                  {[
-                    "Excelentes oradores.",
-                    "Carrera universitaria.",
-                    "Pacientes, amables y sobre todo divertidos.",
-                    "Experiencia en el trato con niños.",
-                    "Tener cierta disponibilidad a cualquier hora entre las 3:30PM y las 12:30AM del horario estadounidense durante la semana, y de 9:00AM a 12:30AM los fines de semana.",
-                    "Conexión a Internet fiable y de alta velocidad.",
-                    "Un lugar bien iluminado, sin ruido, tranquilo y sin interrupciones para dar las clases.",
-                    "Imprescindible ser puntual y organizado.",
-                  ].map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-3 inline-block w-2 h-2 rounded-full bg-[#212429]/50" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="space-y-4 text-gray-700 text-base md:text-lg">
+                {[
+                  "Excelentes oradores",
+                  "Carrera universitaria",
+                  "Pacientes, amables y sobre todo divertidos",
+                  "Experiencia en el trato con niños",
+                  "Disponibilidad entre 3:30PM - 12:30AM (horario estadounidense) durante la semana, y 9:00AM - 12:30AM los fines de semana",
+                  "Conexión a Internet fiable y de alta velocidad",
+                  "Lugar bien iluminado, sin ruido, tranquilo y sin interrupciones",
+                  "Imprescindible ser puntual y organizado",
+                ].map((item, idx) => (
+                  <li key={idx} className="flex gap-4 items-start group hover:translate-x-2 transition-transform">
+                    <span className="mt-2 inline-block w-3 h-3 rounded-full bg-gradient-to-r from-[#0058C9] to-[#B4005A] flex-shrink-0 group-hover:scale-125 transition-transform" />
+                    <span className="font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Full-width CTA strip (like screenshot) */}
+      {/* CTA Section */}
       <section className="relative z-10">
-        <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-[#5B2AA6]">
-          <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-10 md:py-12 text-center">
-            <div className="text-white text-xl md:text-3xl font-semibold">
-              Si encajas en el perfil, no lo dudes más!
+        <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-gradient-to-r from-[#5B2AA6] to-[#B4005A]">
+          <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-14 md:py-16 text-center">
+            <div className="text-white text-2xl md:text-4xl font-bold mb-3">
+              ¿Si encajas en el perfil, no lo dudes más!
             </div>
-            <div className="text-white/85 text-sm md:text-base mt-2">
-              Rellena el formulario y nos pondremos encontacto contigo
+            <div className="text-white/90 text-base md:text-lg mb-8">
+              Rellena el formulario y nos pondremos en contacto contigo
             </div>
 
-            <div className="mt-5 flex justify-center">
-              <a
-                href="#cv-form"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("cv-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                className="text-white cursor-pointer px-8 py-3 rounded-full bg-[#B10C4B] hover:bg-[#B10C4B]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
-              >
-                Join the fun with Kids&apos; Club!
-              </a>
-            </div>
+            <a
+              href="#cv-form"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("cv-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="inline-block text-white cursor-pointer px-10 py-4 rounded-full bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-lg font-bold shadow-2xl transform transition-all duration-200 hover:scale-110 active:scale-95"
+            >
+              Join the Fun with Kids' Club! 🎉
+            </a>
           </div>
         </div>
       </section>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}</style>
 
       <Footer />
     </main>
   );
 }
-

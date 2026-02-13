@@ -3,8 +3,10 @@
 import React from "react";
 import AOS from "aos";
 import dynamic from "next/dynamic";
-import { Headphones, MessageCircle, PenLine, BookOpen, Image, Gamepad2, FileText, LayoutGrid, Trophy } from "lucide-react";
+import { Headphones, MessageCircle, PenLine, BookOpen } from "lucide-react";
 import Footer from "@/components/main/footer";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import ThreeDIcon from "@/components/ThreeDIcon";
 
 const SparklesCore = dynamic(() => import("@/components/ui/sparkles"), { ssr: false });
 const Meteors = dynamic(() => import("@/components/ui/meteors"), { ssr: false });
@@ -213,11 +215,11 @@ export default function Home() {
 
         <div className="grid gap-6 md:grid-cols-5">
           {[
-            { label: "Illustrated Flashcards", color: "#5B2AA6", icon: Image, href: "/lessons" },
-            { label: "Themed Games", color: "#B4005A", icon: Gamepad2, href: "/vocab" },
-            { label: "Interactive Worksheets", color: "#D97706", icon: FileText, href: "/quizzes" },
-            { label: "Educational Board Games", color: "#0058C9", icon: LayoutGrid, href: "/lessons" },
-            { label: "Gamified Activities", color: "#00A3D9", icon: Trophy, href: "/lessons" },
+            { label: "Illustrated Flashcards", color: "#5B2AA6", iconType: "image" as const, href: "/" },
+            { label: "Themed Games", color: "#B4005A", iconType: "gamepad" as const, href: "/" },
+            { label: "Interactive Worksheets", color: "#D97706", iconType: "file" as const, href: "/" },
+            { label: "Educational Board Games", color: "#0058C9", iconType: "grid" as const, href: "/" },
+            { label: "Gamified Activities", color: "#00A3D9", iconType: "trophy" as const, href: "/" },
           ].map((item) => (
             <Link
               key={item.label}
@@ -228,8 +230,8 @@ export default function Home() {
               <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[280px]">
                 <div className="w-full">
                   <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
-                    <div className="aspect-square w-full flex items-center justify-center">
-                      <item.icon className="w-[80px] h-[80px] text-white/90" strokeWidth={1.2} aria-hidden="true" />
+                    <div className="aspect-square w-full">
+                      <ThreeDIcon iconType={item.iconType} color="#ffffff" />
                     </div>
                   </div>
                 </div>
@@ -249,84 +251,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
-        <div className="text-center mb-8">
-          <h2 className="text-white md:text-6xl text-3xl">What learners say</h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            {
-              badgeBg: "#5B2AA6",
-              title: "Ms. Celia was wonderful",
-              body:
-                "I really like the short lessons and the practice questions. I can learn a little every day and feel more confident.",
-              author: "Mina, 9 years old",
-              icon: (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M12 17.3l-5.2 3 1.4-5.9L3.5 10l6.1-.5L12 4l2.4 5.5 6.1.5-4.7 4.4 1.4 5.9-5.2-3Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ),
-            },
-            {
-              badgeBg: "#B4005A",
-              title: "You always make me happy!",
-              body:
-                "I like the quizzes because I can see the answers right away. The explanations help me understand my mistakes.",
-              author: "Kaito, 10 years old",
-              icon: (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M12 21s-7-4.4-9.5-8.3C.7 9.6 2.3 6.6 5.5 6.2c1.8-.2 3.3.6 4.2 1.8.9-1.2 2.4-2 4.2-1.8 3.2.4 4.8 3.4 3 6.5C19 16.6 12 21 12 21Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ),
-            },
-            {
-              badgeBg: "#D97706",
-              title: "This teacher was amazing!",
-              body:
-                "The vocabulary sets are my favorite. The examples are easy, and I can remember new words faster.",
-              author: "Cathan, 8 years old",
-              icon: (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M12 2a7 7 0 0 0-7 7v2.5A4.5 4.5 0 0 0 9.5 16H10v4l4-2 4 2v-4h.5A4.5 4.5 0 0 0 23 11.5V9a7 7 0 0 0-7-7h-4Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ),
-            },
-          ].map((t) => (
-            <div
-              key={t.title}
-              className="mars-content border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden"
-            >
-              <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
-                <div className="bg-white/95 text-[#212429] rounded-[18px] border-2 border-[#2D2D2D] p-6 min-h-[360px] flex flex-col">
-                  <div className="flex justify-center -mt-10 mb-4">
-                    <div
-                      className="w-10 h-10 rounded-full border-2 border-[#2D2D2D] flex items-center justify-center text-white"
-                      style={{ backgroundColor: t.badgeBg }}
-                      aria-hidden="true"
-                    >
-                      {t.icon}
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl md:text-2xl text-center mb-4">{t.title}</h3>
-                  <p className="text-sm md:text-base leading-6 text-[#3b3f46] flex-1">{t.body}</p>
-                  <div className="text-[#0058C9] text-sm md:text-base mt-6 font-semibold">{t.author}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <TestimonialsSection />
 
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
         <div className="flex justify-center mb-6">
@@ -403,9 +328,9 @@ export default function Home() {
           >
             <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[280px]">
               <div className="w-full">
-                <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
+                <div className="border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/logo-5.png" alt="" className="w-full h-full object-cover" />
+                    <img src="/img/logo-5.png" alt="" className="w-full h-full object-contain rounded-[40px]" />
                   </div>
                 </div>
               </div>
@@ -427,7 +352,7 @@ export default function Home() {
               <div className="w-full">
                 <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/logo4.png" alt="" className="w-full h-full object-cover" />
+                    <img src="/img/logo4.png" alt="" className="w-full h-full object-contain" />
                   </div>
                 </div>
               </div>
@@ -449,7 +374,7 @@ export default function Home() {
               <div className="w-full">
                 <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/logo-4.png" alt="" className="w-full h-full object-cover" />
+                    <img src="/img/logo-4.png" alt="" className="w-full h-full object-contain" />
                   </div>
                 </div>
               </div>

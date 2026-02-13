@@ -1608,3 +1608,15 @@ canvas {
 .nft-item:hover .nft {
   transform: scale(1.2);
 }
+
+/* Teacher cards fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

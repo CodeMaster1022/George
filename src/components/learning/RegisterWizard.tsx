@@ -37,16 +37,23 @@ function daysInMonth(year: number, month1to12: number) {
   return new Date(year, month1to12, 0).getDate();
 }
 
-function StepPill({ active, done, label }: { active?: boolean; done?: boolean; label: string }) {
+function StepPill({ active, done, label, number }: { active?: boolean; done?: boolean; label: string; number: number }) {
   const base =
-    "px-3 py-2 rounded-xl border-2 border-[#2D2D2D] text-xs md:text-sm font-semibold";
+    "px-4 py-2.5 rounded-xl border-2 border-[#2D2D2D] text-xs md:text-sm font-semibold flex items-center gap-2 transition-all duration-200";
   const cls = done
-    ? `${base} bg-[#22C55E] text-white`
+    ? `${base} bg-[#22C55E] text-white shadow-lg`
     : active
-      ? `${base} bg-[#CB4913] text-white`
-      : `${base} bg-white/10 text-white/80`;
+      ? `${base} bg-[#CB4913] text-white shadow-lg`
+      : `${base} bg-white/10 text-white/60`;
 
-  return <div className={cls}>{label}</div>;
+  return (
+    <div className={cls}>
+      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${done ? 'bg-white/20' : active ? 'bg-white/20' : 'bg-white/10'}`}>
+        {done ? '✓' : number}
+      </span>
+      <span>{label}</span>
+    </div>
+  );
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -112,11 +119,11 @@ function ActionButton({
   type?: "button" | "submit";
 }) {
   const base =
-    "w-full text-white px-6 py-3.5 rounded-full border-2 border-[#2D2D2D] text-base font-semibold transition-colors";
+    "w-full text-white px-6 py-3.5 rounded-full border-2 border-[#2D2D2D] text-base font-semibold transition-all duration-200 transform";
   const cls =
     variant === "primary"
-      ? `${base} bg-[#CB4913] hover:bg-[#cb6c13f1]`
-      : `${base} bg-[#000237]/60 hover:bg-white/10`;
+      ? `${base} bg-[#CB4913] hover:bg-[#cb6c13f1] hover:scale-[1.02] active:scale-[0.98] shadow-lg`
+      : `${base} bg-[#000237]/60 hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]`;
 
   return (
     <button
@@ -125,7 +132,7 @@ function ActionButton({
       onClick={onClick}
       className={[
         cls,
-        disabled ? "opacity-60 cursor-not-allowed pointer-events-none" : "",
+        disabled ? "opacity-50 cursor-not-allowed pointer-events-none hover:scale-100" : "",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -297,32 +304,33 @@ export default function RegisterWizard() {
       <div className="w-full max-w-[980px] mx-auto">
         <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center">
           <div className="p-6 md:p-10 bg-[#000237]/50 backdrop-blur-sm">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
               <div>
-                <h1 className="text-white text-2xl md:text-4xl font-extrabold">Register</h1>
-                <p className="text-white/80 mt-2 text-sm md:text-base">
-                  Create your student account and tell us about your child.
+                <h1 className="text-white text-3xl md:text-5xl font-extrabold">Student Registration</h1>
+                <p className="text-white/80 mt-3 text-sm md:text-base max-w-2xl">
+                  Join our learning community and start your Spanish journey today
                 </p>
               </div>
-              <div className="text-white/80 text-sm">
-                Already have an account?{" "}
-                <Link href="/login" className="underline text-white">
-                  Login
+              <div className="text-white/80 text-sm bg-white/10 px-4 py-2 rounded-lg border border-white/20">
+                Already registered?{" "}
+                <Link href="/login" className="underline text-white font-semibold hover:text-white/90 transition-colors">
+                  Sign In
                 </Link>
               </div>
             </div>
 
             {/* Step pills */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              <StepPill label="Account" active={step === "account"} done={["verify", "parent", "student", "done"].includes(step)} />
-              <StepPill label="Verify email" active={step === "verify"} done={["parent", "student", "done"].includes(step)} />
-              <StepPill label="Parent info" active={step === "parent"} done={["student", "done"].includes(step)} />
-              <StepPill label="Student info" active={step === "student"} done={step === "done"} />
+            <div className="mt-8 flex flex-wrap gap-3">
+              <StepPill number={1} label="Account" active={step === "account"} done={["verify", "parent", "student", "done"].includes(step)} />
+              <StepPill number={2} label="Verify Email" active={step === "verify"} done={["parent", "student", "done"].includes(step)} />
+              <StepPill number={3} label="Parent Info" active={step === "parent"} done={["student", "done"].includes(step)} />
+              <StepPill number={4} label="Student Info" active={step === "student"} done={step === "done"} />
             </div>
 
             {error ? (
-              <div className="mt-6 border-2 border-[#2D2D2D] bg-[#B4005A]/40 text-white rounded-xl px-4 py-3 text-sm">
-                {error}
+              <div className="mt-6 border-2 border-red-400 bg-red-500/20 text-white rounded-xl px-4 py-3.5 text-sm flex items-start gap-3">
+                <span className="text-lg">⚠️</span>
+                <span>{error}</span>
               </div>
             ) : null}
 

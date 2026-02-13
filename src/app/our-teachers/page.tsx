@@ -1,105 +1,60 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+
 import Footer from "@/components/main/footer";
 import Link from "next/link";
 import BlockTitle from "@/components/learning/BlockTitle";
+import { motion } from "framer-motion";
 
 const TEACHERS = [
   {
-    name: "Professor Nuvys",
-    country: "Cuba",
+    name: "Teacher Natalia",
+    country: "Ecuadro",
     quote: "My student improved quickly and felt confident speaking in class.",
-    img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/f7b58e5e-2e6a-436b-930d-9abcf37d5ecb.png",
   },
   {
-    name: "Professor Fredo",
-    country: "Mexico",
+    name: "Teacher Josh",
+    country: "Ecuadro",
     quote: "Short missions keep lessons fun and focused from start to finish.",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/2807fc4f-513f-4f87-933e-1b3138e29b7a.png",
   },
   {
-    name: "Professor Maritza",
-    country: "Puerto Rico",
+    name: "Teacher Taiba",
+    country: "Ecuadro",
     quote: "Clear explanations and practice help learners remember new words.",
-    img: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/06dd409b-150a-4f04-9a4f-4678ce297f2a.png",
   },
   {
-    name: "Professor Rodri",
-    country: "Spain",
+    name: "Teacher Pameia",
+    country: "Ecuadro",
     quote: "We learn step by step, and every lesson ends with a quick check.",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/62ea9f14-e720-4f20-b867-e6bfc9eb8be8.png",
   },
   {
-    name: "Professor Sindy",
-    country: "Mexico",
+    name: "Teacher Estefania",
+    country: "Ecuadro",
     quote: "Friendly guidance and simple examples make learning feel easy.",
-    img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/5b4ba08d-a79f-48f3-a4fd-93184e826bae.png",
   },
   {
-    name: "Professor Luis",
-    country: "Mexico",
+    name: "Teacher Johanna",
+    country: "Ecuadro",
     quote: "Practice prompts help students use new grammar in real sentences.",
-    img: "/img/luis.jpg",
+    img: "https://stgeorge.ec/img/Profesores/55858efb-17db-4e60-8f13-bfa53d916630.png",
   },
   {
-    name: "Professor Laura",
-    country: "Spain",
+    name: "Teacher Estefania",
+    country: "Ecuadro",
     quote: "Vocabulary sets by topic make daily learning simple and fast.",
-    img: "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&w=800&q=80",
+    img: "https://stgeorge.ec/img/Profesores/eb3eeced-c55e-4266-a034-cd18052b72b4.png",
   },
   {
-    name: "Professor Gabbi",
-    country: "Bolivia",
+    name: "Teacher Anita",
+    country: "Ecuadro",
     quote: "Quizzes with explanations help students learn from mistakes.",
-    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Ana",
-    country: "Colombia",
-    quote: "Kids stay engaged with interactive activities and short tasks.",
-    img: "/img/ana.jpg",
-  },
-  {
-    name: "Professor Mateo",
-    country: "Argentina",
-    quote: "We repeat key phrases so they become natural to say.",
-    img: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Sofia",
-    country: "Chile",
-    quote: "We build confidence with small wins every lesson.",
-    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Daniel",
-    country: "Peru",
-    quote: "Learners practice speaking with clear, useful phrases.",
-    img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Valeria",
-    country: "Ecuador",
-    quote: "We focus on real-world English, not just memorization.",
-    img: "/img/valeria.jpg",
-  },
-  {
-    name: "Professor Camila",
-    country: "Uruguay",
-    quote: "We help students pronounce words clearly and naturally.",
-    img: "https://images.unsplash.com/photo-1550525811-e5869dd03032?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Diego",
-    country: "Venezuela",
-    quote: "Short quizzes keep motivation high and progress visible.",
-    img: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Professor Elena",
-    country: "Costa Rica",
-    quote: "Simple steps and friendly feedback make learners improve faster.",
-    img: "https://images.unsplash.com/photo-1545996124-0501ebae84d0?auto=format&fit=crop&w=800&q=80",
-  },
+    img: "https://stgeorge.ec/img/Profesores/411ff372-0b04-45c8-9571-b443e6d66183.png",
+  }
 ];
 
 export default function OurTeachersPage() {
@@ -119,13 +74,23 @@ export default function OurTeachersPage() {
             <div className="absolute inset-0 flex items-center justify-center px-4">
               <div className="max-w-[900px] text-center">
                 <BlockTitle text="Our Teachers" className="mb-6 md:mb-8" />
-                <p className="text-white/90 mt-4 md:text-xl leading-8">
+                {/* <p className="text-white/90 mt-4 md:text-xl leading-8">
                   At St. George, we use our exclusive methodology called Path to Fluency, designed to help students learn English in a natural, structured, and engaging way—just like acquiring their first language.
                 </p>
                 <p className="text-white/90 mt-4 md:text-xl leading-8">
                   Our methodology is based on four essential language skills: Listening First, Speaking with Confidence, Writing with Purpose, and Reading for Understanding.
-                </p>
+                </p> */}
+                <motion.p 
+                  className="text-white/90 mt-4 md:text-xl leading-8 text-left"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+                >
+                  Learn English in a natural and practical context by studying real-life situations that will allow you to excel in the language. Our teaching materials are designed to make our classes not only informative but also incredibly entertaining.
+Furthermore, we adapt our curriculum to each student's age, ensuring that learning is both natural and fascinating. Join us now and experience the most engaging and effective English training program available!
 
+                </motion.p>
                 <div className="mt-8 md:mt-10 flex flex-wrap justify-center gap-3 md:gap-4">
                   <Link
                     href="/contact"
@@ -145,7 +110,7 @@ export default function OurTeachersPage() {
           </div>
 
           {/* Path to Fluency Section */}
-          <div className="bg-setting bg-[url('/img/bg6.jpg')]">
+          {/* <div className="bg-setting bg-[url('/img/bg6.jpg')]">
             <div className="px-6 md:px-12 py-12 md:py-20">
               <div className="text-center mb-10">
                 <h2 className="text-white md:text-5xl text-2xl">Path to Fluency: Four Essential Skills</h2>
@@ -193,10 +158,10 @@ export default function OurTeachersPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Custom Materials Section */}
-          <div className="bg-setting bg-[url('/img/bg6.jpg')]">
+          {/* <div className="bg-setting bg-[url('/img/bg6.jpg')]">
             <div className="px-6 md:px-12 py-12 md:py-20">
               <div className="text-center mb-10">
                 <h2 className="text-white md:text-5xl text-2xl">Custom Materials for Every Student</h2>
@@ -248,10 +213,10 @@ export default function OurTeachersPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Teacher Selection Section */}
-          <div className="bg-setting bg-[url('/img/bg6.jpg')]">
+          <div className="bg-setting bg-[url('/img/bg6.jpg')] max-w-[1300px] w-full mx-auto">
             <div className="px-6 md:px-12 py-12 md:py-20">
               <div className="text-center mb-10">
                 <h2 className="text-white md:text-5xl text-2xl">Our Teacher Selection Process</h2>
@@ -264,22 +229,22 @@ export default function OurTeachersPage() {
                   {
                     title: "Selection Process",
                     desc: "We select teachers for clarity, patience, and kid-friendly communication.",
-                    img: "https://unpkg.com/lucide-static@latest/icons/users.svg",
+                    img: "/img/icon1.png",
                   },
                   {
                     title: "Energy and Charisma",
                     desc: "Lessons are lively and engaging to keep attention from start to finish.",
-                    img: "https://unpkg.com/lucide-static@latest/icons/sparkles.svg",
+                    img: "/img/icon2.png",
                   },
                   {
                     title: "High Energy",
                     desc: "Interactive practice makes learners participate—not just watch.",
-                    img: "https://unpkg.com/lucide-static@latest/icons/zap.svg",
+                    img: "/img/icon3.png",
                   },
                   {
                     title: "Child's Attention",
                     desc: "Short missions and clear steps help build confidence quickly.",
-                    img: "https://unpkg.com/lucide-static@latest/icons/target.svg",
+                    img: "/img/icon4.png",
                   },
                 ].map((c) => (
                   <div
@@ -288,8 +253,8 @@ export default function OurTeachersPage() {
                   >
                     <div className="p-7 md:p-8 text-center">
                       <div className="flex justify-center mb-6">
-                        <div className="bg-white/10 border-2 border-[#2D2D2D] rounded-[18px] p-4">
-                          <img src={c.img} alt="" className="w-[96px] h-[96px] md:w-[110px] md:h-[110px] object-contain" />
+                        <div className="">
+                          <img src={c.img} alt="" className="w-[96px] h-[96px] md:w-[120px] md:h-[120px] object-cover rounded-full" />
                         </div>
                       </div>
                       <h3 className="text-white text-xl md:text-2xl">{c.title}</h3>
@@ -299,13 +264,13 @@ export default function OurTeachersPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </div>  
         </div>
       </section>
 
       {/* Quality Monitoring Section */}
-      <section className="relative z-10 max-w-[1700px] mx-auto p-left p-right pb-16 md:pb-24">
-        <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden relative">
+      <section className="relative z-10 max-w-full mx-auto p-left p-right pb-16 md:pb-24">
+        <div className="border-[5px] border-[#2D2D2D] overflow-hidden relative">
           <div
             className="absolute inset-0 bg-[#0058C9]"
             style={{ clipPath: "polygon(0 0, 100% 18%, 100% 100%, 0 82%)" }}
@@ -343,38 +308,90 @@ export default function OurTeachersPage() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {TEACHERS.map((t) => {
+          {TEACHERS.map((t, index) => {
             return (
-              <div
+              <motion.div
                 key={t.name}
-                className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: index * 0.1,
+                  ease: [0.25, 0.4, 0.25, 1]
+                }}
+                whileHover={{ 
+                  scale: 1.08,
+                  rotateY: 5,
+                  rotateX: 5,
+                  z: 50,
+                  transition: { duration: 0.3 }
+                }}
+                style={{ 
+                  transformStyle: 'preserve-3d',
+                  perspective: 1000
+                }}
+                className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden
+                  hover:border-[#0058C9] hover:bg-white/15 cursor-pointer hover:shadow-2xl hover:shadow-[#0058C9]/50"
               >
                 <div className="p-5">
-                  <div className="relative">
-                    <div className="rounded-[18px] border-2 border-[#2D2D2D] overflow-hidden bg-[#000237]/30">
-                      <div className="aspect-square w-full">
-                        <img src={t.img} alt="" className="w-full h-full object-cover" />
+                  <motion.div 
+                    className="relative group"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="rounded-[18px] border-2 border-[#2D2D2D] overflow-hidden bg-[#000237]/30
+                      transition-all duration-300 group-hover:border-[#0058C9] group-hover:shadow-lg group-hover:shadow-[#0058C9]/20">
+                      <div className="aspect-square w-full overflow-hidden">
+                        <motion.img 
+                          src={t.img} 
+                          alt="" 
+                          className="w-full h-full object-cover"
+                          whileHover={{ scale: 1.15, rotate: 2 }}
+                          transition={{ duration: 0.4 }}
+                        />
                       </div>
                     </div>
-                    <div className="absolute right-2 bottom-2 w-7 h-7 rounded-md border-2 border-[#2D2D2D] bg-white/90 flex items-center justify-center">
+                    <motion.div 
+                      className="absolute right-2 bottom-2 w-7 h-7 rounded-md border-2 border-[#2D2D2D] bg-white/90 
+                        flex items-center justify-center"
+                      whileHover={{ 
+                        scale: 1.2, 
+                        backgroundColor: "#EF4444",
+                        borderColor: "#fff"
+                      }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path
                           d="M10 8.5v7l6-3.5-6-3.5Z"
                           fill="#EF4444"
+                          className="group-hover:fill-white"
                         />
                       </svg>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
 
-                  <div className="mt-4">
-                    <div className="text-[#60a5fa] text-sm font-semibold">{t.name}</div>
+                  <motion.div 
+                    className="mt-4"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 + 0.2 }}
+                  >
+                    <motion.div 
+                      className="text-[#60a5fa] text-sm font-semibold"
+                      whileHover={{ color: "#0058C9", x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {t.name}
+                    </motion.div>
                     <div className="text-white/70 text-xs mt-0.5">{t.country}</div>
                     <p className="text-white/85 text-sm leading-6 mt-3">
                       &quot;{t.quote}&quot;
                     </p>
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

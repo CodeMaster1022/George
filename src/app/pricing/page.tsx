@@ -1,7 +1,11 @@
+"use client";
+
 import Footer from "@/components/main/footer";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function PricingPage() {
+  const router = useRouter();
   return (
     <main className="min-h-screen">
       {/* Pricing hero (first part like screenshot) */}
@@ -16,9 +20,9 @@ export default function PricingPage() {
               {/* Ticket cards */}
               <div className="flex flex-wrap justify-center gap-5 md:gap-8 mb-12">
                 {[
-                  { title: "Admit one", price: "$20", sub: "$20 each class", bg: "#EF4444" },
-                  { title: "Admit five", price: "$95", sub: "$19 each class", bg: "#22C55E" },
-                  { title: "Admit ten", price: "$180", sub: "$18 each class", bg: "#F59E0B" },
+                  { title: "Admit one", price: "$20", sub: "$20 each class", bg: "#EF4444", credits: 1 },
+                  { title: "Admit five", price: "$95", sub: "$19 each class", bg: "#22C55E", credits: 5 },
+                  { title: "Admit ten", price: "$180", sub: "$18 each class", bg: "#F59E0B", credits: 10 },
                 ].map((t) => (
                   <div
                     key={t.title}
@@ -43,7 +47,12 @@ export default function PricingPage() {
                       <div className="text-xs md:text-sm mt-2 opacity-90">{t.sub}</div>
                     </div>
                     <div className="bg-white/20 border-t-[5px] border-[#2D2D2D] px-5 md:px-6 py-4">
-                      <div className="h-3.5 rounded bg-[#000]/30" aria-hidden="true" />
+                      <button
+                        onClick={() => router.push('/register')}
+                        className="w-full bg-white text-gray-900 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-sm md:text-base"
+                      >
+                        Buy Now
+                      </button>
                     </div>
                   </div>
                 ))}
