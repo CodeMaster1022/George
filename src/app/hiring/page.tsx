@@ -23,7 +23,7 @@ export default function HiringPage() {
           <div className="text-center lg:text-left">
             <div className="inline-block mb-6">
               <div className="text-[#0058C9] text-6xl md:text-8xl font-extrabold leading-none drop-shadow-lg animate-pulse">
-                WE'RE
+                WE&apos;RE
               </div>
               <div className="text-[#B4005A] text-6xl md:text-8xl font-extrabold leading-none drop-shadow-lg mt-2">
                 HIRING!
@@ -290,7 +290,7 @@ export default function HiringPage() {
               }}
               className="inline-block text-white cursor-pointer px-10 py-4 rounded-full bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-lg font-bold shadow-2xl transform transition-all duration-200 hover:scale-110 active:scale-95"
             >
-              Join the Fun with Kids' Club! 🎉
+              Join the Fun with Kids&apos; Club! 🎉
             </a>
           </div>
         </div>
