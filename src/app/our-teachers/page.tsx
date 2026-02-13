@@ -88,7 +88,7 @@ export default function OurTeachersPage() {
                   transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
                 >
                   Learn English in a natural and practical context by studying real-life situations that will allow you to excel in the language. Our teaching materials are designed to make our classes not only informative but also incredibly entertaining.
-Furthermore, we adapt our curriculum to each student's age, ensuring that learning is both natural and fascinating. Join us now and experience the most engaging and effective English training program available!
+Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that learning is both natural and fascinating. Join us now and experience the most engaging and effective English training program available!
 
                 </motion.p>
                 <div className="mt-8 md:mt-10 flex flex-wrap justify-center gap-3 md:gap-4">

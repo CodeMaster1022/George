@@ -31,7 +31,7 @@ export default function HiringPage() {
             </div>
 
             <p className="text-gray-700 text-lg md:text-xl leading-8 max-w-[640px] mx-auto lg:mx-0 font-medium mb-8">
-              Join our passionate teaching team and make a difference in students' lives. 
+              Join our passionate teaching team and make a difference in students&apos; lives. 
               Share your expertise and inspire the next generation of learners.
             </p>
 
@@ -68,7 +68,7 @@ export default function HiringPage() {
                     Apply Now
                   </h2>
                   <p className="text-white/90 text-sm md:text-base mt-3">
-                    Send us your CV and we'll be in touch
+                    Send us your CV and we&apos;ll be in touch
                   </p>
                 </div>
 
@@ -137,7 +137,7 @@ export default function HiringPage() {
                     <label className="block text-white text-sm font-bold mb-2">Cover Letter (Optional)</label>
                     <textarea
                       className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 min-h-[140px] focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all resize-none"
-                      placeholder="Tell us about yourself, your experience, and why you'd be a great fit for our team..."
+                      placeholder="Tell us about yourself, your experience, and why you&apos;d be a great fit for our team..."
                     />
                   </div>
 
@@ -176,7 +176,7 @@ export default function HiringPage() {
               Why Join Our Team?
             </h2>
             <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto">
-              We're building something special, and we want passionate educators to be part of it
+              We&apos;re building something special, and we want passionate educators to be part of it
             </p>
           </div>
 
@@ -192,11 +192,11 @@ export default function HiringPage() {
               </h3>
               <p className="text-gray-700 text-lg leading-8 mb-4">
                 We create short, interactive lessons and we care deeply about teaching quality.
-                If you enjoy helping learners grow, we'd love to hear from you.
+                If you enjoy helping learners grow, we&apos;d love to hear from you.
               </p>
               <p className="text-gray-600 leading-7">
                 Share your experience, your availability, and a short introduction. Our team will review your
-                application and contact you if there's a match.
+                application and contact you if there&apos;s a match.
               </p>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function HiringPage() {
                 Work When & Where You Want
               </h3>
               <p className="text-white/95 text-lg md:text-xl leading-8 mb-4">
-                Teach online from home with structured lesson materials. You'll have clear guidance,
+                Teach online from home with structured lesson materials. You&apos;ll have clear guidance,
                 support from our team, and a simple process for scheduling.
               </p>
               <p className="text-white/85 leading-7">
