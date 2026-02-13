@@ -270,7 +270,7 @@ export default function TeacherBookingsPage() {
                 </svg>
                 <div>
                   <h2 className="text-gray-900 text-lg font-semibold">Class Report</h2>
-                  <p className="text-gray-500 text-sm">Document the student's progress and assign homework</p>
+                  <p className="text-gray-500 text-sm">Document the student&apos;s progress and assign homework</p>
                 </div>
               </div>
             </div>
