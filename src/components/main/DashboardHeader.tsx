@@ -121,7 +121,7 @@ export default function DashboardHeader() {
   }, []);
 
   const role = (authUser?.role as string | undefined) ?? "student";
-  const homeHref = role === "teacher" ? "/teacher" : role === "admin" ? "/forum/admin" : "/ebluelearning";
+  const homeHref = role === "teacher" ? "/teacher" : role === "admin" ? "/admin/forum" : "/ebluelearning";
 
   const initials = React.useMemo(() => {
     if (authUser?.email) {
@@ -168,7 +168,7 @@ export default function DashboardHeader() {
               ) : role === "admin" ? (
                 <>
                   <NavItem href="/forum" label="Forum" />
-                  <NavItem href="/forum/admin" label="Moderation" />
+                  <NavItem href="/admin/forum" label="Moderation" />
                 </>
               ) : (
                 <>
@@ -272,7 +272,7 @@ export default function DashboardHeader() {
                   ) : role === "admin" ? (
                     <>
                       <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/forum/admin" label="Moderation" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/admin/forum" label="Moderation" onClick={() => setMobileMenuOpen(false)} />
                     </>
                   ) : (
                     <>

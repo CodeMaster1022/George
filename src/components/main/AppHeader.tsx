@@ -9,6 +9,8 @@ import DashboardHeader from "@/components/main/DashboardHeader";
 function isDashboardRoute(pathname: string | null) {
   if (!pathname) return false;
   if (pathname === "/teacher/login" || pathname === "/teacher/register") return false;
+  // Exclude admin routes from showing any header
+  if (pathname.startsWith("/admin")) return false;
   return (
     pathname === "/ebluelearning" ||
     pathname.startsWith("/ebluelearning/") ||
@@ -25,6 +27,10 @@ function isDashboardRoute(pathname: string | null) {
 
 export default function AppHeader() {
   const pathname = usePathname();
+  
+  // Don't show any header on admin pages
+  if (pathname?.startsWith("/admin")) return null;
+  
   const dashboard = isDashboardRoute(pathname);
 
   // Route-based for now (mock auth). When backend auth exists, we can gate by session too.

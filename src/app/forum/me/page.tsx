@@ -100,7 +100,7 @@ export default function ForumMePage() {
                 </Link>
                 {me?.role === "admin" ? (
                   <Link
-                    href="/forum/admin"
+                    href="/admin/forum"
                     className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#004bb0] text-white text-xs font-extrabold uppercase"
                   >
                     Admin
