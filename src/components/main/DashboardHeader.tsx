@@ -121,6 +121,7 @@ export default function DashboardHeader() {
   }, []);
 
   const role = (authUser?.role as string | undefined) ?? "student";
+  const homeHref = role === "teacher" ? "/teacher" : role === "admin" ? "/forum/admin" : "/ebluelearning";
 
   const initials = React.useMemo(() => {
     if (authUser?.email) {
@@ -148,7 +149,7 @@ export default function DashboardHeader() {
         <div className="relative z-20 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Brand */}
-            <Link href={role === "teacher" ? "/teacher" : "/ebluelearning"} className="flex items-center gap-3">
+            <Link href={homeHref} className="flex items-center gap-3">
               <img src="/img/mars-logo.png" alt="George English" className="w-10 h-10 md:w-12 md:h-12" />
               <span className="text-white font-extrabold text-lg md:text-xl">George</span>
             </Link>
@@ -162,6 +163,12 @@ export default function DashboardHeader() {
                   <NavItem href="/teacher/bookings" label="Bookings" />
                   <NavItem href="/teacher/availability" label="Availability" />
                   <NavItem href="/teacher/earnings" label="Earnings" />
+                  <NavItem href="/forum" label="Forum" />
+                </>
+              ) : role === "admin" ? (
+                <>
+                  <NavItem href="/forum" label="Forum" />
+                  <NavItem href="/forum/admin" label="Moderation" />
                 </>
               ) : (
                 <>
@@ -180,6 +187,8 @@ export default function DashboardHeader() {
                       <MenuLink href="/ebluelearning/share_credits" label="Share credits" />
                     </div>
                   </Menu>
+
+                  <NavItem href="/forum" label="Forum" />
                 </>
               )}
             </nav>

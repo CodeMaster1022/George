@@ -14,6 +14,8 @@ function isDashboardRoute(pathname: string | null) {
     pathname.startsWith("/ebluelearning/") ||
     pathname === "/teacher" ||
     pathname.startsWith("/teacher/") ||
+    pathname === "/forum" ||
+    pathname.startsWith("/forum/") ||
     pathname.startsWith("/classes") ||
     pathname.startsWith("/book") ||
     pathname.startsWith("/credits") ||

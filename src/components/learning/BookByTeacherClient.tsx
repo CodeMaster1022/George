@@ -618,7 +618,7 @@ export default function BookByTeacherClient() {
                                     active ? "bg-[#0058C9]/50" : "bg-white/10 hover:bg-white/15",
                                   ].join(" ")}
                                 >
-                                  <div className="font-extrabold">{fmt(s.startAt)} → {fmt(s.endAt)}</div>
+                                  <div className="font-extrabold">{fmtTime(s.startAt)} → {fmtTime(s.endAt)}</div>
                                   <div className="text-white/75 mt-1">Price: {s.priceCredits} credits</div>
                                 </button>
                               );
@@ -645,6 +645,18 @@ export default function BookByTeacherClient() {
 function fmt(s: string) {
   try {
     return new Date(s).toLocaleString();
+  } catch {
+    return s;
+  }
+}
+
+function fmtTime(s: string) {
+  try {
+    return new Date(s).toLocaleTimeString(undefined, { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
   } catch {
     return s;
   }

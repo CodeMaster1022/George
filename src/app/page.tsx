@@ -3,7 +3,7 @@
 import React from "react";
 import AOS from "aos";
 import dynamic from "next/dynamic";
-
+import { Headphones, MessageCircle, PenLine, BookOpen, Image, Gamepad2, FileText, LayoutGrid, Trophy } from "lucide-react";
 import Footer from "@/components/main/footer";
 
 const SparklesCore = dynamic(() => import("@/components/ui/sparkles"), { ssr: false });
@@ -63,82 +63,99 @@ export default function Home() {
       </section>
 
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-10 md:py-14">
-        <div className="text-center mb-8">
-          <h2 className="text-white md:text-6xl text-3xl">We take the boredom out of learning</h2>
+        <div className="text-center mb-10 md:mb-14">
+          <h2 className="text-white md:text-6xl text-3xl font-bold leading-tight">
+            St. George's Methodology
+          </h2>
           <p className="text-white/80 mt-3 md:text-lg max-w-[900px] mx-auto">
-            Space-themed English practice that’s short, interactive, and easy to follow.
+            Our exclusive Path to Fluency helps students learn English naturally, step by step.
           </p>
         </div>
-
-        <div className="grid gap-6 md:gap-8 md:grid-cols-3">
-          <Link
-            href="/lessons"
-            className="block mars-content border-[5px] border-[#2D2D2D] rounded-[24px] overflow-hidden hover:opacity-95"
-          >
-            <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full flex items-center justify-center">
-                <div className="bg-white/10 border-2 border-[#2D2D2D] rounded-[28px] p-4">
-                  <img
-                    src="/img/planets/3.svg"
-                    alt=""
-                    className="w-[170px] h-[170px] md:w-[200px] md:h-[200px] object-contain"
-                  />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  step: 1,
+                  label: "Listen",
+                  color: "#5B2AA6",
+                  icon: Headphones,
+                  desc: "Understand natural, real-life English through immersive listening practice.",
+                },
+                {
+                  step: 2,
+                  label: "Speak",
+                  color: "#B4005A",
+                  icon: MessageCircle,
+                  desc: "Express ideas clearly and build confidence in everyday conversations.",
+                },
+                {
+                  step: 3,
+                  label: "Write",
+                  color: "#D97706",
+                  icon: PenLine,
+                  desc: "Communicate effectively in written form with guided exercises.",
+                },
+                {
+                  step: 4,
+                  label: "Read",
+                  color: "#0058C9",
+                  icon: BookOpen,
+                  desc: "Build vocabulary and internalize grammar through engaging reading.",
+                },
+              ].map((skill) => (
+                <div
+                  key={skill.label}
+                  className="border-[4px] border-[#2D2D2D] rounded-[20px] overflow-hidden"
+                  style={{ backgroundColor: skill.color }}
+                >
+                  <div className="p-6 flex flex-col items-center text-center gap-3 min-h-[240px]">
+                    <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-[#2D2D2D] flex items-center justify-center">
+                      <skill.icon className="w-7 h-7 text-white" aria-hidden="true" />
+                    </div>
+                    <span className="text-white/70 text-sm font-semibold uppercase tracking-wider">
+                      Step {skill.step}
+                    </span>
+                    <h4 className="text-white text-xl md:text-2xl font-bold">{skill.label}</h4>
+                    <p className="text-white/90 text-sm md:text-base leading-relaxed">{skill.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+        <div className="overflow-hidden pt-24">
+          <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+              <div className="flex justify-center md:justify-end order-2 md:order-1">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0058C9]/30 to-[#5B2AA6]/30 rounded-[32px] blur-2xl" aria-hidden="true" />
+                  <div className="relative bg-white/15 backdrop-blur-sm border-[5px] border-[#2D2D2D] rounded-[32px] py-6 md:py-8 sm:px-8 md:px-16 lg:px-24">
+                    <img
+                      src="/img/logo-2.png"
+                      alt="Space learning mascot"
+                      className="w-[400px] h-[410px] md:w-[500px] md:h-[500px] object-cover rounded-xl"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Guided lessons</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
-                  Learn with short missions: clear explanations, examples, and practice.
+
+              <div className="text-center md:text-left order-1 md:order-2">
+                <h3 className="text-white text-2xl md:text-4xl font-bold leading-tight">
+                  {"St. George's Methodology"}
+                </h3>
+                <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
+                  {"At St. George, we use our exclusive methodology called "}
+                  <strong className="text-white">Path to Fluency</strong>
+                  {", designed to help students learn English in a natural, structured, and engaging way\u2014just like acquiring their first language."}
+                </p>
+                <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
+                  {"What truly makes our method unique is that we design our own materials, adapted to the age and knowledge level of each student."}
+                </p>
+                <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
+                  {"This personalized and hands-on approach ensures that every class is not only effective, but also "}
+                  <strong className="text-white">{"fun, motivating, and meaningful"}</strong>
+                  {"\u2014so students enjoy the process as they become fluent in English."}
                 </p>
               </div>
             </div>
-          </Link>
-
-          <Link
-            href="/vocab"
-            className="block mars-content border-[5px] border-[#2D2D2D] rounded-[24px] overflow-hidden hover:opacity-95"
-          >
-            <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full flex items-center justify-center">
-                <div className="bg-white/10 border-2 border-[#2D2D2D] rounded-[28px] p-4">
-                  <img
-                    src="/img/planets/7.svg"
-                    alt=""
-                    className="w-[170px] h-[170px] md:w-[200px] md:h-[200px] object-contain"
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Vocabulary sets</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
-                  Build real-world vocabulary by topic with meanings and examples.
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href={quizzes[0] ? `/quizzes/${quizzes[0].id}` : "/quizzes"}
-            className="block mars-content border-[5px] border-[#2D2D2D] rounded-[24px] overflow-hidden hover:opacity-95"
-          >
-            <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full flex items-center justify-center">
-                <div className="bg-white/10 border-2 border-[#2D2D2D] rounded-[28px] p-4">
-                  <img
-                    src="/img/planets/10.svg"
-                    alt=""
-                    className="w-[170px] h-[170px] md:w-[200px] md:h-[200px] object-contain"
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Quick quizzes</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
-                  Test your English with instant answers and simple explanations.
-                </p>
-              </div>
-            </div>
-          </Link>
+          </div>
         </div>
       </section>
 
@@ -173,7 +190,7 @@ export default function Home() {
                 <div className="w-[240px] h-[240px] md:w-[320px] md:h-[320px] rounded-full overflow-hidden bg-white/10 border-[5px] border-[#2D2D2D] p-4">
                   <div className="w-full h-full rounded-full overflow-hidden bg-[#000237]/40 border-2 border-[#2D2D2D]">
                     <img
-                      src="/img/lecture.png"
+                      src="/img/logo-3.png"
                       alt="Learning mission"
                       className="w-full h-full object-cover"
                     />
@@ -188,83 +205,47 @@ export default function Home() {
 
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
         <div className="text-center mb-8">
-          <h2 className="text-white md:text-6xl text-3xl">How it works</h2>
+          <h2 className="text-white md:text-6xl text-3xl">Custom Materials for Every Student</h2>
           <p className="text-white/80 mt-3 md:text-lg max-w-[900px] mx-auto">
-            A simple loop that makes progress feel easy.
+            We design our own resources, adapted to the age and knowledge level of each student.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Link
-            href="/lessons"
-            className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
-            style={{ backgroundColor: "#5B2AA6" }}
-          >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full">
-                <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
-                  <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/2.svg" alt="" className="w-[170px] h-[170px] object-contain" />
+        <div className="grid gap-6 md:grid-cols-5">
+          {[
+            { label: "Illustrated Flashcards", color: "#5B2AA6", icon: Image, href: "/lessons" },
+            { label: "Themed Games", color: "#B4005A", icon: Gamepad2, href: "/vocab" },
+            { label: "Interactive Worksheets", color: "#D97706", icon: FileText, href: "/quizzes" },
+            { label: "Educational Board Games", color: "#0058C9", icon: LayoutGrid, href: "/lessons" },
+            { label: "Gamified Activities", color: "#00A3D9", icon: Trophy, href: "/lessons" },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: item.color }}
+            >
+              <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[280px]">
+                <div className="w-full">
+                  <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
+                    <div className="aspect-square w-full flex items-center justify-center">
+                      <item.icon className="w-[80px] h-[80px] text-white/90" strokeWidth={1.2} aria-hidden="true" />
+                    </div>
                   </div>
                 </div>
+                <h4 className="text-white text-lg md:text-xl font-semibold">{item.label}</h4>
               </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Learn</h3>
-                <p className="text-white/90 mt-2 md:text-lg">Read a short lesson and copy the examples.</p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/vocab"
-            className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
-            style={{ backgroundColor: "#B4005A" }}
-          >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full">
-                <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
-                  <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/8.svg" alt="" className="w-[170px] h-[170px] object-contain" />
-                  </div>
-                </div>
-              </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Practice</h3>
-                <p className="text-white/90 mt-2 md:text-lg">Build vocabulary by topic with examples.</p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href={quizzes[0] ? `/quizzes/${quizzes[0].id}` : "/quizzes"}
-            className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
-            style={{ backgroundColor: "#D97706" }}
-          >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
-              <div className="w-full">
-                <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
-                  <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/5.svg" alt="" className="w-[170px] h-[170px] object-contain" />
-                  </div>
-                </div>
-              </div>
-              <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Quiz</h3>
-                <p className="text-white/90 mt-2 md:text-lg">Check yourself and learn from explanations.</p>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
 
         <div className="flex justify-center mt-10">
-          <Sparkles>
-            <Link
-              href="/lessons"
-              className="text-white cursor-pointer px-8 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
-            >
-              Start your first mission
-            </Link>
-          </Sparkles>
+          <Link
+            href="/lessons"
+            className="text-white px-8 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base transition-colors"
+          >
+            Start your first mission
+          </Link>
         </div>
       </section>
 
@@ -420,17 +401,17 @@ export default function Home() {
             className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
             style={{ backgroundColor: "#5B2AA6" }}
           >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
+            <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[280px]">
               <div className="w-full">
                 <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/2.svg" alt="" className="w-[170px] h-[170px] object-contain" />
+                    <img src="/img/logo-5.png" alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Bridging the Gap</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
+                <h3 className="text-white text-xl md:text-2xl">Bridging the Gap</h3>
+                <p className="text-white/90 mt-2 text-sm md:text-base">
                   Guided missions that make learning feel simple and fun.
                 </p>
               </div>
@@ -442,17 +423,17 @@ export default function Home() {
             className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
             style={{ backgroundColor: "#B4005A" }}
           >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
+            <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[280px]">
               <div className="w-full">
                 <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/8.svg" alt="" className="w-[170px] h-[170px] object-contain" />
+                    <img src="/img/logo4.png" alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Kid Tested</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
+                <h3 className="text-white text-xl md:text-2xl">Kid Tested</h3>
+                <p className="text-white/90 mt-2 text-sm md:text-base">
                   Short lessons designed to keep attention and build confidence.
                 </p>
               </div>
@@ -464,17 +445,17 @@ export default function Home() {
             className="block border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden hover:opacity-95"
             style={{ backgroundColor: "#D97706" }}
           >
-            <div className="p-6 flex flex-col items-center text-center gap-4 min-h-[360px]">
+            <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[280px]">
               <div className="w-full">
                 <div className="bg-white/15 border-2 border-[#2D2D2D] rounded-[18px] overflow-hidden">
                   <div className="aspect-square w-full flex items-center justify-center">
-                    <img src="/img/planets/5.svg" alt="" className="w-[170px] h-[170px] object-contain" />
+                    <img src="/img/logo-4.png" alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-2xl md:text-3xl">Online is the New Home</h3>
-                <p className="text-white/90 mt-2 md:text-lg">
+                <h3 className="text-white text-xl md:text-2xl">Online is the New Home</h3>
+                <p className="text-white/90 mt-2 text-sm md:text-base">
                   Learn anywhere and check your progress with quick quizzes.
                 </p>
               </div>
@@ -521,7 +502,7 @@ export default function Home() {
                   <div className="mt-8 flex justify-center md:justify-start">
                     <Sparkles>
                       <Link
-                        href="/lessons"
+                        href=""
                         className="text-white cursor-pointer px-12 py-4 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-base md:text-lg"
                       >
                         Join Now!
