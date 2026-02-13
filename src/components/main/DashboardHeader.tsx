@@ -104,7 +104,7 @@ function MenuLink({ href, label }: { href: string; label: string }) {
 
 export default function DashboardHeader() {
   const router = useRouter();
-  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const authUser = React.useMemo(() => {
     try {
@@ -147,15 +147,15 @@ export default function DashboardHeader() {
     <header className="bg-transparent">
       <section className="container p-left p-right">
         <div className="relative z-20 py-2">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             {/* Brand */}
             <Link href={homeHref} className="flex items-center gap-3">
               <img src="/img/mars-logo.png" alt="George English" className="w-10 h-10 md:w-12 md:h-12" />
               <span className="text-white font-extrabold text-lg md:text-xl">George</span>
             </Link>
 
-            {/* Nav */}
-            <nav className="flex flex-wrap justify-center gap-2 md:gap-3">
+            {/* Desktop Nav */}
+            <nav className="hidden lg:flex flex-wrap justify-center gap-2 md:gap-3">
               {role === "teacher" ? (
                 <>
                   <NavItem href="/teacher" label="Teacher" />
@@ -193,22 +193,104 @@ export default function DashboardHeader() {
               )}
             </nav>
 
-            {/* Avatar */}
+            {/* Desktop Avatar & Mobile Menu Button */}
             <div className="flex items-center gap-3">
-              <Menu
-                label={
-                  <span className="inline-flex items-center gap-2">
-                    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#2D2D2D] bg-[#0058C9] text-white font-extrabold">
-                      {initials}
+              {/* Desktop Profile Menu */}
+              <div className="hidden lg:block">
+                <Menu
+                  label={
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#2D2D2D] bg-[#0058C9] text-white font-extrabold">
+                        {initials}
+                      </span>
+                      <span className="text-white/90">Profile</span>
                     </span>
-                    <span className="hidden md:inline text-white/90">Profile</span>
-                  </span>
-                }
+                  }
+                >
+                  <div className="grid gap-2">
+                    <MenuLink
+                      href={role === "teacher" ? "/teacher/profile" : "/ebluelearning/profile"}
+                      label="Profile"
+                    />
+                    <button
+                      type="button"
+                      className="block text-left px-3 py-2 rounded-xl border-2 border-[#2D2D2D] text-sm bg-white/10 text-white hover:bg-white/15"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        try {
+                          localStorage.removeItem("mock_auth");
+                          localStorage.removeItem("auth_token");
+                          localStorage.removeItem("auth_user");
+                        } catch {
+                          // ignore
+                        }
+                        router.replace("/");
+                        router.refresh();
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </Menu>
+              </div>
+
+              {/* Mobile Hamburger Button */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-lg border-2 border-[#2D2D2D] bg-[#000237]/60 hover:bg-[#CB4913]/80 text-white"
+                aria-label="Toggle menu"
+                aria-expanded={mobileMenuOpen}
               >
-                <div className="grid gap-2">
-                  <MenuLink
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden mt-4 border-[5px] border-[#2D2D2D] rounded-[18px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center">
+              <div className="bg-[#000237]/55 backdrop-blur-sm p-4">
+                <nav className="grid gap-2">
+                  {role === "teacher" ? (
+                    <>
+                      <MobileNavItem href="/teacher" label="Teacher" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/sessions" label="Sessions" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/bookings" label="Bookings" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/availability" label="Availability" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/earnings" label="Earnings" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
+                    </>
+                  ) : role === "admin" ? (
+                    <>
+                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum/admin" label="Moderation" onClick={() => setMobileMenuOpen(false)} />
+                    </>
+                  ) : (
+                    <>
+                      <MobileNavItem href="/ebluelearning/class_list" label="Your classes" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/book_by_teacher" label="Book by teacher" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/book_by_date" label="Book by date" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/buy_credits" label="Buy credits" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/share_credits" label="Share credits" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
+                    </>
+                  )}
+                  
+                  <div className="border-t-2 border-[#2D2D2D] my-2" />
+                  
+                  <MobileNavItem
                     href={role === "teacher" ? "/teacher/profile" : "/ebluelearning/profile"}
                     label="Profile"
+                    onClick={() => setMobileMenuOpen(false)}
                   />
                   <button
                     type="button"
@@ -228,13 +310,30 @@ export default function DashboardHeader() {
                   >
                     Logout
                   </button>
-                </div>
-              </Menu>
+                </nav>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </header>
+  );
+}
+
+function MobileNavItem({ href, label, onClick }: { href: string; label: string; onClick: () => void }) {
+  const pathname = usePathname();
+  const active = pathname === href || pathname?.startsWith(href + "/");
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={[
+        "block px-3 py-2 rounded-xl border-2 border-[#2D2D2D] text-sm",
+        active ? "bg-[#CB4913] text-white" : "bg-white/10 text-white hover:bg-white/15",
+      ].join(" ")}
+    >
+      {label}
+    </Link>
   );
 }
 
