@@ -2,9 +2,9 @@ import Footer from "@/components/main/footer";
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-[calc(100vh-107px)]">
       <section className="relative z-10 max-w-[1000px] mx-auto p-left p-right py-12">
-        <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[20px] overflow-hidden">
+        <div className="border-[5px] border-[#2D2D2D] rounded-[20px] overflow-hidden">
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">Política de Privacidad</h1>
             

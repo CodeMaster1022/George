@@ -15,9 +15,9 @@ export default function HiringPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative z-10 max-w-[1700px] mx-auto p-left p-right pt-8 md:pt-16 pb-12">
+      <section className="relative z-10 max-w-[1500px] mx-auto p-left p-right pt-8 pb-12">
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           {/* Left Content */}
           <div className="text-center lg:text-left">
@@ -30,22 +30,22 @@ export default function HiringPage() {
               </div>
             </div>
 
-            <p className="text-gray-700 text-lg md:text-xl leading-8 max-w-[640px] mx-auto lg:mx-0 font-medium mb-8">
+            <p className="text-white text-lg md:text-xl leading-8 max-w-[640px] mx-auto lg:mx-0 font-medium mb-8">
               Join our passionate teaching team and make a difference in students&apos; lives. 
               Share your expertise and inspire the next generation of learners.
             </p>
 
             {/* Benefits */}
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
-              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
                 <span className="text-2xl">🌍</span>
                 <span className="text-sm font-bold text-gray-700">Work Remotely</span>
               </div>
-              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-2 px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
                 <span className="text-2xl">⏰</span>
                 <span className="text-sm font-bold text-gray-700">Flexible Hours</span>
               </div>
-              <div className="flex items-center gap-2 bg-white px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-2  px-5 py-3 rounded-full border-2 border-[#2D2D2D] shadow-md hover:shadow-lg transition-shadow">
                 <span className="text-2xl">💰</span>
                 <span className="text-sm font-bold text-gray-700">Competitive Pay</span>
               </div>
@@ -57,64 +57,64 @@ export default function HiringPage() {
             <form
               id="cv-form"
               onSubmit={onSubmit}
-              className="w-full max-w-[560px] border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center shadow-2xl transform transition-all duration-300 hover:scale-[1.02]"
+              className="w-full max-w-[520px] border-[4px] border-[#2D2D2D] rounded-[20px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center shadow-2xl transform transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="p-6 md:p-8 bg-[#000237]/70 backdrop-blur-md">
-                <div className="text-center mb-6">
-                  <div className="inline-block p-4 bg-white/10 rounded-full mb-4 animate-bounce">
-                    <span className="text-5xl">📄</span>
+              <div className="p-4 md:p-8 bg-[#000237]/70 backdrop-blur-md">
+                <div className="text-center mb-4">
+                  <div className="inline-block p-2 bg-white/10 rounded-full mb-2">
+                    <span className="text-3xl">📄</span>
                   </div>
-                  <h2 className="text-white text-3xl md:text-4xl font-bold">
+                  <h2 className="text-white text-2xl md:text-3xl font-bold">
                     Apply Now
                   </h2>
-                  <p className="text-white/90 text-sm md:text-base mt-3">
+                  <p className="text-white/90 text-xs md:text-sm mt-1">
                     Send us your CV and we&apos;ll be in touch
                   </p>
                 </div>
 
-                <div className="grid gap-5">
-                  <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-8">
+                  <div className="grid gap-2 md:grid-cols-2">
                     <div>
-                      <label className="block text-white text-sm font-bold mb-2">Full Name *</label>
+                      <label className="block text-white text-xs font-bold mb-1">Full Name *</label>
                       <input
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
                         placeholder="John Doe"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-white text-sm font-bold mb-2">Email *</label>
+                      <label className="block text-white text-xs font-bold mb-1">Email *</label>
                       <input
                         type="email"
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
                         placeholder="you@example.com"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-2 md:grid-cols-2">
                     <div>
-                      <label className="block text-white text-sm font-bold mb-2">Phone Number</label>
+                      <label className="block text-white text-xs font-bold mb-1">Phone Number</label>
                       <input
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
                         placeholder="+1 555 000 0000"
                       />
                     </div>
                     <div>
-                      <label className="block text-white text-sm font-bold mb-2">Country</label>
+                      <label className="block text-white text-xs font-bold mb-1">Country</label>
                       <input
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
+                        className="w-full px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all"
                         placeholder="Your country"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm font-bold mb-2">Upload CV (PDF/DOC) *</label>
-                    <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                      <label className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-bold cursor-pointer transition-all transform hover:scale-105 active:scale-95 shadow-lg">
-                        <span className="mr-2 text-xl">📎</span>
+                    <label className="block text-white text-xs font-bold mb-1">Upload CV (PDF/DOC) *</label>
+                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
+                      <label className="inline-flex items-center justify-center px-4 py-2 rounded-lg border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white text-sm font-bold cursor-pointer transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                        <span className="mr-1 text-base">📎</span>
                         Choose File
                         <input
                           type="file"
@@ -123,7 +123,7 @@ export default function HiringPage() {
                           onChange={(e) => setCvName(e.target.files?.[0]?.name ?? "")}
                         />
                       </label>
-                      <div className="flex-1 px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm flex items-center font-medium">
+                      <div className="flex-1 px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-xs flex items-center font-medium">
                         {cvName ? (
                           <span className="truncate text-green-600">✓ {cvName}</span>
                         ) : (
@@ -134,15 +134,15 @@ export default function HiringPage() {
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm font-bold mb-2">Cover Letter (Optional)</label>
+                    <label className="block text-white text-xs font-bold mb-1">Cover Letter (Optional)</label>
                     <textarea
-                      className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2D2D2D] bg-white/95 text-[#212429] placeholder:text-gray-400 min-h-[140px] focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all resize-none"
-                      placeholder="Tell us about yourself, your experience, and why you&apos;d be a great fit for our team..."
+                      className="w-full px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/95 text-[#212429] text-sm placeholder:text-gray-400 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent transition-all resize-none"
+                      placeholder="Tell us about yourself..."
                     />
                   </div>
 
-                  <label className="flex items-start gap-3 text-sm text-white/95 mt-2 cursor-pointer hover:text-white transition-colors">
-                    <input type="checkbox" className="mt-1 w-4 h-4 cursor-pointer accent-[#0058C9]" required />
+                  <label className="flex items-start gap-2 text-xs text-white/95 mt-1 cursor-pointer hover:text-white transition-colors">
+                    <input type="checkbox" className="mt-0.5 w-3.5 h-3.5 cursor-pointer accent-[#0058C9]" required />
                     <span>
                       I agree to the{" "}
                       <a className="underline text-white font-bold hover:text-white/80 transition-colors" href="/terms-and-conditions">
@@ -157,7 +157,7 @@ export default function HiringPage() {
 
                   <button
                     type="submit"
-                    className="mt-4 w-full text-white px-6 py-4 rounded-full bg-gradient-to-r from-[#CB4913] to-[#B4005A] hover:from-[#cb6c13f1] hover:to-[#c91066] border-2 border-[#2D2D2D] text-lg font-bold shadow-xl transform transition-all duration-200 hover:scale-105 active:scale-95"
+                    className="mt-2 w-full text-white px-5 py-3 rounded-full bg-gradient-to-r from-[#CB4913] to-[#B4005A] hover:from-[#cb6c13f1] hover:to-[#c91066] border-2 border-[#2D2D2D] text-base font-bold shadow-xl transform transition-all duration-200 hover:scale-105 active:scale-95"
                   >
                     Submit Application 🚀
                   </button>
