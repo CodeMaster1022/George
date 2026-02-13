@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import TeacherShell from "./TeacherShell";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import CloudinaryImageUpload from "@/components/CloudinaryImageUpload";
 
 type TeacherProfile = {
   _id: string;
@@ -166,11 +167,12 @@ export default function TeacherProfileClient() {
 
         <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
           <div className="p-5 md:p-6 grid gap-4">
-            <Field label="Photo URL">
-              <Input
-                value={f.photoUrl}
-                onChange={(v) => setF((s) => ({ ...s, photoUrl: v }))}
-                placeholder="https://..."
+            <Field label="Photo">
+              <CloudinaryImageUpload
+                currentImageUrl={f.photoUrl}
+                onImageUploaded={(url) => setF((s) => ({ ...s, photoUrl: url }))}
+                buttonText="Upload Photo"
+                showPreview={true}
               />
             </Field>
             <Field label="Phone">
@@ -229,17 +231,19 @@ function Input({
   value,
   onChange,
   placeholder,
+  className,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  className?: string;
 }) {
   return (
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
+      className={`w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9] ${className || ""}`}
     />
   );
 }

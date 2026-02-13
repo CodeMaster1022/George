@@ -82,7 +82,7 @@ export default function ForumPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-[calc(100vh-107px)]  bg-gray-50">
       <section className="relative z-10 max-w-[1200px] mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

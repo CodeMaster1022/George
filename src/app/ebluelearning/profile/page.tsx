@@ -3,22 +3,21 @@
 
 import React from "react";
 import Link from "next/link";
+import { apiJson } from "@/utils/backend";
 
-type MockRegistration = {
-  email?: string;
-  verifiedEmail?: boolean;
-  parent?: {
-    firstName?: string;
-    lastName?: string;
-    phone?: string | null;
-  };
-  student?: {
+type StudentProfile = {
+  _id: string;
+  userId: string;
+  nickname: string;
+  birthdate: string;
+  spanishLevel: string;
+  canRead: string;
+  homeschoolFunding: string;
+  questionnaire: string;
+  photoUrl: string;
+  parentContact?: {
     name?: string;
-    birthdate?: string;
-    spanishLevel?: string;
-    canRead?: string;
-    questionnaire?: string;
-    homeschoolFunding?: string;
+    phone?: string;
   };
 };
 
@@ -27,19 +26,14 @@ function safeText(v?: string | null) {
   return t ? t : "—";
 }
 
-function makeUserTag(seed: string) {
-  const base = seed.split("@")[0] || "user";
-  const hash = Math.abs(Array.from(seed).reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) | 0, 7));
+function makeUserTag(nickname: string) {
+  const base = nickname || "user";
+  const hash = Math.abs(Array.from(base).reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) | 0, 7));
   return `${base}#${String(hash).slice(0, 4)}`;
 }
 
-function getDisplayName(data: MockRegistration | null) {
-  const student = data?.student?.name?.trim();
-  if (student) return student;
-  const parent = [data?.parent?.firstName, data?.parent?.lastName].filter(Boolean).join(" ").trim();
-  if (parent) return parent;
-  const email = data?.email?.trim();
-  if (email) return email.split("@")[0];
+function getDisplayName(profile: StudentProfile | null) {
+  if (profile?.nickname) return profile.nickname;
   return "Explorer";
 }
 
@@ -97,30 +91,64 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export default function EBlueProfilePage() {
-  const [data, setData] = React.useState<MockRegistration | null>(null);
+  const [profile, setProfile] = React.useState<StudentProfile | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("mock_registration");
-      const parsed = raw ? (JSON.parse(raw) as MockRegistration) : null;
-      setData(parsed);
-    } catch {
-      setData(null);
+    async function loadProfile() {
+      setLoading(true);
+      setError(null);
+      const r = await apiJson<{ profile: StudentProfile }>("/student/profile", { auth: true });
+      setLoading(false);
+      
+      if (!r.ok) {
+        setError(r.error);
+        return;
+      }
+      
+      setProfile(r.data?.profile ?? null);
     }
+    
+    loadProfile();
   }, []);
 
-  const name = React.useMemo(() => getDisplayName(data), [data]);
-  const email = (data?.email ?? "").trim();
-  const tag = React.useMemo(() => (email ? makeUserTag(email) : "user#0000"), [email]);
+  const name = React.useMemo(() => getDisplayName(profile), [profile]);
+  const tag = React.useMemo(() => makeUserTag(profile?.nickname || "user"), [profile]);
 
-  // Mock stats until backend exists
+  // Mock stats until backend implements them
   const grade = 0.0;
   const classesTaken = 0;
   const coins = 0;
   const credits = 0;
 
-  const studentLevel = levelLabel(data?.student?.spanishLevel);
-  const verified = Boolean(data?.verifiedEmail);
+  const studentLevel = levelLabel(profile?.spanishLevel);
+  const verified = false; // TODO: Get from user auth data
+
+  if (loading) {
+    return (
+      <main className="min-h-screen">
+        <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
+          <div className="text-white text-center">Loading profile...</div>
+        </section>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen">
+        <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
+          <div className="text-red-500 text-center">
+            <p>Error loading profile: {error}</p>
+            <Link href="/ebluelearning" className="text-blue-500 underline mt-4 inline-block">
+              Back to dashboard
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen">
@@ -135,18 +163,25 @@ export default function EBlueProfilePage() {
 
               <Link
                 href="/ebluelearning/profile_modify"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-extrabold text-sm uppercase"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-extrabold text-sm uppercase"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
                 Edit profile
               </Link>
             </div>
 
             <div className="mt-8 grid gap-6 lg:grid-cols-[340px_1fr] items-start">
               {/* Left card */}
-              <div className="bg-white/95 rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden">
+              <div className="bg-white/95 rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden h-full">
                 <div className="p-5 md:p-6 text-center">
                   <div className="mx-auto w-[132px] h-[132px] rounded-full border-[5px] border-[#2D2D2D] overflow-hidden bg-white">
-                    <img src="/img/martian.png" alt="" className="w-full h-full object-cover" />
+                    <img 
+                      src={profile?.photoUrl || "/img/martian.png"} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
 
                   <div className="mt-4 text-[#212429] font-extrabold text-lg">{name}</div>
@@ -187,8 +222,11 @@ export default function EBlueProfilePage() {
 
                   <Link
                     href="/ebluelearning/buy_credits"
-                    className="mt-6 inline-flex items-center justify-center w-full px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#B4005A] hover:bg-[#B4005A]/90 text-white font-extrabold text-sm uppercase"
+                    className="mt-6 inline-flex items-center justify-center gap-2 w-full px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#B4005A] hover:bg-[#B4005A]/90 text-white font-extrabold text-sm uppercase"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     Buy credits
                   </Link>
                 </div>
@@ -223,62 +261,52 @@ export default function EBlueProfilePage() {
                   <div className="mt-6">
                     <SectionTitle>Learning Objectives</SectionTitle>
                     <div className="mt-3 rounded-[16px] border-2 border-[#2D2D2D] bg-[#F8FAFC] p-4 text-sm text-[#212429]/85 leading-6">
-                      {safeText(data?.student?.questionnaire)}
+                      {safeText(profile?.questionnaire)}
                     </div>
                   </div>
 
                   <div className="mt-8">
                     <SectionTitle>Spanish Level</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="Level" value={safeText(data?.student?.spanishLevel)} />
-                      <InfoField label="Can read?" value={safeText(data?.student?.canRead)} />
+                      <InfoField label="Level" value={safeText(profile?.spanishLevel)} />
+                      <InfoField label="Can read?" value={safeText(profile?.canRead)} />
                     </div>
                   </div>
 
                   <div className="mt-8">
                     <SectionTitle>Parent Contact Information</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="First Name" value={safeText(data?.parent?.firstName)} />
-                      <InfoField label="Last Name" value={safeText(data?.parent?.lastName)} />
-                      <InfoField
-                        label="Contact Email"
-                        value={safeText(email)}
-                        right={
-                          verified ? (
-                            <span
-                              className="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 border-[#2D2D2D] bg-[#22C55E] text-white text-xs font-extrabold"
-                              aria-label="Verified"
-                              title="Verified"
-                            >
-                              ✓
-                            </span>
-                          ) : null
-                        }
-                      />
-                      <InfoField label="Telephone Number" value={safeText(data?.parent?.phone)} />
+                      <InfoField label="Parent Name" value={safeText(profile?.parentContact?.name)} />
+                      <InfoField label="Telephone Number" value={safeText(profile?.parentContact?.phone)} />
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <SectionTitle>Additional Contact Information</SectionTitle>
+                    <SectionTitle>Additional Information</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="Student Name" value={safeText(data?.student?.name)} />
-                      <InfoField label="Birthdate" value={safeText(data?.student?.birthdate)} />
-                      <InfoField label="Homeschool funding" value={safeText(data?.student?.homeschoolFunding)} />
+                      <InfoField label="Nickname" value={safeText(profile?.nickname)} />
+                      <InfoField label="Birthdate" value={safeText(profile?.birthdate)} />
+                      <InfoField label="Homeschool funding" value={safeText(profile?.homeschoolFunding)} />
                     </div>
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-3">
                     <Link
                       href="/ebluelearning"
-                      className="inline-flex items-center justify-center px-7 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-white text-sm md:text-base font-semibold"
+                      className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-white text-sm md:text-base font-semibold"
                     >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
                       Back to dashboard
                     </Link>
                     <Link
                       href="/"
-                      className="inline-flex items-center justify-center px-7 py-3 rounded-full bg-[#000237]/60 hover:bg-white/10 border-2 border-[#2D2D2D] text-white text-sm md:text-base font-semibold"
+                      className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#000237]/60 hover:bg-white/10 border-2 border-[#2D2D2D] text-white text-sm md:text-base font-semibold"
                     >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
                       Home
                     </Link>
                   </div>

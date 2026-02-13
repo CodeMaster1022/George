@@ -36,7 +36,7 @@ export default function AppHeader() {
         <DashboardHeader />
       </div>
       {/* Spacer so content isn't hidden behind fixed header */}
-      <div aria-hidden="true" className="h-[92px] md:h-[108px]" />
+      <div aria-hidden="true" className="h-[92px]" />
     </>
   );
 }

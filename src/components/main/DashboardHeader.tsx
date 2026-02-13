@@ -146,7 +146,7 @@ export default function DashboardHeader() {
   return (
     <header className="bg-transparent">
       <section className="container p-left p-right">
-        <div className="relative z-20 py-4">
+        <div className="relative z-20 py-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Brand */}
             <Link href={homeHref} className="flex items-center gap-3">
