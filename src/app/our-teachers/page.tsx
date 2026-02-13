@@ -326,7 +326,7 @@ export default function OurTeachersPage() {
 
               <div className="text-center md:text-left">
                 <p className="text-white/95 md:text-lg leading-7 max-w-[900px] mx-auto md:mx-0">
-                  We don't stop there. Our Head Teacher Coordinator and Head of Studies monitor classes for
+                  We don&apos;t stop there. Our Head Teacher Coordinator and Head of Studies monitor classes for
                   quality, suggest improvements, and coach teachers for continuous progress. We hold high
                   standards and improve together with our teachers.
                 </p>
@@ -370,7 +370,7 @@ export default function OurTeachersPage() {
                     <div className="text-[#60a5fa] text-sm font-semibold">{t.name}</div>
                     <div className="text-white/70 text-xs mt-0.5">{t.country}</div>
                     <p className="text-white/85 text-sm leading-6 mt-3">
-                      "{t.quote}"
+                      &quot;{t.quote}&quot;
                     </p>
                   </div>
                 </div>
@@ -385,7 +385,7 @@ export default function OurTeachersPage() {
         <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-[#B4005A]">
           <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-10 md:py-12 text-center">
             <div className="text-white text-xl md:text-3xl font-semibold">
-              It's English time!! Join our club!!
+              It&apos;s English time!! Join our club!!
             </div>
             <div className="mt-5 flex justify-center">
               <Link

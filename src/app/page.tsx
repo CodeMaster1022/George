@@ -65,7 +65,7 @@ export default function Home() {
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-10 md:py-14">
         <div className="text-center mb-10 md:mb-14">
           <h2 className="text-white md:text-6xl text-3xl font-bold leading-tight">
-            St. George's Methodology
+            St. George&apos;s Methodology
           </h2>
           <p className="text-white/80 mt-3 md:text-lg max-w-[900px] mx-auto">
             Our exclusive Path to Fluency helps students learn English naturally, step by step.

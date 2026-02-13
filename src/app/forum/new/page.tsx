@@ -318,8 +318,8 @@ export default function NewArticlePage() {
               <div>
                 <div className="font-semibold mb-1">Note:</div>
                 <div>
-                  Your post will be reviewed by moderators before being published. You'll be notified once
-                  it's approved or if any changes are needed.
+                  Your post will be reviewed by moderators before being published. You&apos;ll be notified once
+                  it&apos;s approved or if any changes are needed.
                 </div>
               </div>
             </div>
