@@ -16,7 +16,7 @@ export default function TeacherLoginClient() {
   const valid = email.trim() && password.trim().length >= 1;
 
   async function resendCode() {
-    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
     const res = await fetch(`${base}/auth/resend-code`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -35,7 +35,7 @@ export default function TeacherLoginClient() {
     setInfo(null);
 
     try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
       const res = await fetch(`${base}/auth/login`, {
         method: "POST",
         headers: { "content-type": "application/json" },

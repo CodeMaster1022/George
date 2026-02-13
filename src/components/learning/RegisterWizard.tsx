@@ -232,7 +232,7 @@ export default function RegisterWizard() {
     f.homeschoolFunding;
 
   async function registerStudentAccount() {
-    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
     const res = await fetch(`${base}/auth/register`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -253,7 +253,7 @@ export default function RegisterWizard() {
   }
 
   async function verifyEmailCode() {
-    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
     const res = await fetch(`${base}/auth/verify-email`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -277,7 +277,7 @@ export default function RegisterWizard() {
   }
 
   async function resendCode() {
-    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+    const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
     const res = await fetch(`${base}/auth/resend-code`, {
       method: "POST",
       headers: { "content-type": "application/json" },

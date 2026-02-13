@@ -1,5 +1,5 @@
 export function backendBaseUrl() {
-  return (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+  return (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
 }
 
 export function getAuthToken() {

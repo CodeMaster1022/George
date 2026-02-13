@@ -114,7 +114,7 @@ export default function EBlueDashboard() {
     setGcError(null);
     setGcLoading(true);
     try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
       const token = localStorage.getItem("auth_token") || "";
       if (!token) {
         setGcConnected(false);
@@ -144,7 +144,7 @@ export default function EBlueDashboard() {
     setGcError(null);
     setGcLoading(true);
     try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
       const token = localStorage.getItem("auth_token") || "";
       const res = await fetch(`${base}/integrations/google-calendar/disconnect`, {
         method: "POST",
@@ -164,7 +164,7 @@ export default function EBlueDashboard() {
     setGcError(null);
     setGcLoading(true);
     try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000").replace(/\/+$/, "");
+      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
       const token = localStorage.getItem("auth_token") || "";
       if (!token) {
         setGcError("Please login first.");
