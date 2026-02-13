@@ -13,8 +13,6 @@
     "@nextui-org/react": "^2.4.2",
     "@nextui-org/system": "^2.2.2",
     "@nextui-org/theme": "^2.2.6",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
     "@tsparticles/engine": "^3.3.0",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.3.0",
@@ -32,8 +30,7 @@
     "react-use": "^17.5.0",
     "remark-gfm": "^4.0.1",
     "swiper": "^11.1.4",
-    "tailwind-merge": "^2.2.2",
-    "three": "^0.182.0"
+    "tailwind-merge": "^2.2.2"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
