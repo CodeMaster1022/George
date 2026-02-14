@@ -246,19 +246,38 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
                     desc: "Short missions and clear steps help build confidence quickly.",
                     img: "/img/icon4.png",
                   },
-                ].map((c) => (
+                ].map((c, idx) => (
                   <div
                     key={c.title}
-                    className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden"
+                    className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden group cursor-pointer
+                               transform transition-all duration-500 ease-out
+                               hover:scale-105 hover:-translate-y-3 hover:shadow-[0_20px_40px_0_rgba(0,0,0,0.3)]
+                               hover:bg-white/20 hover:border-[#10B981]
+                               active:scale-95 active:translate-y-0"
+                    style={{
+                      animationDelay: `${idx * 0.1}s`
+                    }}
                   >
                     <div className="p-7 md:p-8 text-center">
                       <div className="flex justify-center mb-6">
-                        <div className="">
-                          <img src={c.img} alt="" className="w-[96px] h-[96px] md:w-[120px] md:h-[120px] object-cover rounded-full" />
+                        <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-[360deg]">
+                          <img 
+                            src={c.img} 
+                            alt="" 
+                            className="w-[96px] h-[96px] md:w-[120px] md:h-[120px] object-cover rounded-full
+                                       shadow-lg group-hover:shadow-2xl
+                                       transition-all duration-500" 
+                          />
                         </div>
                       </div>
-                      <h3 className="text-white text-xl md:text-2xl">{c.title}</h3>
-                      <p className="text-white/80 mt-3 text-sm md:text-base leading-6">{c.desc}</p>
+                      <h3 className="text-white text-xl md:text-2xl transform transition-all duration-300 
+                                     group-hover:scale-110 group-hover:text-[#10B981]">
+                        {c.title}
+                      </h3>
+                      <p className="text-white/80 mt-3 text-sm md:text-base leading-6 
+                                    transition-all duration-300 group-hover:text-white">
+                        {c.desc}
+                      </p>
                     </div>
                   </div>
                 ))}

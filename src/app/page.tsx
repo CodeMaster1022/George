@@ -103,21 +103,40 @@ export default function Home() {
                   icon: BookOpen,
                   desc: "Build vocabulary and internalize grammar through engaging reading.",
                 },
-              ].map((skill) => (
+              ].map((skill, idx) => (
                 <div
                   key={skill.label}
-                  className="border-[4px] border-[#2D2D2D] rounded-[20px] overflow-hidden"
-                  style={{ backgroundColor: skill.color }}
+                  className="border-[4px] border-[#2D2D2D] rounded-[20px] overflow-hidden group cursor-pointer
+                             transform transition-all duration-700 ease-out perspective-1000
+                             hover:scale-110 hover:rotate-y-12 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]
+                             active:scale-100"
+                  style={{ 
+                    backgroundColor: skill.color,
+                    animationDelay: `${idx * 0.15}s`,
+                    transformStyle: 'preserve-3d'
+                  }}
                 >
-                  <div className="p-6 flex flex-col items-center text-center gap-3 min-h-[240px]">
-                    <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-[#2D2D2D] flex items-center justify-center">
-                      <skill.icon className="w-7 h-7 text-white" aria-hidden="true" />
+                  <div className="p-6 flex flex-col items-center text-center gap-3 min-h-[240px]
+                                  transform transition-all duration-700 group-hover:translate-z-12">
+                    <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-[#2D2D2D] flex items-center justify-center
+                                    transform transition-all duration-500
+                                    group-hover:scale-125 group-hover:bg-white/40 group-hover:animate-pulse-slow
+                                    group-hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+                      <skill.icon className="w-7 h-7 text-white transition-all duration-500 group-hover:scale-110" aria-hidden="true" />
                     </div>
-                    <span className="text-white/70 text-sm font-semibold uppercase tracking-wider">
+                    <span className="text-white/70 text-sm font-semibold uppercase tracking-wider
+                                     transition-all duration-300 group-hover:text-white group-hover:tracking-widest">
                       Step {skill.step}
                     </span>
-                    <h4 className="text-white text-xl md:text-2xl font-bold">{skill.label}</h4>
-                    <p className="text-white/90 text-sm md:text-base leading-relaxed">{skill.desc}</p>
+                    <h4 className="text-white text-xl md:text-2xl font-bold
+                                   transform transition-all duration-500
+                                   group-hover:scale-110 group-hover:tracking-wide">
+                      {skill.label}
+                    </h4>
+                    <p className="text-white/90 text-sm md:text-base leading-relaxed
+                                  transition-all duration-300 group-hover:text-white group-hover:scale-105">
+                      {skill.desc}
+                    </p>
                   </div>
                 </div>
               ))}
