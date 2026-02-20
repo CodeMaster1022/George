@@ -116,10 +116,6 @@ export default function EBlueDashboard() {
   const [creditsBalance, setCreditsBalance] = React.useState<number>(0);
   const [bookings, setBookings] = React.useState<BookingRow[]>([]);
 
-  const [gcLoading, setGcLoading] = React.useState(true);
-  const [gcConnected, setGcConnected] = React.useState(false);
-  const [gcError, setGcError] = React.useState<string | null>(null);
-
   React.useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : "";
     if (!token) {
@@ -173,31 +169,6 @@ export default function EBlueDashboard() {
     };
   }, []);
 
-  async function loadGoogleCalendarStatus() {
-    setGcError(null);
-    setGcLoading(true);
-    try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
-      const token = localStorage.getItem("auth_token") || "";
-      if (!token) {
-        setGcConnected(false);
-        setGcLoading(false);
-        return;
-      }
-      const res = await fetch(`${base}/integrations/google-calendar/status`, {
-        headers: { authorization: `Bearer ${token}` },
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(json?.error || "Could not load Google Calendar status.");
-      setGcConnected(Boolean(json?.connected));
-    } catch (e: any) {
-      setGcConnected(false);
-      setGcError(e?.message || "Could not load Google Calendar status.");
-    } finally {
-      setGcLoading(false);
-    }
-  }
-
   const name = React.useMemo(() => getDisplayName(profile), [profile]);
   const remainingCredits = creditsBalance;
   const classesTaken = React.useMemo(
@@ -213,55 +184,6 @@ export default function EBlueDashboard() {
   const grade = Math.round(ratingAvg * 10) / 10;
   const starsFilled = Math.min(5, Math.max(0, Math.round(ratingAvg)));
   const coins = 0;
-
-  React.useEffect(() => {
-    loadGoogleCalendarStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function disconnectGoogleCalendar() {
-    setGcError(null);
-    setGcLoading(true);
-    try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
-      const token = localStorage.getItem("auth_token") || "";
-      const res = await fetch(`${base}/integrations/google-calendar/disconnect`, {
-        method: "POST",
-        headers: { authorization: `Bearer ${token}` },
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(json?.error || "Could not disconnect Google Calendar.");
-      setGcConnected(false);
-    } catch (e: any) {
-      setGcError(e?.message || "Could not disconnect Google Calendar.");
-    } finally {
-      setGcLoading(false);
-    }
-  }
-
-  async function connectGoogleCalendar() {
-    setGcError(null);
-    setGcLoading(true);
-    try {
-      const base = (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
-      const token = localStorage.getItem("auth_token") || "";
-      if (!token) {
-        setGcError("Please login first.");
-        return;
-      }
-      const res = await fetch(`${base}/integrations/google-calendar/auth-url?returnTo=/ebluelearning`, {
-        headers: { authorization: `Bearer ${token}` },
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(json?.error || "Could not start Google Calendar connection.");
-      if (json?.url) window.location.href = json.url as string;
-      else throw new Error("Google Calendar OAuth is not configured yet.");
-    } catch (e: any) {
-      setGcError(e?.message || "Could not start Google Calendar connection.");
-    } finally {
-      setGcLoading(false);
-    }
-  }
 
   if (loading) {
     return (
@@ -335,62 +257,6 @@ export default function EBlueDashboard() {
 
         {/* Main content */}
         <div className="bg-white px-6 md:px-12 py-10 md:py-12">
-          {/* Google Calendar strip */}
-          <div className="border-2 border-[#93C5FD] rounded-md p-4 md:p-5 flex flex-col md:flex-row items-center gap-4 md:gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-[70px] h-[70px] rounded-md border border-[#E5E7EB] overflow-hidden bg-white flex flex-col">
-                <div className="h-3 bg-[#3B82F6]" />
-                <div className="flex-1 grid place-items-center text-2xl font-extrabold text-[#3B82F6]">
-                  {new Date().getDate()}
-                </div>
-                <div className="h-2 bg-[#22C55E]" />
-              </div>
-              <div className="text-center md:text-left">
-                <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">Google Calendar</div>
-                <div className="text-[#212429]/70 text-xs mt-1">
-                  {gcLoading ? "Checking…" : gcConnected ? "Connected" : "Not connected"}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 w-full grid gap-3 md:grid-cols-2">
-              {gcConnected ? (
-                <button
-                  type="button"
-                  disabled={gcLoading}
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white font-extrabold border-2 border-[#2D2D2D] uppercase text-xs md:text-sm disabled:opacity-60"
-                  style={{ backgroundColor: "#DC2626" }}
-                  onClick={disconnectGoogleCalendar}
-                >
-                  Unlink
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={gcLoading}
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white font-extrabold border-2 border-[#2D2D2D] uppercase text-xs md:text-sm"
-                  style={{ backgroundColor: "#3B82F6" }}
-                  title="Connect Google Calendar"
-                  onClick={connectGoogleCalendar}
-                >
-                  Connect
-                </button>
-              )}
-
-              <a
-                href="https://calendar.google.com/calendar/r"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white font-extrabold border-2 border-[#2D2D2D] uppercase text-xs md:text-sm"
-                style={{ backgroundColor: "#22C55E" }}
-              >
-                Open
-              </a>
-            </div>
-          </div>
-
-          {gcError ? <div className="mt-3 text-xs text-[#B4005A] font-semibold">{gcError}</div> : null}
-
           {/* Stats row */}
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             <StatCard
