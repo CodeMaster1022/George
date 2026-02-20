@@ -83,14 +83,14 @@ export default function ContactPage() {
               icon: Mail,
               title: "Email Us",
               content: "hola@stgeorge.ec",
-              link: "mailto:hola@stgeorge.ec",
+              link: "mailto:hola@stgeorge.et",
               color: "#0058C9",
             },
             {
               icon: Phone,
               title: "Call Us",
-              content: "+593 99 123 4567",
-              link: "tel:+593991234567",
+              content: "+523 99 123 4567",
+              link: "tel:+523991234567",
               color: "#B4005A",
             },
             {

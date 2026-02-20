@@ -176,7 +176,7 @@ export default function BlogPage({
 
           <div className="relative max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-14 md:py-20 min-h-[240px] md:min-h-[320px] flex items-center justify-center">
             <div className="text-center">
-              <BlockTitle text="Kids'Club" className="mx-auto" />
+              <BlockTitle text="George's club" className="mx-auto" />
               <BlockTitle text="News" className="mx-auto mt-4" />
             </div>
           </div>
