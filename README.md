@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open `https://george-production.up.railway.app/`.
+Open `https://george-production.up.railway.app`.
 
 ### Add / edit content (static)
 
