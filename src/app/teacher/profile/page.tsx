@@ -16,6 +16,11 @@ type TeacherProfile = {
   phone: string;
   address: string;
   resumeUrl: string;
+  stats?: {
+    ratingAvg?: number;
+    ratingCount?: number;
+    lessonsCompleted?: number;
+  };
   social?: {
     linkedin?: string;
     facebook?: string;
@@ -67,7 +72,7 @@ export default function TeacherProfilePage() {
 
   if (loading) {
     return (
-      <main className="h-[calc(100vh-107px)] bg-gray-50">
+      <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
           <div className="text-gray-600 text-center">Loading profile...</div>
         </section>
@@ -77,11 +82,11 @@ export default function TeacherProfilePage() {
 
   if (error) {
     return (
-      <main className="h-[calc(100vh-107px)]  bg-gray-50">
+      <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
           <div className="text-red-600 text-center">
             <p>Error loading profile: {error}</p>
-            <Link href="/teacher/dashboard" className="text-blue-600 underline mt-4 inline-block">
+            <Link href="/teacher/" className="text-blue-600 underline mt-4 inline-block">
               Back to dashboard
             </Link>
           </div>
@@ -91,7 +96,7 @@ export default function TeacherProfilePage() {
   }
 
   return (
-    <main className="h-[calc(100vh-107px)] bg-gray-50">
+    <main className="min-h-[calc(100vh-107px)] bg-gray-50">
       <section className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
@@ -125,6 +130,22 @@ export default function TeacherProfilePage() {
 
               <div className="mt-4 text-gray-900 font-bold text-xl">{safeText(profile?.name)}</div>
               <div className="mt-1 text-gray-500 text-sm">{safeText(profile?.country)}</div>
+
+              {/* Rating & lessons stats */}
+              <div className="mt-4 flex flex-col gap-3">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-amber-500 font-bold text-lg">
+                    ★ {Number(profile?.stats?.ratingAvg ?? 0).toFixed(1)}
+                  </span>
+                  <span className="text-gray-500 text-sm">
+                    ({profile?.stats?.ratingCount ?? 0} review{(profile?.stats?.ratingCount ?? 0) !== 1 ? "s" : ""})
+                  </span>
+                </div>
+                <div className="rounded-lg bg-gray-100 px-4 py-2 text-center">
+                  <div className="text-gray-900 font-bold text-lg">{profile?.stats?.lessonsCompleted ?? 0}</div>
+                  <div className="text-gray-500 text-xs font-medium">Lessons completed</div>
+                </div>
+              </div>
 
               {profile?.resumeUrl && (
                 <a
@@ -249,7 +270,7 @@ export default function TeacherProfilePage() {
               {/* Actions */}
               <div className="pt-4 border-t border-gray-200 flex flex-wrap gap-3">
                 <Link
-                  href="/teacher/dashboard"
+                  href="/teacher/"
                   className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

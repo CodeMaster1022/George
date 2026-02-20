@@ -4,6 +4,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTeachingNotifications } from "@/providers/NotificationProvider";
+import type { TeachingNotificationEvent } from "@/hooks/useNotificationSocket";
 
 function NavItem({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -102,6 +104,116 @@ function MenuLink({ href, label }: { href: string; label: string }) {
   );
 }
 
+function notificationLabel(type: TeachingNotificationEvent, payload: Record<string, unknown> = {}): string {
+  const name = typeof payload.studentName === "string" ? payload.studentName : "";
+  switch (type) {
+    case "new_booking":
+      return name ? `Student "${name}" scheduled the lesson` : "New class booking";
+    case "booking_cancelled":
+      return name ? `Student "${name}" cancelled a booking` : "A booking was cancelled";
+    case "session_cancelled":
+      return "Session cancelled";
+    case "class_report_submitted":
+      return "Class report available";
+    case "lesson_completed":
+      return "Lesson completed – rate your experience";
+    default:
+      return "Notification";
+  }
+}
+
+function NotificationBell({ role }: { role: string }) {
+  const { notifications, unreadCount, markAsRead, clearAll } = useTeachingNotifications();
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const listHref = role === "teacher" ? "/teacher/bookings" : "/ebluelearning/class_list";
+
+  React.useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent | TouchEvent) {
+      const el = ref.current;
+      if (!el) return;
+      const target = e.target as Node | null;
+      if (target && el.contains(target)) return;
+      setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown, { passive: true });
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="relative p-2 rounded-lg border-2 border-[#2D2D2D] bg-[#000237]/60 hover:bg-[#CB4913]/80 text-white"
+        aria-label="Notifications"
+        aria-expanded={open ? "true" : "false"}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#CB4913] text-white text-xs font-bold">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-[280px] max-h-[320px] overflow-y-auto border-[5px] border-[#2D2D2D] rounded-[18px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center z-50">
+          <div className="bg-[#000237]/55 backdrop-blur-sm p-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white font-semibold text-sm">Notifications</span>
+              <Link
+                href={listHref}
+                onClick={() => {
+                  clearAll();
+                  setOpen(false);
+                }}
+                className="text-white/80 hover:text-white text-xs"
+              >
+                View all
+              </Link>
+            </div>
+            {notifications.length === 0 ? (
+              <p className="text-white/70 text-sm py-2">No notifications yet.</p>
+            ) : (
+              <ul className="grid gap-1">
+                {notifications.slice(0, 20).map((n) => (
+                  <li key={n.id}>
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 text-white">
+                      <span className="text-sm flex-1">{notificationLabel(n.type, n.payload)}</span>
+                      {!n.readAt && (
+                        <button
+                          type="button"
+                          onClick={() => markAsRead(n.id)}
+                          className="text-xs text-white/80 hover:text-white shrink-0"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardHeader() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -144,9 +256,9 @@ export default function DashboardHeader() {
   }, [authUser?.email]);
 
   return (
-    <header className="bg-transparent">
+    <header className="bg-transparent !pt-3">
       <section className="container p-left p-right">
-        <div className="relative z-20 py-2">
+        <div className="relative z-20 pb-2">
           <div className="flex items-center justify-between gap-4">
             {/* Brand */}
             <Link href={homeHref} className="flex items-center gap-3">
@@ -195,6 +307,10 @@ export default function DashboardHeader() {
 
             {/* Desktop Avatar & Mobile Menu Button */}
             <div className="flex items-center gap-3">
+              {/* Notifications (teacher & student only) */}
+              {(role === "teacher" || role === "student") && (
+                <NotificationBell role={role} />
+              )}
               {/* Desktop Profile Menu */}
               <div className="hidden lg:block">
                 <Menu

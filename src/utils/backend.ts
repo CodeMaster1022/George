@@ -1,5 +1,9 @@
 export function backendBaseUrl() {
-  return (process.env.NEXT_PUBLIC_BACKEND_URL || "https://georgebackend-2.onrender.com").replace(/\/+$/, "");
+  const defaultUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:4000"
+      : "https://georgebackend-2.onrender.com";
+  return (process.env.NEXT_PUBLIC_BACKEND_URL || defaultUrl).replace(/\/+$/, "");
 }
 
 export function getAuthToken() {

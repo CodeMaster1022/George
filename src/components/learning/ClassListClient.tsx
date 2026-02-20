@@ -12,6 +12,8 @@ type BookingRow = {
   bookedAt: string;
   cancelledAt: string | null;
   calendarEventId: string;
+  studentRated?: boolean;
+  teacherRated?: boolean;
   teacher: null | { id: string; name: string; country: string; photoUrl: string; ratingAvg: number };
   session: null | {
     id: string;
@@ -23,18 +25,47 @@ type BookingRow = {
   };
 };
 
-type Filter = "all" | "upcoming" | "past" | "cancelled";
+type Filter = "all" | "upcoming" | "history" | "cancelled";
+
+type ClassReport = {
+  id: string;
+  summary: string;
+  homework: string;
+  strengths: string;
+  updatedAt?: string;
+};
 
 export default function ClassListClient() {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const [filter, setFilter] = React.useState<Filter>("upcoming");
+  const [filter, setFilter] = React.useState<Filter>("all");
   const [previewId, setPreviewId] = React.useState<string>("");
 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [bookings, setBookings] = React.useState<BookingRow[]>([]);
   const [busyCancel, setBusyCancel] = React.useState<string>("");
+
+  const [reportForBookingId, setReportForBookingId] = React.useState<string>("");
+  const [reportData, setReportData] = React.useState<ClassReport | null>(null);
+  const [reportLoading, setReportLoading] = React.useState(false);
+
+  const [ratingModalBookingId, setRatingModalBookingId] = React.useState<string>("");
+  const [ratingStars, setRatingStars] = React.useState(0);
+  const [ratingComment, setRatingComment] = React.useState("");
+  const [ratingSaving, setRatingSaving] = React.useState(false);
+  const [ratingError, setRatingError] = React.useState<string | null>(null);
+  const filterDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(e: MouseEvent) {
+      const el = filterDropdownRef.current;
+      if (el && !el.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
 
   React.useEffect(() => {
     const token = localStorage.getItem("auth_token") || "";
@@ -80,6 +111,42 @@ export default function ClassListClient() {
     await load();
   }
 
+  async function loadReport(bookingId: string) {
+    if (!bookingId) return;
+    setReportForBookingId(bookingId);
+    setReportLoading(true);
+    setReportData(null);
+    const r = await apiJson<{ report: ClassReport | null }>(`/student/reports?bookingId=${encodeURIComponent(bookingId)}`, { auth: true });
+    setReportLoading(false);
+    if (r.ok && r.data) {
+      setReportData((r.data as any).report ?? null);
+    } else {
+      setReportData(null);
+    }
+  }
+
+  async function submitStudentRating() {
+    if (!ratingModalBookingId) return;
+    setRatingSaving(true);
+    setRatingError(null);
+    const r = await apiJson(`/bookings/${encodeURIComponent(ratingModalBookingId)}/rate`, {
+      method: "POST",
+      auth: true,
+      body: JSON.stringify({ rating: ratingStars, comment: ratingComment.trim() || undefined }),
+    });
+    setRatingSaving(false);
+    if (!r.ok) {
+      setRatingError(r.error || "Failed to submit feedback. Please try again.");
+      setError(r.error);
+      return;
+    }
+    setRatingModalBookingId("");
+    setRatingStars(0);
+    setRatingComment("");
+    setRatingError(null);
+    await load();
+  }
+
   const filtered = React.useMemo(() => {
     const now = Date.now();
     if (filter === "all") return bookings;
@@ -92,8 +159,9 @@ export default function ClassListClient() {
         return end >= now;
       });
     }
-    // past
+    // history: completed or past sessions
     return bookings.filter((b) => {
+      if (b.status === "completed") return true;
       const end = b.session?.endAt ? Date.parse(b.session.endAt) : NaN;
       if (!Number.isFinite(end)) return false;
       return end < now;
@@ -103,24 +171,32 @@ export default function ClassListClient() {
   const emptyText =
     filter === "cancelled"
       ? "No cancelled classes."
-      : filter === "past"
-        ? "No past classes yet."
+      : filter === "history"
+        ? "No history yet. Completed lessons will appear here."
         : filter === "upcoming"
           ? "No upcoming classes yet."
           : "No classes yet.";
 
   return (
-    <main className="h-[calc(100vh-106px)]">
+    <main className="min-h-[calc(100vh-90px)]">
       <section className="relative z-10 max-w-[1500px] mx-auto p-left p-right py-8">
         <div className="overflow-hidden">
           <div className="bg-cover bg-center">
             <div className="rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden">
-              <div className="px-6 md:px-10 py-4 bg-white/10">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-white text-sm font-semibold">Your Classes</div>
-                    <div className="mt-2 text-white text-2xl md:text-4xl font-extrabold">
-                      {loading ? "Loading…" : bookings.length ? "Here are your classes" : "Oops! You haven't booked any classes yet…"}
+              <div className="px-6 md:px-10 py-4 bg-white/10 min-h-[350px]">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-white text-sm font-semibold">
+                      {filter === "history" ? "History" : filter === "upcoming" ? "Your Classes" : filter === "cancelled" ? "Cancelled" : "Your Classes"}
+                    </div>
+                    <div className="mt-2 text-white text-xl sm:text-2xl md:text-4xl font-extrabold break-words">
+                      {loading
+                        ? "Loading…"
+                        : filter === "history"
+                          ? (filtered.length ? "Your lesson history" : "No history yet")
+                          : bookings.length
+                            ? "Here are your classes"
+                            : "Oops! You haven't booked any classes yet…"}
                     </div>
                     {error ? (
                       <div className="mt-3 border-2 border-[#2D2D2D] bg-[#B4005A]/40 text-white rounded-xl px-4 py-3 text-sm">
@@ -129,13 +205,13 @@ export default function ClassListClient() {
                     ) : null}
                   </div>
 
-                  <div className="relative">
-                    <div className="flex items-center gap-2">
+                  <div className="relative z-[100] w-full md:w-auto shrink-0" ref={filterDropdownRef}>
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <button
                         type="button"
                         disabled={loading}
                         onClick={load}
-                        className="inline-flex items-center justify-center px-4 py-3 rounded-md border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white font-extrabold text-sm uppercase disabled:opacity-60"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-3 rounded-md border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white font-extrabold text-xs sm:text-sm uppercase disabled:opacity-60"
                       >
                         Refresh
                       </button>
@@ -143,23 +219,32 @@ export default function ClassListClient() {
                       <button
                         type="button"
                         onClick={() => setOpen((v) => !v)}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-extrabold text-sm uppercase min-w-[140px]"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 rounded-md border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0058C9]/90 text-white font-extrabold text-xs sm:text-sm uppercase min-w-0 sm:min-w-[140px]"
                         aria-expanded={open ? "true" : "false"}
                       >
                         <span
-                          className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white/15 border border-white/25"
+                          className="inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-sm bg-white/15 border border-white/25 shrink-0"
                           aria-hidden="true"
                         >
                           ⌄
                         </span>
-                        Filter
+                        <span className="truncate">Filter</span>
                       </button>
                     </div>
 
                     {open ? (
-                      <div className="absolute right-0 mt-2 w-[240px] rounded-[16px] border-[5px] border-[#2D2D2D] overflow-hidden bg-white shadow-[0_15px_40px_rgba(0,0,0,0.2)]">
+                      <div className="absolute right-0 mt-2 w-[240px] max-w-[calc(100vw-2rem)] rounded-[16px] border-[5px] border-[#2D2D2D] overflow-hidden bg-white shadow-[0_15px_40px_rgba(0,0,0,0.2)] z-[100]">
                         <div className="p-3 text-sm text-[#212429]/80">
                           <div className="font-extrabold text-[#212429] mb-2">Filters</div>
+                          <label className="flex items-center gap-2 py-2">
+                            <input
+                              type="radio"
+                              name="class_filter"
+                              checked={filter === "all"}
+                              onChange={() => setFilter("all")}
+                            />
+                            <span>All</span>
+                          </label>
                           <label className="flex items-center gap-2 py-2">
                             <input
                               type="radio"
@@ -173,10 +258,10 @@ export default function ClassListClient() {
                             <input
                               type="radio"
                               name="class_filter"
-                              checked={filter === "past"}
-                              onChange={() => setFilter("past")}
+                              checked={filter === "history"}
+                              onChange={() => setFilter("history")}
                             />
-                            <span>Past</span>
+                            <span>History</span>
                           </label>
                           <label className="flex items-center gap-2 py-2">
                             <input
@@ -186,15 +271,6 @@ export default function ClassListClient() {
                               onChange={() => setFilter("cancelled")}
                             />
                             <span>Cancelled</span>
-                          </label>
-                          <label className="flex items-center gap-2 py-2">
-                            <input
-                              type="radio"
-                              name="class_filter"
-                              checked={filter === "all"}
-                              onChange={() => setFilter("all")}
-                            />
-                            <span>All</span>
                           </label>
                           <button
                             type="button"
@@ -294,6 +370,63 @@ export default function ClassListClient() {
                                     <span className="font-extrabold text-[#212429]">Calendar:</span> {b.calendarEventId}
                                   </div>
                                 ) : null}
+                                <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
+                                  {reportForBookingId !== b.id ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => loadReport(b.id)}
+                                      className="text-[#0058C9] font-semibold hover:underline"
+                                    >
+                                      View class report
+                                    </button>
+                                  ) : reportLoading ? (
+                                    <span className="text-[#212429]/70">Loading report…</span>
+                                  ) : reportData ? (
+                                    <div className="space-y-2 text-[#212429]/90">
+                                      <div className="font-extrabold text-[#212429]">Class Report</div>
+                                      {reportData.summary ? (
+                                        <div>
+                                          <span className="font-semibold">Summary:</span>
+                                          <p className="mt-0.5 whitespace-pre-wrap">{reportData.summary}</p>
+                                        </div>
+                                      ) : null}
+                                      {reportData.strengths ? (
+                                        <div>
+                                          <span className="font-semibold">Strengths:</span>
+                                          <p className="mt-0.5 whitespace-pre-wrap">{reportData.strengths}</p>
+                                        </div>
+                                      ) : null}
+                                      {reportData.homework ? (
+                                        <div>
+                                          <span className="font-semibold">Homework:</span>
+                                          <p className="mt-0.5 whitespace-pre-wrap">{reportData.homework}</p>
+                                        </div>
+                                      ) : null}
+                                      {!reportData.summary && !reportData.strengths && !reportData.homework ? (
+                                        <p className="text-[#212429]/70">No details in this report yet.</p>
+                                      ) : null}
+                                    </div>
+                                  ) : (
+                                    <p className="text-[#212429]/70">No report yet for this class.</p>
+                                  )}
+                                </div>
+                                {b.status === "completed" && !b.studentRated && (
+                                  <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setRatingModalBookingId(b.id);
+                                        setRatingStars(0);
+                                        setRatingComment("");
+                                        setRatingError(null);
+                                      }}
+                                      className="inline-flex items-center gap-1.5 text-[#0058C9] font-semibold hover:underline"
+                                    >
+                                      <span className="text-amber-500" aria-hidden>★</span>
+                                      Give feedback to your teacher
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             ) : null}
                           </div>
@@ -301,26 +434,54 @@ export default function ClassListClient() {
                           <div className="grid grid-cols-2">
                             <button
                               type="button"
-                              onClick={() => setPreviewId((cur) => (cur === b.id ? "" : b.id))}
+                              onClick={() => {
+                                setPreviewId((cur) => {
+                                  const next = cur === b.id ? "" : b.id;
+                                  if (next === "") {
+                                    setReportForBookingId("");
+                                    setReportData(null);
+                                  }
+                                  return next;
+                                });
+                              }}
                               className="py-3 text-white font-extrabold text-xs uppercase bg-[#0B5ED7] hover:bg-[#0a55c3] border-t border-[#E5E7EB]"
                             >
                               Preview
                             </button>
 
-                            <button
-                              type="button"
-                              disabled={!canCancel || busyCancel === b.id}
-                              onClick={() => cancelBooking(b.id)}
-                              className="relative py-3 text-white font-extrabold text-xs uppercase bg-[#DC3545] hover:bg-[#c62f3e] disabled:opacity-60 border-t border-l border-[#E5E7EB]"
-                              title={canCancel ? "Cancel this class" : "Only upcoming booked classes can be cancelled."}
-                            >
-                              {busyCancel === b.id ? "Cancel…" : "Cancel"}
-                              {showBadge ? (
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white text-[#DC3545] border border-white grid place-items-center text-[11px] font-extrabold">
-                                  {hoursLeft}
-                                </span>
-                              ) : null}
-                            </button>
+                            {b.status === "completed" && !b.studentRated ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRatingModalBookingId(b.id);
+                                  setRatingStars(0);
+                                  setRatingComment("");
+                                  setRatingError(null);
+                                }}
+                                className="py-3 text-white font-extrabold text-xs uppercase bg-[#F59E0B] hover:bg-[#D97706] border-t border-l border-[#E5E7EB]"
+                              >
+                                ★ Give feedback
+                              </button>
+                            ) : b.status === "completed" && b.studentRated ? (
+                              <div className="py-3 text-center text-[#212429]/60 text-xs uppercase font-extrabold border-t border-l border-[#E5E7EB] bg-gray-50 flex items-center justify-center">
+                                Rated
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={!canCancel || busyCancel === b.id}
+                                onClick={() => cancelBooking(b.id)}
+                                className="relative py-3 text-white font-extrabold text-xs uppercase bg-[#DC3545] hover:bg-[#c62f3e] disabled:opacity-60 border-t border-l border-[#E5E7EB]"
+                                title={canCancel ? "Cancel this class" : "Only upcoming booked classes can be cancelled."}
+                              >
+                                {busyCancel === b.id ? "Cancel…" : "Cancel"}
+                                {showBadge ? (
+                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white text-[#DC3545] border border-white grid place-items-center text-[11px] font-extrabold">
+                                    {hoursLeft}
+                                  </span>
+                                ) : null}
+                              </button>
+                            )}
                           </div>
                         </div>
                       );
@@ -334,6 +495,82 @@ export default function ClassListClient() {
           </div>
         </div>
       </section>
+
+      {/* Student rating modal (rate your teacher) */}
+      {ratingModalBookingId && (() => {
+        const b = bookings.find((x) => x.id === ratingModalBookingId);
+        if (!b) return null;
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+            onClick={() => { setRatingModalBookingId(""); setRatingError(null); }}
+          >
+            <div
+              className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-[#E5E7EB]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-[#212429] mb-1">Give feedback to your teacher</h3>
+              {ratingError && (
+                <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+                  {ratingError}
+                </div>
+              )}
+              <p className="text-sm text-[#212429]/70 mb-4">
+                How was your experience with {b.teacher?.name || "your teacher"}? Your feedback helps improve future lessons.
+              </p>
+              <div className="flex gap-2 mb-4">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setRatingStars(n)}
+                    className="p-2 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
+                    style={{
+                      borderColor: ratingStars >= n ? "#F59E0B" : "#E5E7EB",
+                      background: ratingStars >= n ? "#FEF3C7" : "white",
+                    }}
+                    aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                  >
+                    <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              <label className="block text-sm font-medium text-[#212429] mb-1">Your feedback (optional)</label>
+              <textarea
+                value={ratingComment}
+                onChange={(e) => setRatingComment(e.target.value)}
+                placeholder="Share what went well or what could be better. Your teacher will see this."
+                rows={3}
+                className="w-full px-3 py-2 rounded-lg border border-[#E5E7EB] text-sm resize-none mb-4 text-[#212429]"
+              />
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRatingModalBookingId("");
+                    setRatingStars(0);
+                    setRatingComment("");
+                    setRatingError(null);
+                  }}
+                  className="flex-1 py-2.5 rounded-lg border-2 border-[#E5E7EB] text-[#212429] text-sm font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={ratingStars < 1 || ratingSaving}
+                  onClick={submitStudentRating}
+                  className="flex-1 py-2.5 rounded-lg bg-[#CB4913] hover:bg-[#B03D0F] text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {ratingSaving ? "Submitting…" : "Submit rating"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </main>
   );
 }

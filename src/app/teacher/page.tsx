@@ -92,7 +92,7 @@ export default function TeacherDashboardPage() {
   }
 
   return (
-    <main className="h-[calc(100vh-107px)]  bg-gray-50">
+    <main className="min-h-[calc(100vh-107px)] bg-gray-50">
       <section className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

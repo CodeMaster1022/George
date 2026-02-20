@@ -3,21 +3,44 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { apiJson, getAuthUser } from "@/utils/backend";
 
-type MockRegistration = {
-  email?: string;
-  parent?: { firstName?: string; lastName?: string; phone?: string | null };
-  student?: { name?: string };
+type StudentProfile = {
+  nickname?: string;
+  spanishLevel?: string;
+  stats?: { ratingAvg?: number; lessonsCompleted?: number };
 };
 
-function getDisplayName(data: MockRegistration | null) {
-  const student = data?.student?.name?.trim();
-  if (student) return student;
-  const parent = [data?.parent?.firstName, data?.parent?.lastName].filter(Boolean).join(" ").trim();
-  if (parent) return parent;
-  const email = data?.email?.trim();
-  if (email) return email.split("@")[0];
+type BookingRow = {
+  id: string;
+  status: string;
+  session: null | { startAt: string; endAt: string };
+};
+
+function getDisplayName(profile: StudentProfile | null) {
+  const name = (profile?.nickname ?? "").trim();
+  if (name) return name;
+  try {
+    const u: any = getAuthUser();
+    const email = (u?.email ?? "").trim();
+    if (email) return email.split("@")[0];
+  } catch {
+    // ignore
+  }
   return "Explorer";
+}
+
+const LEVEL_PILLS = ["A0", "A1", "A2", "B1", "B2"] as const;
+type LevelPill = (typeof LEVEL_PILLS)[number];
+
+function profileLevelToPill(spanishLevel?: string): LevelPill {
+  const v = (spanishLevel ?? "").toLowerCase();
+  if (v.includes("b2")) return "B2";
+  if (v.includes("b1")) return "B1";
+  if (v.includes("a2")) return "A2";
+  if (v.includes("a1")) return "A1";
+  return "A0";
 }
 
 function StatCard({
@@ -50,19 +73,17 @@ function StatCard({
   );
 }
 
-function LevelPill({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+function LevelPill({ label, active }: { label: string; active?: boolean }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       className={[
-        "w-10 h-10 rounded-full border-2 border-[#2D2D2D] text-xs font-bold",
-        active ? "bg-[#0058C9] text-white" : "bg-white text-[#212429]/70 hover:bg-[#0058C9]/10",
+        "w-10 h-10 rounded-full border-2 border-[#2D2D2D] text-xs font-bold grid place-items-center",
+        active ? "bg-[#0058C9] text-white" : "bg-white text-[#212429]/70",
       ].join(" ")}
-      aria-pressed={active ? "true" : "false"}
+      aria-current={active ? "true" : undefined}
     >
       {label}
-    </button>
+    </div>
   );
 }
 
@@ -87,27 +108,69 @@ function StarRow({ filled }: { filled: number }) {
 }
 
 export default function EBlueDashboard() {
-  const [name, setName] = React.useState("Explorer");
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const [profile, setProfile] = React.useState<StudentProfile | null>(null);
+  const [creditsBalance, setCreditsBalance] = React.useState<number>(0);
+  const [bookings, setBookings] = React.useState<BookingRow[]>([]);
+
   const [gcLoading, setGcLoading] = React.useState(true);
   const [gcConnected, setGcConnected] = React.useState(false);
   const [gcError, setGcError] = React.useState<string | null>(null);
 
-  // Mock stats (until backend exists)
-  const [remainingCredits] = React.useState(0);
-  const [classesTaken] = React.useState(0);
-  const [upcomingClasses] = React.useState(0);
-  const [level, setLevel] = React.useState<"A0" | "A1" | "A2" | "B1" | "B2">("A1");
-  const [grade] = React.useState(0.0);
-  const [coins] = React.useState(0);
+  React.useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : "";
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    const u: any = getAuthUser();
+    if (u?.role === "teacher") {
+      router.replace("/teacher");
+      return;
+    }
+  }, [router]);
 
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("mock_registration");
-      const parsed = raw ? (JSON.parse(raw) as MockRegistration) : null;
-      setName(getDisplayName(parsed));
-    } catch {
-      // ignore
+    let cancelled = false;
+
+    async function load() {
+      setError(null);
+      setLoading(true);
+      try {
+        const [creditsRes, bookingsRes, profileRes] = await Promise.all([
+          apiJson<{ balance: number }>("/credits/balance", { auth: true }),
+          apiJson<{ bookings: BookingRow[] }>("/bookings", { auth: true }),
+          apiJson<{ profile: StudentProfile }>("/student/profile", { auth: true }),
+        ]);
+
+        if (cancelled) return;
+
+        if (creditsRes.ok && creditsRes.data?.balance !== undefined) {
+          setCreditsBalance(creditsRes.data.balance);
+        }
+        if (bookingsRes.ok && Array.isArray(bookingsRes.data?.bookings)) {
+          setBookings(bookingsRes.data.bookings);
+        }
+        if (profileRes.ok && profileRes.data?.profile) {
+          setProfile(profileRes.data.profile);
+        }
+        if (!creditsRes.ok && !bookingsRes.ok && !profileRes.ok) {
+          setError(creditsRes.ok ? (bookingsRes.ok ? profileRes.error : bookingsRes.error) : creditsRes.error);
+        }
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message ?? "Failed to load dashboard.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function loadGoogleCalendarStatus() {
@@ -134,6 +197,22 @@ export default function EBlueDashboard() {
       setGcLoading(false);
     }
   }
+
+  const name = React.useMemo(() => getDisplayName(profile), [profile]);
+  const remainingCredits = creditsBalance;
+  const classesTaken = React.useMemo(
+    () => bookings.filter((b) => b.status === "completed").length,
+    [bookings]
+  );
+  const upcomingClasses = React.useMemo(
+    () => bookings.filter((b) => b.status === "booked").length,
+    [bookings]
+  );
+  const level = React.useMemo(() => profileLevelToPill(profile?.spanishLevel), [profile?.spanishLevel]);
+  const ratingAvg = profile?.stats?.ratingAvg ?? 0;
+  const grade = Math.round(ratingAvg * 10) / 10;
+  const starsFilled = Math.min(5, Math.max(0, Math.round(ratingAvg)));
+  const coins = 0;
 
   React.useEffect(() => {
     loadGoogleCalendarStatus();
@@ -184,8 +263,40 @@ export default function EBlueDashboard() {
     }
   }
 
+  if (loading) {
+    return (
+      <section className="relative z-10 max-w-[1400px] mx-auto p-left p-right py-12">
+        <div className="border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden bg-white">
+          <div className="flex flex-col items-center justify-center min-h-[420px] px-6 md:px-12 py-16">
+            <div
+              className="w-12 h-12 rounded-full border-4 border-[#2D2D2D]/20 border-t-[#0058C9] animate-spin shrink-0"
+              aria-hidden="true"
+            />
+            <p className="mt-6 text-[#212429] font-semibold text-lg">Loading your dashboard</p>
+            <p className="mt-1.5 text-[#212429]/60 text-sm">Fetching your classes and credits…</p>
+            <div className="mt-10 flex gap-2">
+              <div className="h-2 w-16 rounded-full bg-[#2D2D2D]/10 animate-pulse" style={{ animationDelay: "0ms" }} />
+              <div className="h-2 w-16 rounded-full bg-[#2D2D2D]/10 animate-pulse" style={{ animationDelay: "150ms" }} />
+              <div className="h-2 w-16 rounded-full bg-[#2D2D2D]/10 animate-pulse" style={{ animationDelay: "300ms" }} />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const hasAnyClasses = upcomingClasses > 0 || classesTaken > 0;
+  const bannerMessage = hasAnyClasses
+    ? `¡Hola ${name}! Here's your learning overview.`
+    : `¡Hola ${name}! Book your first class to get started.`;
+
   return (
     <section className="relative z-10 max-w-[1400px] mx-auto p-left p-right py-12">
+      {error ? (
+        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+          {error}
+        </div>
+      ) : null}
       <div className="border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
         {/* Top banner */}
         <div className="relative border-b-[5px] border-[#2D2D2D] overflow-hidden bg-[#00A3D9]">
@@ -200,7 +311,7 @@ export default function EBlueDashboard() {
           />
           <div className="relative px-6 md:px-12 py-10 md:py-12 text-center">
             <div className="text-white text-2xl md:text-4xl font-extrabold">
-              ¡Hola {name}! Oops! You haven&apos;t booked any classes yet...
+              {bannerMessage}
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 max-w-[920px] mx-auto">
@@ -209,7 +320,7 @@ export default function EBlueDashboard() {
                 className="inline-flex items-center justify-center px-6 py-4 rounded-md text-white font-extrabold border-2 border-[#2D2D2D] uppercase text-sm md:text-base"
                 style={{ backgroundColor: "#5B2AA6" }}
               >
-                Book more classes
+                {hasAnyClasses ? "Your classes" : "Book more classes"}
               </Link>
               <Link
                 href="/ebluelearning/buy_credits"
@@ -230,7 +341,7 @@ export default function EBlueDashboard() {
               <div className="w-[70px] h-[70px] rounded-md border border-[#E5E7EB] overflow-hidden bg-white flex flex-col">
                 <div className="h-3 bg-[#3B82F6]" />
                 <div className="flex-1 grid place-items-center text-2xl font-extrabold text-[#3B82F6]">
-                  31
+                  {new Date().getDate()}
                 </div>
                 <div className="h-2 bg-[#22C55E]" />
               </div>
@@ -310,8 +421,8 @@ export default function EBlueDashboard() {
             <div className="text-center">
               <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">Your level</div>
               <div className="mt-4 flex items-center justify-center gap-3">
-                {(["A0", "A1", "A2", "B1", "B2"] as const).map((l) => (
-                  <LevelPill key={l} label={l} active={level === l} onClick={() => setLevel(l)} />
+                {LEVEL_PILLS.map((l) => (
+                  <LevelPill key={l} label={l} active={level === l} />
                 ))}
               </div>
             </div>
@@ -319,7 +430,7 @@ export default function EBlueDashboard() {
             <div className="text-center">
               <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">Your grade</div>
               <div className="mt-3 text-[#F59E0B] text-3xl md:text-4xl font-extrabold">{grade.toFixed(1)}</div>
-              <StarRow filled={0} />
+              <StarRow filled={starsFilled} />
             </div>
 
             <div className="text-center">

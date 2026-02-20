@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 
@@ -9,46 +10,25 @@ type Ticket = {
   title: string;
   price: string;
   sub: string;
-  bg: string;
-  href: string;
-  icon: string;
-  payTitle: string;
   credits: number;
+  highlight?: boolean;
 };
+
+function CreditIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v12M8 10h8M8 14h6" />
+    </svg>
+  );
+}
 
 export default function BuyCreditsClient() {
   const router = useRouter();
   const tickets: Ticket[] = [
-    {
-      title: "ADMIT ONE",
-      price: "$20",
-      sub: "$20 each class",
-      bg: "#F43F5E",
-      href: "/pricing",
-      icon: "https://unpkg.com/lucide-static@latest/icons/ticket.svg",
-      payTitle: "Single class",
-      credits: 1,
-    },
-    {
-      title: "ADMIT FIVE",
-      price: "$95",
-      sub: "$19 each class",
-      bg: "#10B981",
-      href: "/pricing",
-      icon: "https://unpkg.com/lucide-static@latest/icons/tickets.svg",
-      payTitle: "5 classes",
-      credits: 5,
-    },
-    {
-      title: "ADMIT TEN",
-      price: "$180",
-      sub: "$18 each class",
-      bg: "#F59E0B",
-      href: "/pricing",
-      icon: "https://unpkg.com/lucide-static@latest/icons/badge-dollar-sign.svg",
-      payTitle: "10 classes",
-      credits: 10,
-    },
+    { title: "Single class", price: "$20", sub: "$20 per class", credits: 1 },
+    { title: "5 classes", price: "$95", sub: "$19 per class", credits: 5, highlight: true },
+    { title: "10 classes", price: "$180", sub: "$18 per class", credits: 10 },
   ];
 
   const [selected, setSelected] = React.useState<Ticket | null>(null);
@@ -58,7 +38,7 @@ export default function BuyCreditsClient() {
   const [info, setInfo] = React.useState<string | null>(null);
   const [balance, setBalance] = React.useState<number>(0);
   const [loadingBalance, setLoadingBalance] = React.useState(true);
-  const [paying, setPaying] = React.useState(false);
+  const [payingMethod, setPayingMethod] = React.useState<"card" | "paypal" | null>(null);
 
   React.useEffect(() => {
     const token = localStorage.getItem("auth_token") || "";
@@ -100,242 +80,194 @@ export default function BuyCreditsClient() {
       setError("Please agree to the Terms and Privacy Policy.");
       return;
     }
-    setPaying(true);
-    const r = await apiJson<{ ok: boolean; balance: number }>("/credits/purchase", {
-      method: "POST",
-      auth: true,
-      body: JSON.stringify({
-        credits: selected.credits,
-        method: method === "card" ? "mock_card" : "mock_paypal",
-        referralCode: referral.trim() ? referral.trim() : undefined,
-      }),
-    });
-    setPaying(false);
-    if (!r.ok) {
-      setError(r.error);
-      return;
+    setPayingMethod(method);
+    try {
+      const r = await apiJson<{ ok: boolean; balance: number }>("/credits/purchase", {
+        method: "POST",
+        auth: true,
+        body: JSON.stringify({
+          credits: selected.credits,
+          method: method === "card" ? "mock_card" : "mock_paypal",
+          referralCode: referral.trim() ? referral.trim() : undefined,
+        }),
+      });
+      if (!r.ok) {
+        setError(r.error);
+        return;
+      }
+      const nextBalance = Number((r.data as any)?.balance ?? balance);
+      setBalance(nextBalance);
+      setInfo(`Added ${selected.credits} credits. New balance: ${nextBalance}.`);
+    } finally {
+      setPayingMethod(null);
     }
-    const nextBalance = Number((r.data as any)?.balance ?? balance);
-    setBalance(nextBalance);
-    setInfo(`Added ${selected.credits} credits. New balance: ${nextBalance}.`);
   }
 
   return (
-    <main className="h-[calc(100vh-100px)]">
-      <section className="relative z-10 max-w-[1500px] mx-auto p-left p-right py-8">
-        <div className="border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
-          <div className="px-6 md:px-12 py-6">
-            <div className="text-center">
-              <h1 className="text-[#bdc7d8] text-2xl md:text-4xl font-extrabold">
-                Get your class credits here. Each class lasts 25 minutes.
+    <main className="min-h-[calc(100vh-100px)]">
+      <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-6 md:py-8">
+        <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
+          <div className="bg-[url('/img/mars-bg.png')] bg-cover bg-center px-6 md:px-10 py-6 md:py-8">
+            {/* Header */}
+            <div className="text-center mb-8 md:mb-10">
+              <h1 className="text-white text-2xl md:text-4xl font-extrabold">
+                Buy credits
               </h1>
+              <p className="mt-2 text-white/85 text-sm md:text-base font-semibold max-w-xl mx-auto">
+                Each credit = one 25-minute class. Choose a package and pay with card or PayPal.
+              </p>
             </div>
 
-            <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_320px] items-start">
-              {/* Tickets */}
-              <div className="grid gap-6 md:grid-cols-3 justify-items-center">
-                {tickets.map((t) => {
-                  const active = selected?.title === t.title;
-                  return (
-                    <button
-                      key={t.title}
-                      type="button"
-                      onClick={() => setSelected(t)}
-                      aria-pressed={active ? "true" : "false"}
-                      className={[
-                        "group w-full max-w-[320px] text-left",
-                        active ? "scale-[1.01]" : "",
-                      ].join(" ")}
-                    >
-                      <div
-                        className={[
-                          "relative border-[5px] border-[#2D2D2D] rounded-[20px] overflow-hidden transition-transform",
-                          active ? "ring-4 ring-[#0058C9]/35" : "hover:-translate-y-0.5",
-                        ].join(" ")}
-                        style={{ backgroundColor: t.bg }}
+            <div className="grid gap-6 lg:grid-cols-[1fr_340px] items-start">
+              {/* Packages */}
+              <div>
+                <div className="text-white/90 text-sm font-semibold mb-3 uppercase tracking-wide">
+                  Choose a package
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {tickets.map((t) => {
+                    const isSelected = selected?.credits === t.credits;
+                    return (
+                      <button
+                        key={t.credits}
+                        type="button"
+                        onClick={() => setSelected(t)}
+                        aria-pressed={isSelected}
+                        className={`text-left rounded-[18px] border-[5px] overflow-hidden transition-all ${
+                          isSelected
+                            ? "border-[#0058C9] ring-2 ring-[#0058C9]/40 scale-[1.02]"
+                            : "border-[#2D2D2D] hover:border-white/40 hover:scale-[1.01]"
+                        } ${t.highlight ? "bg-[#0058C9]/20" : "bg-white/10"}`}
                       >
-                        {/* Ticket notches */}
-                        <div className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white border-[5px] border-[#2D2D2D]" />
-                        <div className="pointer-events-none absolute -bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white border-[5px] border-[#2D2D2D]" />
-
-                        {/* Stars strip */}
-                        <div className="px-4 pt-4 pb-3 border-b-[5px] border-[#2D2D2D] bg-white/15">
-                          <div className="flex justify-center gap-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <svg key={i} width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                  d="M12 17.3l-6.18 3.73 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.76 1.64 7.03L12 17.3z"
-                                  fill="white"
-                                  opacity="0.9"
-                                />
-                              </svg>
-                            ))}
+                        <div className="p-5 md:p-6 text-white">
+                          <div className="flex items-center justify-center w-14 h-14 rounded-xl border-2 border-white/30 bg-white/10">
+                            <CreditIcon className="w-8 h-8 text-white" />
                           </div>
-                        </div>
-
-                        {/* Body */}
-                        <div className="px-6 py-8 text-center text-white">
-                          <div className="flex justify-center">
-                            <div className="w-20 h-20 rounded-[18px] border-2 border-[#2D2D2D] bg-white/15 grid place-items-center">
-                              <img
-                                src={t.icon}
-                                alt=""
-                                className="w-12 h-12 object-contain invert"
-                              />
+                          <div className="mt-4 font-extrabold text-lg">{t.title}</div>
+                          <div className="mt-2 text-2xl md:text-3xl font-extrabold leading-none">{t.price}</div>
+                          <div className="mt-1 text-white/85 text-sm font-semibold">{t.sub}</div>
+                          {t.highlight && (
+                            <div className="mt-3 inline-block px-2 py-0.5 rounded-md bg-amber-400/90 text-[#212429] text-xs font-bold uppercase">
+                              Best value
                             </div>
-                          </div>
-
-                          <div className="mt-6 font-extrabold tracking-[0.10em] text-2xl">{t.title}</div>
-                          <div className="mt-2 text-4xl font-extrabold leading-none">{t.price}</div>
-                          <div className="mt-2 text-white/90 text-sm font-semibold">{t.sub}</div>
+                          )}
                         </div>
-
-                        {/* Perforation */}
-                        <div
-                          className="h-[10px] border-y-[5px] border-[#2D2D2D]"
-                          style={{
-                            background:
-                              "repeating-linear-gradient(90deg, rgba(255,255,255,0.0) 0 10px, rgba(255,255,255,0.35) 10px 14px)",
-                          }}
-                          aria-hidden="true"
-                        />
-
-                        {/* Barcode */}
-                        <div className="px-6 py-6 bg-white/10">
-                          <div
-                            className="h-10 rounded-md border-2 border-[#2D2D2D] bg-white"
-                            style={{
-                              background:
-                                "repeating-linear-gradient(90deg, #111827 0 2px, #ffffff 2px 6px)",
-                            }}
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Right panel */}
-              <div className="w-full">
-                <div className="border-[5px] border-[#2D2D2D] rounded-[20px] overflow-hidden">
-                  <div className="p-5">
-                    <div className="border-2 border-[#2D2D2D] rounded-md bg-white/10 px-3 py-2 text-white text-sm font-semibold">
-                      Your credits:{" "}
-                      <span className="font-extrabold">
-                        {loadingBalance ? "Loading..." : balance}
+              {/* Sidebar: balance, referral, payment */}
+              <div className="lg:sticky lg:top-6">
+                <div className="rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden bg-white">
+                  <div className="p-5 md:p-6">
+                    {/* Current balance */}
+                    <div className="rounded-xl border-2 border-[#2D2D2D] bg-[#B4005A]/10 px-4 py-3 flex items-center justify-between">
+                      <span className="text-[#212429] font-semibold text-sm">Your credits</span>
+                      <span className="text-[#B4005A] font-extrabold text-xl">
+                        {loadingBalance ? "…" : balance}
                       </span>
                     </div>
 
-                    <div className="text-[#d8d1e2] font-extrabold text-sm">
-                      Were you referred to Kids&apos; Club?
+                    {/* Referral */}
+                    <div className="mt-5">
+                      <div className="text-[#212429] font-extrabold text-sm">Referral code</div>
+                      <p className="mt-0.5 text-[#212429]/70 text-xs">
+                        Enter a code if someone referred you.
+                      </p>
+                      <input
+                        value={referral}
+                        onChange={(e) => setReferral(e.target.value)}
+                        placeholder="Optional"
+                        className="mt-2 w-full px-4 py-2.5 rounded-lg border-2 border-[#2D2D2D] bg-white text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-[#0058C9]"
+                      />
                     </div>
-                    <div className="text-[#bdc7d8]/70 text-xs mt-1">
-                      Enter the referral code here if someone referred you to Kids&apos; Club.
-                    </div>
 
-                    <input
-                      value={referral}
-                      onChange={(e) => setReferral(e.target.value)}
-                      className="mt-4 w-full px-4 py-3 rounded-md border-2 border-[#2D2D2D] bg-white text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                      placeholder=""
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => setInfo("Referral code will be recorded with your next purchase.")}
-                      className="mt-1 inline-flex items-center justify-center w-full px-4 py-3 rounded-md border-2 border-[#2D2D2D] text-white font-extrabold text-sm"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(110,46,169,1) 0%, rgba(79,31,133,1) 100%)",
-                      }}
-                    >
-                      Submit Referral Code
-                    </button>
-
-                    {/* Payment section appears after selecting a ticket */}
+                    {/* Payment (when package selected) */}
                     {selected ? (
-                      <div className="mt-1 border-t border-[#E5E7EB] pt-2">
-                        <div className="text-center">
-                          <div className="w-full px-4 py-2 rounded-md border-2 border-[#2D2D2D] text-white font-extrabold"
-                            style={{ backgroundColor: "#0058C9" }}
-                          >
-                            {selected.payTitle}
-                            <br />
-                            Pay {selected.price} by:
-                          </div>
-                        </div>
+                      <div className="mt-6 pt-5 border-t-2 border-[#E5E7EB]" role="region" aria-labelledby="payment-heading">
+                        <h2 id="payment-heading" className="text-[#212429] font-extrabold text-sm mb-3">
+                          Pay {selected.price} — {selected.title}
+                        </h2>
 
-                        <button
-                          type="button"
-                          onClick={() => onPay("card")}
-                          disabled={paying}
-                          className="mt-1 w-full px-4 py-2 rounded-md border-2 border-[#2D2D2D] text-white font-extrabold text-xl"
-                          style={{ backgroundColor: "#16A34A" }}
-                        >
-                          {paying ? "Processing..." : "CreditCard"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => onPay("paypal")}
-                          disabled={paying}
-                          className="mt-1 w-full px-4 py-2 rounded-md border-2 border-[#2D2D2D] text-[#0B1020] font-extrabold text-xl"
-                          style={{ backgroundColor: "#F59E0B" }}
-                        >
-                          {paying ? "Processing..." : "PayPal"}
-                        </button>
-
-                        <label className="mt-4 flex items-start gap-2 text-xs text-white">
+                        <label className="flex items-start gap-2 text-xs text-[#212429] cursor-pointer mb-3">
                           <input
+                            id="buy-credits-agree"
                             type="checkbox"
-                            className="mt-1"
+                            className="mt-1 h-4 w-4 rounded border-2 border-[#2D2D2D] text-[#0058C9] focus:ring-2 focus:ring-[#0058C9] focus:ring-offset-0"
                             checked={agree}
                             onChange={(e) => setAgree(e.target.checked)}
+                            aria-describedby="agree-desc"
                           />
-                          <span>
-                            Check here to indicate that you have read and agree to the{" "}
-                            <a className="text-[#0058C9] underline" href="/terms-and-conditions">
-                              Terms and Conditions
-                            </a>{" "}
-                            and the{" "}
-                            <a className="text-[#0058C9] underline" href="/privacy-policy">
+                          <span id="agree-desc">
+                            I agree to the{" "}
+                            <Link href="/terms-and-conditions" className="text-[#0058C9] font-semibold underline hover:no-underline">
+                              Terms
+                            </Link>{" "}
+                            and{" "}
+                            <Link href="/privacy-policy" className="text-[#0058C9] font-semibold underline hover:no-underline">
                               Privacy Policy
-                            </a>
+                            </Link>
                             .
                           </span>
                         </label>
 
-                        <div className="mt-4 h-px bg-[#E5E7EB]" />
-                        <p className="mt-4 text-[11px] text-white leading-5">
-                          Prices displayed are estimates based on current exchange rates. Exact amount charged
-                          will vary and depends on the exchange rate at the time of payment processing. For
-                          exact base pricing please refer to prices listed in USD.
+                        {!agree && (
+                          <p className="mb-3 text-xs text-[#212429]/70 font-medium">
+                            Check the box above to enable payment.
+                          </p>
+                        )}
+
+                        <div className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onPay("card")}
+                            disabled={payingMethod !== null || !agree}
+                            aria-label={`Pay ${selected.price} with credit card`}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#2D2D2D] bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold text-sm uppercase transition-colors"
+                          >
+                            {payingMethod === "card" ? "Processing…" : "Pay with card"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onPay("paypal")}
+                            disabled={payingMethod !== null || !agree}
+                            aria-label={`Pay ${selected.price} with PayPal`}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#2D2D2D] bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-60 disabled:cursor-not-allowed text-[#212429] font-extrabold text-sm uppercase transition-colors"
+                          >
+                            {payingMethod === "paypal" ? "Processing…" : "Pay with PayPal"}
+                          </button>
+                        </div>
+
+                        <p className="mt-4 text-[11px] text-[#212429]/70 leading-relaxed">
+                          Prices are estimates; exact charge may vary with exchange rates. Base prices are in USD.
                         </p>
                       </div>
                     ) : (
-                      <div className="mt-6 border-t border-[#E5E7EB] pt-5 text-xs text-[#212429]/70">
-                        Select a ticket to see payment options.
+                      <div className="mt-6 pt-5 border-t-2 border-[#E5E7EB] text-center text-[#212429]/60 text-sm font-semibold">
+                        Select a package above to see payment options.
                       </div>
                     )}
 
-                    {error ? (
-                      <div className="mt-4 text-xs text-[#B4005A] font-semibold">{error}</div>
-                    ) : null}
-                    {info ? (
-                      <div className="mt-3 text-xs text-white/80 font-semibold">{info}</div>
-                    ) : null}
-                  </div>
-                </div>
+                    {error && (
+                      <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm font-semibold">
+                        {error}
+                      </div>
+                    )}
+                    {info && (
+                      <div className="mt-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm font-semibold">
+                        {info}
+                      </div>
+                    )}
 
-                <div className="mt-4">
-                  {/* <Link
-                    href="/ebluelearning"
-                    className="inline-flex items-center justify-center w-full px-6 py-3 rounded-full border-2 border-[#2D2D2D] text-white bg-[#000237]/60 hover:bg-white/10 text-sm md:text-base"
-                  >
-                    Back to dashboard
-                  </Link> */}
+                    <Link
+                      href="/ebluelearning"
+                      className="mt-5 inline-flex items-center justify-center w-full px-4 py-2.5 rounded-lg border-2 border-[#2D2D2D] text-[#212429] font-extrabold text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Back to dashboard
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -345,4 +277,3 @@ export default function BuyCreditsClient() {
     </main>
   );
 }
-

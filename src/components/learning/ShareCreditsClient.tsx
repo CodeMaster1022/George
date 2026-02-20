@@ -112,7 +112,7 @@ export default function ShareCreditsClient() {
   }, [recipientEmail]);
 
   return (
-    <main className="h-[calc(100vh-100px)]">
+    <main className="min-h-[calc(100vh-107px)]">
       <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-12 md:py-16">
         <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">

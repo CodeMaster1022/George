@@ -49,7 +49,7 @@ export default function TeacherEarningsPage() {
 
   if (loading) {
     return (
-      <main className="h-[calc(100vh-107px)]  bg-gray-50">
+      <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
           <div className="text-gray-600 text-center">Loading...</div>
         </section>
@@ -58,7 +58,7 @@ export default function TeacherEarningsPage() {
   }
 
   return (
-    <main className="h-[calc(100vh-107px)]  bg-gray-50">
+    <main className="min-h-[calc(100vh-107px)] bg-gray-50">
       <section className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

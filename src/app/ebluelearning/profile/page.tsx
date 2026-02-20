@@ -3,7 +3,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { apiJson } from "@/utils/backend";
+import { apiJson, getAuthUser } from "@/utils/backend";
 
 type StudentProfile = {
   _id: string;
@@ -15,6 +15,12 @@ type StudentProfile = {
   homeschoolFunding: string;
   questionnaire: string;
   photoUrl: string;
+  stats?: {
+    lessonsCompleted?: number;
+    feedbackGiven?: number;
+    ratingAvg?: number;
+    ratingCount?: number;
+  };
   parentContact?: {
     name?: string;
     phone?: string;
@@ -42,6 +48,18 @@ function levelLabel(level?: string) {
   if (!v) return "Absolute beginner";
   if (v.includes("beginner")) return "Absolute beginner";
   return level ?? "Absolute beginner";
+}
+
+const LEVEL_PILLS = ["A0", "A1", "A2", "B1", "B2"] as const;
+type LevelPill = (typeof LEVEL_PILLS)[number];
+
+function profileLevelToPill(spanishLevel?: string): LevelPill {
+  const v = (spanishLevel ?? "").toLowerCase();
+  if (v.includes("b2")) return "B2";
+  if (v.includes("b1")) return "B1";
+  if (v.includes("a2")) return "A2";
+  if (v.includes("a1")) return "A1";
+  return "A0";
 }
 
 function StarRow({ filled }: { filled: number }) {
@@ -92,38 +110,51 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function EBlueProfilePage() {
   const [profile, setProfile] = React.useState<StudentProfile | null>(null);
+  const [creditsBalance, setCreditsBalance] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    async function loadProfile() {
+    async function load() {
       setLoading(true);
       setError(null);
-      const r = await apiJson<{ profile: StudentProfile }>("/student/profile", { auth: true });
+      const [profileRes, creditsRes] = await Promise.all([
+        apiJson<{ profile: StudentProfile }>("/student/profile", { auth: true }),
+        apiJson<{ balance: number }>("/credits/balance", { auth: true }),
+      ]);
       setLoading(false);
-      
-      if (!r.ok) {
-        setError(r.error);
+
+      if (!profileRes.ok) {
+        setError(profileRes.error);
         return;
       }
-      
-      setProfile(r.data?.profile ?? null);
+      setProfile(profileRes.data?.profile ?? null);
+      if (creditsRes.ok && creditsRes.data?.balance !== undefined) {
+        setCreditsBalance(creditsRes.data.balance);
+      } else {
+        setCreditsBalance(0);
+      }
     }
-    
-    loadProfile();
+
+    load();
   }, []);
 
   const name = React.useMemo(() => getDisplayName(profile), [profile]);
   const tag = React.useMemo(() => makeUserTag(profile?.nickname || "user"), [profile]);
 
-  // Mock stats until backend implements them
-  const grade = 0.0;
-  const classesTaken = 0;
+  const lessonsCompleted = profile?.stats?.lessonsCompleted ?? 0;
+  const feedbackGiven = profile?.stats?.feedbackGiven ?? 0;
+  const ratingFromTeachers = Number(profile?.stats?.ratingAvg ?? 0);
+  const ratingCountFromTeachers = profile?.stats?.ratingCount ?? 0;
+  const grade = Math.round(ratingFromTeachers * 10) / 10;
+  const starsFilled = Math.min(5, Math.max(0, Math.round(ratingFromTeachers)));
   const coins = 0;
-  const credits = 0;
+  const credits = creditsBalance ?? 0;
 
   const studentLevel = levelLabel(profile?.spanishLevel);
-  const verified = false; // TODO: Get from user auth data
+  const levelPill = React.useMemo(() => profileLevelToPill(profile?.spanishLevel), [profile?.spanishLevel]);
+  const u: any = getAuthUser();
+  const verified = Boolean(u?.emailVerified ?? u?.email_verified);
 
   if (loading) {
     return (
@@ -151,7 +182,7 @@ export default function EBlueProfilePage() {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-[calc(100vh-100px)]">
       <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
         <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
@@ -189,21 +220,34 @@ export default function EBlueProfilePage() {
                   <div className="mt-3">
                     <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">Grade</div>
                     <div className="mt-1 text-[#F59E0B] text-2xl font-extrabold">{grade.toFixed(1)}</div>
-                    <StarRow filled={0} />
+                    <StarRow filled={starsFilled} />
                   </div>
 
                   <div className="mt-5">
                     <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#2D2D2D] bg-[#0058C9] text-white font-extrabold">
-                      A1
+                      {levelPill}
                     </div>
                     <div className="mt-2 text-[#212429]/70 text-sm">{studentLevel}</div>
                   </div>
 
                   <div className="mt-6 grid gap-3 text-left">
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Classes Taken</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">Lessons completed</div>
                       <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#5B2AA6] text-white grid place-items-center font-extrabold text-xs">
-                        {classesTaken}
+                        {lessonsCompleted}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-[#212429]/70 text-sm font-semibold">Feedback given</div>
+                      <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#F59E0B] text-white grid place-items-center font-extrabold text-xs">
+                        {feedbackGiven}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-[#212429]/70 text-sm font-semibold">Rating from teachers</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-amber-500 font-bold text-sm">★ {ratingFromTeachers.toFixed(1)}</span>
+                        <span className="text-[#212429]/60 text-xs">({ratingCountFromTeachers})</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
@@ -233,7 +277,7 @@ export default function EBlueProfilePage() {
               </div>
 
               {/* Right card */}
-              <div className="bg-white rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden">
+              <div className="bg-white rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden h-full">
                 <div className="p-5 md:p-7">
                   <div className="flex items-center justify-between gap-4">
                     <div className="text-[#212429] text-xl md:text-2xl font-extrabold">Profile details</div>

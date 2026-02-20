@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-137px)]  bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-137px)]  bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">

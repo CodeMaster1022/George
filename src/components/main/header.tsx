@@ -47,7 +47,7 @@ const Header = () => {
     >
       <section className="container p-left p-right">
         {/* Top bar */}
-        <div className="relative z-10 pt-6 md:pt-10">
+        <div className="relative z-10 pt-6">
           <div className="px-2 md:px-0">
             <div className="flex items-center justify-between gap-4">
               {/* Brand */}

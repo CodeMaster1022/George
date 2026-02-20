@@ -4,6 +4,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import useToastr from "@/hooks/useToastr";
 
 type Teacher = {
   id: string; // TeacherProfile._id
@@ -147,6 +148,7 @@ export default function BookByTeacherClient() {
   const [bookingError, setBookingError] = React.useState<string | null>(null);
   const [bookingInfo, setBookingInfo] = React.useState<string | null>(null);
   const [bookedMeetLink, setBookedMeetLink] = React.useState<string | null>(null);
+  const { showToast } = useToastr();
 
   React.useEffect(() => {
     const token = localStorage.getItem("auth_token") || "";
@@ -307,12 +309,13 @@ export default function BookByTeacherClient() {
 
     setBookingInfo("Booked successfully.");
     if (meet) setBookedMeetLink(String(meet));
+    showToast("Meeting booked successfully. Your class is confirmed.", "success");
     await loadCredits();
     if (selectedId) await loadSessions(selectedId);
   }
 
   return (
-    <main className="h-[calc(100vh-100px)]">
+    <main className="min-h-[calc(100vh-107px)]">
       <section className="relative z-10 max-w-[1500px] mx-auto p-left p-right py-12 md:py-16">
         <div className="overflow-hidden">
           <div className="bg-cover bg-center">
