@@ -51,7 +51,7 @@ export default function LoginClient() {
       }
 
       const role = json?.user?.role;
-      router.push(role === "admin" ? "/forum/admin" : role === "teacher" ? "/teacher" : "/ebluelearning");
+      router.push(role === "admin" ? "/admin/forum" : role === "teacher" ? "/teacher" : "/ebluelearning");
     } catch (err: any) {
       const msg = err?.message || "Login failed.";
       setError(msg);

@@ -31,10 +31,14 @@ export default function EditUserPage() {
 
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
+  const [actionLoading, setActionLoading] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [user, setUser] = React.useState<User | null>(null);
   const [profile, setProfile] = React.useState<Profile | null>(null);
+  const [showCreditsModal, setShowCreditsModal] = React.useState(false);
+  const [creditsAmount, setCreditsAmount] = React.useState(10);
+  const [creditsReason, setCreditsReason] = React.useState("");
 
   const [formData, setFormData] = React.useState({
     email: "",
@@ -88,6 +92,57 @@ export default function EditUserPage() {
     setTimeout(() => {
       router.push("/admin/users");
     }, 1500);
+  }
+
+  async function handleBan() {
+    setActionLoading("ban");
+    setError(null);
+    setSuccess(null);
+    const r = await apiJson<{ ok: boolean; user: { status: string } }>(`/admin/users/${userId}/ban`, { method: "POST" });
+    setActionLoading(null);
+    if (!r.ok) {
+      setError(r.error ?? "Failed to ban user");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, status: "banned" }));
+    if (user) setUser({ ...user, status: "banned" });
+    setSuccess("User has been banned.");
+  }
+
+  async function handleUnban() {
+    setActionLoading("unban");
+    setError(null);
+    setSuccess(null);
+    const r = await apiJson<{ ok: boolean; user: { status: string } }>(`/admin/users/${userId}/unban`, { method: "POST" });
+    setActionLoading(null);
+    if (!r.ok) {
+      setError(r.error ?? "Failed to unban user");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, status: "active" }));
+    if (user) setUser({ ...user, status: "active" });
+    setSuccess("User has been unbanned.");
+  }
+
+  async function handleAwardCredits(e: React.FormEvent) {
+    e.preventDefault();
+    setActionLoading("credits");
+    setError(null);
+    setSuccess(null);
+    const r = await apiJson<{ ok: boolean; credits: number }>(`/admin/users/${userId}/credits`, {
+      method: "POST",
+      body: JSON.stringify({ amount: creditsAmount, reason: creditsReason || undefined }),
+    });
+    setActionLoading(null);
+    if (!r.ok) {
+      setError(r.error ?? "Failed to award credits");
+      return;
+    }
+    setShowCreditsModal(false);
+    setCreditsAmount(10);
+    setCreditsReason("");
+    if (profile) setProfile({ ...profile, credits: r.data.credits });
+    setSuccess(`Credits awarded. New balance: ${r.data.credits}`);
   }
 
   if (loading) {
@@ -199,6 +254,42 @@ export default function EditUserPage() {
                       </span>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Quick actions: Ban / Unban / Award credits */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <h3 className="text-gray-700 text-sm font-medium mb-3">Actions</h3>
+                <div className="space-y-2">
+                  {user.status === "banned" ? (
+                    <button
+                      type="button"
+                      onClick={handleUnban}
+                      disabled={!!actionLoading}
+                      className="w-full px-3 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 disabled:opacity-60 transition-colors"
+                    >
+                      {actionLoading === "unban" ? "..." : "Unban user"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleBan}
+                      disabled={!!actionLoading}
+                      className="w-full px-3 py-2 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 disabled:opacity-60 transition-colors"
+                    >
+                      {actionLoading === "ban" ? "..." : "Ban user"}
+                    </button>
+                  )}
+                  {user.role === "student" && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreditsModal(true)}
+                      disabled={!!actionLoading}
+                      className="w-full px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 disabled:opacity-60 transition-colors"
+                    >
+                      Award credits
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -340,6 +431,54 @@ export default function EditUserPage() {
             </form>
           </div>
         </div>
+
+        {/* Award credits modal */}
+        {showCreditsModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+              <h3 className="text-gray-900 text-lg font-semibold mb-4">Award credits</h3>
+              <form onSubmit={handleAwardCredits} className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">Amount (1–1000)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={1000}
+                    value={creditsAmount}
+                    onChange={(e) => setCreditsAmount(Number(e.target.value) || 0)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-900 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">Reason (optional)</label>
+                  <input
+                    type="text"
+                    value={creditsReason}
+                    onChange={(e) => setCreditsReason(e.target.value)}
+                    placeholder="e.g. Forum contribution"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-900 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={actionLoading === "credits"}
+                    className="flex-1 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60"
+                  >
+                    {actionLoading === "credits" ? "Sending..." : "Award"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowCreditsModal(false); setCreditsReason(""); }}
+                    className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

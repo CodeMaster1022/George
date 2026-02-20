@@ -8,11 +8,12 @@ type Booking = {
   _id: string;
   sessionId: string;
   studentUserId: { _id: string; email: string };
-  teacherUserId: { _id: string; email: string };
-  startTime: string;
-  endTime: string;
+  teacherUserId: { _id: string; email: string } | null;
+  startTime: string | null;
+  endTime: string | null;
   status: string;
-  creditsUsed: number;
+  priceCredits: number;
+  creditsUsed?: number;
   bookedAt: string;
   cancelledAt?: string;
   completedAt?: string;
@@ -57,7 +58,8 @@ export default function AdminBookingsPage() {
     const r = await apiJson<{ bookings: Booking[]; pagination: Pagination }>(`/admin/bookings?${params.toString()}`);
     setLoading(false);
     if (!r.ok) {
-      setError(r.error);
+      const details = (r as { data?: { details?: string } }).data?.details;
+      setError(details ? `${r.error}: ${details}` : r.error);
       return;
     }
     setBookings(r.data?.bookings || []);
@@ -112,10 +114,10 @@ export default function AdminBookingsPage() {
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">All Status</option>
-                <option value="confirmed">Confirmed</option>
+                <option value="booked">Booked</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
-                <option value="no-show">No Show</option>
+                <option value="no_show">No Show</option>
               </select>
             </div>
           </div>
@@ -207,18 +209,25 @@ export default function AdminBookingsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {new Date(booking.startTime).toLocaleDateString()}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
+                        {booking.startTime && booking.endTime ? (
+                          <>
+                            <div className="text-sm text-gray-900">
+                              {new Date(booking.startTime).toLocaleDateString()}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {new Date(booking.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -{" "}
+                              {new Date(booking.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-gray-500 text-sm">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <StatusBadge status={booking.status} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {booking.creditsUsed || 0}
+                        {booking.priceCredits ?? booking.creditsUsed ?? 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
@@ -227,7 +236,7 @@ export default function AdminBookingsPage() {
                         >
                           View
                         </button>
-                        {booking.status === "confirmed" && (
+                        {booking.status === "booked" && (
                           <button
                             type="button"
                             className="text-red-600 hover:text-red-900"
@@ -319,9 +328,9 @@ export default function AdminBookingsPage() {
             <div className="text-gray-900 text-2xl font-bold mt-1">{pagination.totalCount}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Confirmed</div>
+            <div className="text-gray-600 text-sm">Booked</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
-              {bookings.filter((b) => b.status === "confirmed").length}
+              {bookings.filter((b) => b.status === "booked").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -333,7 +342,7 @@ export default function AdminBookingsPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="text-gray-600 text-sm">Total Credits</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
-              {bookings.reduce((sum, b) => sum + (b.creditsUsed || 0), 0)}
+              {bookings.reduce((sum, b) => sum + (b.priceCredits ?? b.creditsUsed ?? 0), 0)}
             </div>
           </div>
         </div>
@@ -344,17 +353,17 @@ export default function AdminBookingsPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    confirmed: "bg-blue-100 text-blue-700",
+    booked: "bg-blue-100 text-blue-700",
     completed: "bg-green-100 text-green-700",
     cancelled: "bg-red-100 text-red-700",
-    "no-show": "bg-orange-100 text-orange-700",
+    no_show: "bg-orange-100 text-orange-700",
   };
 
   const labels: Record<string, string> = {
-    confirmed: "Confirmed",
+    booked: "Booked",
     completed: "Completed",
     cancelled: "Cancelled",
-    "no-show": "No Show",
+    no_show: "No Show",
   };
 
   return (
