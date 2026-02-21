@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import TeacherShell from "./TeacherShell";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
 
 type BookingRow = {
   id: string;
@@ -200,9 +201,6 @@ export default function TeacherBookingsClient() {
             {activeBooking ? (
               <div className="mt-4 text-white/80 text-xs">
                 <div className="flex items-center justify-between gap-3">
-                  {/* <div>
-                    Booking: <span className="text-white">{activeBooking.id}</span>
-                  </div> */}
                   {activeJoinHref ? (
                     <a
                       href={activeJoinHref}
@@ -214,10 +212,20 @@ export default function TeacherBookingsClient() {
                     </a>
                   ) : null}
                 </div>
-                {/* <div className="mt-1">
-                  Calendar event:{" "}
-                  <span className="text-white">{activeBooking.calendarEventId ? activeBooking.calendarEventId : "—"}</span>
-                </div> */}
+              </div>
+            ) : null}
+
+            {activeBooking ? (
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <LessonChatSection
+                  bookingId={selected}
+                  otherPartyLabel={activeBooking.studentNickname || "Student"}
+                  variant="teacher"
+                  title="Message student"
+                  maxHeight="10rem"
+                  compact
+                  className="[&_.text-gray-900]:text-white [&_.text-gray-500]:text-white/70 [&_.text-gray-400]:text-white/60 [&_.bg-gray-50]:bg-white/5 [&_.bg-gray-200]:bg-white/10 [&_.bg-white]:bg-white/10 [&_.border-gray-200]:border-white/20 [&_.border-gray-300]:border-[#2D2D2D] [&_textarea::placeholder]:text-white/50"
+                />
               </div>
             ) : null}
 

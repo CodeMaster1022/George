@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
 
 type BookingRow = {
   id: string;
@@ -427,6 +428,16 @@ export default function TeacherBookingsPage() {
                 </div>
               ) : (
                 <>
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <LessonChatSection
+                      bookingId={selected}
+                      otherPartyLabel={activeBooking?.studentNickname || "Student"}
+                      variant="teacher"
+                      title="Message student"
+                      maxHeight="9rem"
+                    />
+                  </div>
+
                   {reportMsg && (
                     <div className="mb-4 flex items-start gap-3 border border-green-300 bg-green-50 text-green-800 rounded-lg px-4 py-3 text-sm">
                       <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

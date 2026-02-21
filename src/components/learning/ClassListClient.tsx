@@ -4,6 +4,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
 
 type BookingRow = {
   id: string;
@@ -370,6 +371,16 @@ export default function ClassListClient() {
                                     <span className="font-extrabold text-[#212429]">Calendar:</span> {b.calendarEventId}
                                   </div>
                                 ) : null}
+                                <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
+                                  <LessonChatSection
+                                    bookingId={b.id}
+                                    otherPartyLabel={b.teacher?.name ?? "Teacher"}
+                                    variant="student"
+                                    title="Message teacher"
+                                    maxHeight="10rem"
+                                    compact
+                                  />
+                                </div>
                                 <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
                                   {reportForBookingId !== b.id ? (
                                     <button

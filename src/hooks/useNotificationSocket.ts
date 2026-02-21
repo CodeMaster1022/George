@@ -8,7 +8,16 @@ export type TeachingNotificationEvent =
   | "booking_cancelled"
   | "session_cancelled"
   | "class_report_submitted"
-  | "lesson_completed";
+  | "lesson_completed"
+  | "lesson_message";
+
+export interface LessonMessagePayload {
+  bookingId: string;
+  messageId: string;
+  fromRole: "student" | "teacher";
+  body: string;
+  createdAt: string;
+}
 
 export interface NotificationMessage {
   type: TeachingNotificationEvent;
@@ -18,6 +27,10 @@ export interface NotificationMessage {
   endAt?: string;
   reportId?: string;
   studentName?: string;
+  messageId?: string;
+  fromRole?: "student" | "teacher";
+  body?: string;
+  createdAt?: string;
   [key: string]: unknown;
 }
 

@@ -8,6 +8,7 @@ import {
   type TeachingNotificationEvent,
 } from "@/hooks/useNotificationSocket";
 import useToastr from "@/hooks/useToastr";
+import { useLessonChatOptional } from "@/contexts/LessonChatContext";
 
 export interface TeachingNotificationItem {
   id: string;
@@ -41,6 +42,10 @@ function notificationMessageToToast(type: string, payload: Record<string, unknow
       return "Your teacher submitted a class report.";
     case "lesson_completed":
       return "Your teacher marked the lesson as complete. Rate your experience!";
+    case "lesson_message":
+      return payload.fromRole === "teacher"
+        ? "Your teacher sent a message about the lesson."
+        : "Your student sent a message about the lesson.";
     default:
       return "You have a new notification.";
   }
@@ -49,6 +54,7 @@ function notificationMessageToToast(type: string, payload: Record<string, unknow
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<TeachingNotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const lessonChat = useLessonChatOptional();
   const authUser = typeof window !== "undefined" ? (() => {
     try {
       const raw = localStorage.getItem("auth_user");
@@ -80,6 +86,24 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   const onSocketMessage = useCallback(
     (msg: NotificationMessage) => {
+      if (msg.type === "lesson_message" && msg.bookingId) {
+        const handler = lessonChat?.getLessonMessageHandler?.();
+        if (handler) {
+          handler({
+            bookingId: msg.bookingId,
+            messageId: msg.messageId ?? "",
+            fromRole: (msg.fromRole as "student" | "teacher") ?? "teacher",
+            body: msg.body ?? "",
+            createdAt: msg.createdAt ?? new Date().toISOString(),
+          });
+        }
+        const toastText = notificationMessageToToast(msg.type, {
+          fromRole: msg.fromRole,
+          bookingId: msg.bookingId,
+        });
+        showToast(toastText, "success");
+        return;
+      }
       const item: TeachingNotificationItem = {
         id: `ws-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: msg.type as TeachingNotificationEvent,
@@ -98,7 +122,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const toastText = notificationMessageToToast(msg.type, item.payload);
       showToast(toastText, "success");
     },
-    [showToast]
+    [showToast, lessonChat]
   );
 
   useNotificationSocket(enabled, onSocketMessage);
