@@ -25,7 +25,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <Link
       href={href}
       className={[
-        "px-3 py-2 rounded-lg border-2 border-[#2d2d2d] text-white text-xs xxs:text-sm lg:text-xl",
+        "px-3 py-2 rounded-lg border-2 border-[#2d2d2d] text-white text-xs xxs:text-sm lg:text-lg",
         active ? "bg-[#CB4913]" : "bg-[#000237]/60 hover:bg-[#CB4913]/80",
       ].join(" ")}
     >
@@ -73,16 +73,16 @@ const Header = () => {
     >
       <section className="container p-left p-right">
         {/* Top bar */}
-        <div className="relative z-10 pt-6">
+        <div className="relative z-10 py-2">
           <div className="px-2 md:px-0">
             <div className="flex items-center justify-between gap-4">
               {/* Brand */}
               <Link href="/" className="flex items-center gap-3">
-                <img src="/img/mars-logo.png" alt="George English" className="w-10 h-10 md:w-12 md:h-12" />
+                <img src="/img/mars-logo.png" alt="George English" className="w-10 h-10 md:w-10 md:h-10" /> <span className="text-white text-xl font-bold">George</span>
               </Link>
               
               {/* Desktop Nav */}
-              <nav className="hidden lg:flex flex-wrap justify-center gap-2 md:gap-3">
+              <nav className="hidden lg:flex flex-wrap justify-center gap-2 md:gap-3 ">
                 {navItems.map((it) => (
                   <NavLink key={it.href} href={it.href} label={it.label} />
                 ))}
@@ -206,7 +206,7 @@ const Header = () => {
 
         {/* Hero visual */}
         {isHome ? (
-          <div className="flex justify-center relative z-10 min-h-[320px] md:min-h-[420px] pt-6 md:pt-10 pb-10">
+          <div className="flex justify-center relative z-10 min-h-[calc(100vh-70px)] pt-6 md:pt-10 pb-10">
             <Sparkles top={30} left={10} right={90} bottom={100} interval={120}>
               <img className="bounce-effect" src="/img/ufo.png" alt="UFO" />
             </Sparkles>

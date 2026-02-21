@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <footer className="site-footer relative z-10">
       {/* Main Footer Content */}
-      <div className="bg-[url('/img/bg7.jpg')] bg-cover bg-center border-t-[5px] border-[#2D2D2D]">
+      <div className="bg-[url('/img/bg7.jpg')] bg-[url('/img/bg1.jpg')] bg-cover bg-no-repeat bg-[100%]">
         <div className="max-w-[1300px] mx-auto p-left p-right py-16 md:py-20">
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
             {/* Brand Section */}
@@ -123,7 +123,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Legal Bar */}
-      <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#0058C9] border-t-[5px] border-[#2D2D2D]">
+      <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[url('/img/bg1.jpg')] bg-cover bg-no-repeat bg-[100%]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-white text-xs md:text-sm">
           <div className="opacity-90">
             © Copyright {year} · St. George English · All Rights Reserved

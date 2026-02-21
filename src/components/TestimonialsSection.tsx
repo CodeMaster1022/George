@@ -112,7 +112,7 @@ export default function TestimonialsSection() {
 
   return (
     <>
-      <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
+      <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-24">
         <div className="text-center mb-8">
           <h2 className="text-white md:text-6xl text-3xl">What learners say</h2>
           
