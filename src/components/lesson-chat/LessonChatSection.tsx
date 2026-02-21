@@ -28,6 +28,8 @@ type LessonChatSectionProps = {
   maxHeight?: string;
   /** Optional: compact styling */
   compact?: boolean;
+  /** When true, no card wrapper and no header (e.g. inside LessonChatModal) */
+  embedded?: boolean;
 };
 
 function getMessagesPath(bookingId: string, variant: Variant): string {
@@ -63,6 +65,7 @@ export default function LessonChatSection({
   className = "",
   maxHeight = "12rem",
   compact = false,
+  embedded = false,
 }: LessonChatSectionProps) {
   const [messages, setMessages] = React.useState<LessonMessageRow[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -135,37 +138,8 @@ export default function LessonChatSection({
 
   const sectionTitle = title ?? (variant === "teacher" ? "Message student" : "Message teacher");
 
-  return (
-    <div className={className}>
-      <div
-        className={`rounded-xl border border-gray-200 bg-gray-50/80 overflow-hidden ${compact ? "shadow-sm" : "shadow-sm"}`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-white border-b border-gray-200">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#0058C9]/10 flex items-center justify-center" aria-hidden>
-              <svg className="w-4 h-4 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </span>
-            <h3 className="text-gray-900 font-semibold text-sm truncate">{sectionTitle}</h3>
-          </div>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={load}
-            className="flex-shrink-0 p-1.5 rounded-lg text-gray-500 hover:text-[#0058C9] hover:bg-[#0058C9]/5 transition-colors disabled:opacity-50"
-            title="Refresh messages"
-            aria-label="Refresh messages"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Messages + Input */}
-        <div className="p-3 flex flex-col gap-3">
+  const content = (
+    <div className="flex flex-col gap-3">
           {error ? (
             <div className="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2 flex items-center justify-between gap-2">
               <span>{error}</span>
@@ -256,7 +230,39 @@ export default function LessonChatSection({
               <span>{sending ? "Sending…" : "Send"}</span>
             </button>
           </div>
+    </div>
+  );
+
+  if (embedded) {
+    return <div className={className}>{content}</div>;
+  }
+
+  return (
+    <div className={className}>
+      <div className="rounded-xl border border-gray-200 bg-gray-50/80 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#0058C9]/10 flex items-center justify-center" aria-hidden>
+              <svg className="w-4 h-4 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </span>
+            <h3 className="text-gray-900 font-semibold text-sm truncate">{sectionTitle}</h3>
+          </div>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={load}
+            className="flex-shrink-0 p-1.5 rounded-lg text-gray-500 hover:text-[#0058C9] hover:bg-[#0058C9]/5 transition-colors disabled:opacity-50"
+            title="Refresh messages"
+            aria-label="Refresh messages"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
+        <div className="p-3 flex flex-col gap-3">{content}</div>
       </div>
     </div>
   );

@@ -4,7 +4,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
-import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
+import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
 
 type BookingRow = {
   id: string;
@@ -47,8 +48,14 @@ export default function ClassListClient() {
   const [bookings, setBookings] = React.useState<BookingRow[]>([]);
   const [busyCancel, setBusyCancel] = React.useState<string>("");
 
+  const [chatModalBookingId, setChatModalBookingId] = React.useState<string | null>(null);
   const [reportForBookingId, setReportForBookingId] = React.useState<string>("");
   const [reportData, setReportData] = React.useState<ClassReport | null>(null);
+  const { getUnreadCount } = useUnreadLessonChat();
+  const chatBooking = React.useMemo(
+    () => (chatModalBookingId ? bookings.find((b) => b.id === chatModalBookingId) : null),
+    [bookings, chatModalBookingId]
+  );
   const [reportLoading, setReportLoading] = React.useState(false);
 
   const [ratingModalBookingId, setRatingModalBookingId] = React.useState<string>("");
@@ -179,6 +186,7 @@ export default function ClassListClient() {
           : "No classes yet.";
 
   return (
+    <>
     <main className="min-h-[calc(100vh-90px)]">
       <section className="relative z-10 max-w-[1500px] mx-auto p-left p-right py-8">
         <div className="overflow-hidden">
@@ -316,8 +324,15 @@ export default function ClassListClient() {
                               </div>
 
                               <div className="min-w-0 flex-1">
-                                <div className="text-xs text-[#212429]/70">
-                                  {b.session?.startAt ? fmtCompact(b.session.startAt) : "—"}
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="text-xs text-[#212429]/70 min-w-0">
+                                    {b.session?.startAt ? fmtCompact(b.session.startAt) : "—"}
+                                  </div>
+                                  {getUnreadCount(b.id) > 0 ? (
+                                    <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
+                                      {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
+                                    </span>
+                                  ) : null}
                                 </div>
                                 <div className="mt-1 font-semibold text-sm truncate">
                                   {b.teacher?.name ? b.teacher.name : "Teacher"}
@@ -372,14 +387,21 @@ export default function ClassListClient() {
                                   </div>
                                 ) : null}
                                 <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
-                                  <LessonChatSection
-                                    bookingId={b.id}
-                                    otherPartyLabel={b.teacher?.name ?? "Teacher"}
-                                    variant="student"
-                                    title="Message teacher"
-                                    maxHeight="10rem"
-                                    compact
-                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setChatModalBookingId(b.id)}
+                                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#212429] text-sm font-medium transition-colors"
+                                  >
+                                    <svg className="w-4 h-4 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    <span>Message teacher</span>
+                                    {getUnreadCount(b.id) > 0 ? (
+                                      <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
+                                        {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
+                                      </span>
+                                    ) : null}
+                                  </button>
                                 </div>
                                 <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
                                   {reportForBookingId !== b.id ? (
@@ -583,6 +605,17 @@ export default function ClassListClient() {
         );
       })()}
     </main>
+    {chatModalBookingId ? (
+      <LessonChatModal
+        open={!!chatModalBookingId}
+        onClose={() => setChatModalBookingId(null)}
+        bookingId={chatModalBookingId}
+        otherPartyLabel={chatBooking?.teacher?.name ?? "Teacher"}
+        variant="student"
+        title="Message teacher"
+      />
+    ) : null}
+    </>
   );
 }
 

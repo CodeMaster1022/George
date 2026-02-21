@@ -4,7 +4,8 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import TeacherShell from "./TeacherShell";
 import { apiJson, getAuthUser } from "@/utils/backend";
-import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
+import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
 
 type BookingRow = {
   id: string;
@@ -38,6 +39,8 @@ export default function TeacherBookingsClient() {
   const [reportMsg, setReportMsg] = React.useState<string | null>(null);
   const [report, setReport] = React.useState<Report | null>(null);
   const [rForm, setRForm] = React.useState({ summary: "", homework: "", strengths: "" });
+  const [chatModalOpen, setChatModalOpen] = React.useState(false);
+  const { getUnreadCount } = useUnreadLessonChat();
 
   React.useEffect(() => {
     const u: any = getAuthUser();
@@ -151,8 +154,15 @@ export default function TeacherBookingsClient() {
                         selected === b.id ? "ring-2 ring-[#0058C9]" : "",
                       ].join(" ")}
                     >
-                      <div className="font-extrabold text-sm">
-                        {b.studentNickname ? b.studentNickname : "Student"} · {b.status.toUpperCase()}
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-sm">
+                          {b.studentNickname ? b.studentNickname : "Student"} · {b.status.toUpperCase()}
+                        </span>
+                        {getUnreadCount(b.id) > 0 ? (
+                          <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
+                            {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
+                          </span>
+                        ) : null}
                       </div>
                       <div className="text-white/80 text-xs mt-1">
                         {b.session ? `${fmt(b.session.startAt)} → ${fmt(b.session.endAt)}` : "Session missing"} ·{" "}
@@ -217,16 +227,32 @@ export default function TeacherBookingsClient() {
 
             {activeBooking ? (
               <div className="mt-4 pt-4 border-t border-white/20">
-                <LessonChatSection
-                  bookingId={selected}
-                  otherPartyLabel={activeBooking.studentNickname || "Student"}
-                  variant="teacher"
-                  title="Message student"
-                  maxHeight="10rem"
-                  compact
-                  className="[&_.text-gray-900]:text-white [&_.text-gray-500]:text-white/70 [&_.text-gray-400]:text-white/60 [&_.bg-gray-50]:bg-white/5 [&_.bg-gray-200]:bg-white/10 [&_.bg-white]:bg-white/10 [&_.border-gray-200]:border-white/20 [&_.border-gray-300]:border-[#2D2D2D] [&_textarea::placeholder]:text-white/50"
-                />
+                <button
+                  type="button"
+                  onClick={() => setChatModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors"
+                >
+                  <svg className="w-4 h-4 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <span>Chat with student</span>
+                  {getUnreadCount(selected) > 0 ? (
+                    <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(selected)} unread messages`}>
+                      {getUnreadCount(selected) > 99 ? "99+" : getUnreadCount(selected)}
+                    </span>
+                  ) : null}
+                </button>
               </div>
+            ) : null}
+            {activeBooking && selected ? (
+              <LessonChatModal
+                open={chatModalOpen}
+                onClose={() => setChatModalOpen(false)}
+                bookingId={selected}
+                otherPartyLabel={activeBooking.studentNickname || "Student"}
+                variant="teacher"
+                title="Message student"
+              />
             ) : null}
 
             {reportMsg ? (

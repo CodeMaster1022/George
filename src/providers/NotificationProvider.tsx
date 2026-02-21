@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useNotificationSocket";
 import useToastr from "@/hooks/useToastr";
 import { useLessonChatOptional } from "@/contexts/LessonChatContext";
+import { useUnreadLessonChatOptional } from "@/contexts/UnreadLessonChatContext";
 
 export interface TeachingNotificationItem {
   id: string;
@@ -55,6 +56,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<TeachingNotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const lessonChat = useLessonChatOptional();
+  const unreadChat = useUnreadLessonChatOptional();
   const authUser = typeof window !== "undefined" ? (() => {
     try {
       const raw = localStorage.getItem("auth_user");
@@ -97,11 +99,15 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             createdAt: msg.createdAt ?? new Date().toISOString(),
           });
         }
-        const toastText = notificationMessageToToast(msg.type, {
-          fromRole: msg.fromRole,
-          bookingId: msg.bookingId,
-        });
-        showToast(toastText, "success");
+        unreadChat?.setUnread(msg.bookingId);
+        const openForThisBooking = unreadChat?.openChatBookingId === msg.bookingId;
+        if (!openForThisBooking) {
+          const toastText = notificationMessageToToast(msg.type, {
+            fromRole: msg.fromRole,
+            bookingId: msg.bookingId,
+          });
+          showToast(toastText, "success");
+        }
         return;
       }
       const item: TeachingNotificationItem = {
@@ -122,7 +128,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const toastText = notificationMessageToToast(msg.type, item.payload);
       showToast(toastText, "success");
     },
-    [showToast, lessonChat]
+    [showToast, lessonChat, unreadChat]
   );
 
   useNotificationSocket(enabled, onSocketMessage);

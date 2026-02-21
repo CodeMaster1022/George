@@ -3,7 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
-import LessonChatSection from "@/components/lesson-chat/LessonChatSection";
+import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
 
 type BookingRow = {
   id: string;
@@ -47,6 +48,8 @@ export default function TeacherBookingsPage() {
   const [completingId, setCompletingId] = React.useState<string>("");
   const [ratingSaving, setRatingSaving] = React.useState(false);
   const [bookingFilter, setBookingFilter] = React.useState<"upcoming" | "history">("upcoming");
+  const [chatModalOpen, setChatModalOpen] = React.useState(false);
+  const { getUnreadCount } = useUnreadLessonChat();
 
   const filteredBookings = React.useMemo(() => {
     if (bookingFilter === "upcoming") return bookings.filter((b) => b.status === "booked");
@@ -287,8 +290,15 @@ export default function TeacherBookingsPage() {
                             </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-gray-900 text-sm font-semibold truncate">
-                              {b.studentNickname || "Student"}
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-900 text-sm font-semibold truncate">
+                                {b.studentNickname || "Student"}
+                              </span>
+                              {getUnreadCount(b.id) > 0 ? (
+                                <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
+                                  {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
+                                </span>
+                              ) : null}
                             </div>
                             <div className="text-gray-500 text-xs">
                               <StatusBadge status={b.status} />
@@ -429,14 +439,30 @@ export default function TeacherBookingsPage() {
               ) : (
                 <>
                   <div className="mb-6 pb-6 border-b border-gray-200">
-                    <LessonChatSection
-                      bookingId={selected}
-                      otherPartyLabel={activeBooking?.studentNickname || "Student"}
-                      variant="teacher"
-                      title="Message student"
-                      maxHeight="9rem"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setChatModalOpen(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-[#2D2D2D] bg-white hover:bg-gray-50 text-gray-800 text-sm font-medium transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <span>Chat with student</span>
+                      {getUnreadCount(selected) > 0 ? (
+                        <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(selected)} unread messages`}>
+                          {getUnreadCount(selected) > 99 ? "99+" : getUnreadCount(selected)}
+                        </span>
+                      ) : null}
+                    </button>
                   </div>
+                  <LessonChatModal
+                    open={chatModalOpen}
+                    onClose={() => setChatModalOpen(false)}
+                    bookingId={selected}
+                    otherPartyLabel={activeBooking?.studentNickname || "Student"}
+                    variant="teacher"
+                    title="Message student"
+                  />
 
                   {reportMsg && (
                     <div className="mb-4 flex items-start gap-3 border border-green-300 bg-green-50 text-green-800 rounded-lg px-4 py-3 text-sm">
