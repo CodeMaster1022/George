@@ -3,8 +3,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { getAuthToken, getAuthUser } from "@/utils/backend";
 
 const Sparkles = dynamic(() => import("@/components/ui/sparkle"), { ssr: false });
 
@@ -35,8 +36,33 @@ function NavLink({ href, label }: { href: string; label: string }) {
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [authUser, setAuthUser] = React.useState<{ role?: string; email?: string } | null>(null);
+
+  React.useEffect(() => {
+    const token = getAuthToken();
+    const user = getAuthUser<{ role?: string; email?: string }>();
+    if (token && user) setAuthUser(user);
+    else setAuthUser(null);
+  }, [pathname]);
+
+  const dashboardHref =
+    authUser?.role === "teacher" ? "/teacher" : authUser?.role === "admin" ? "/admin/forum" : "/ebluelearning";
+
+  function handleLogout() {
+    try {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+    } catch {
+      // ignore
+    }
+    setAuthUser(null);
+    setMobileMenuOpen(false);
+    router.replace("/");
+    router.refresh();
+  }
 
   return (
     <header
@@ -64,20 +90,40 @@ const Header = () => {
 
               {/* Desktop Actions */}
               <div className="hidden lg:flex items-center gap-3">
-                <Sparkles>
-                  <Link
-                    href="/register"
-                    className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-sm md:text-base"
-                  >
-                    Register
-                  </Link>
-                </Sparkles>
-                <Link
-                  href="/login"
-                  className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-sm md:text-base"
-                >
-                  Login
-                </Link>
+                {authUser ? (
+                  <>
+                    <Link
+                      href={dashboardHref}
+                      className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-sm md:text-base"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-sm md:text-base"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles>
+                      <Link
+                        href="/register"
+                        className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-sm md:text-base"
+                      >
+                        Register
+                      </Link>
+                    </Sparkles>
+                    <Link
+                      href="/login"
+                      className="text-white cursor-pointer px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-sm md:text-base"
+                    >
+                      Login
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Mobile Hamburger Button */}
@@ -116,20 +162,41 @@ const Header = () => {
                     
                     <div className="border-t-2 border-[#2D2D2D] my-2" />
                     
-                    <Link
-                      href="/register"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block text-center px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-white text-sm"
-                    >
-                      Register
-                    </Link>
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block text-center px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-white text-sm"
-                    >
-                      Login
-                    </Link>
+                    {authUser ? (
+                      <>
+                        <Link
+                          href={dashboardHref}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block text-center px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-white text-sm"
+                        >
+                          Dashboard
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="w-full text-center px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-white text-sm"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/register"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block text-center px-5 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-white text-sm"
+                        >
+                          Register
+                        </Link>
+                        <Link
+                          href="/login"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block text-center px-5 py-3 rounded-xl bg-[#000237]/60 hover:bg-[#CB4913]/25 border-2 border-[#2D2D2D] text-white text-sm"
+                        >
+                          Login
+                        </Link>
+                      </>
+                    )}
                   </nav>
                 </div>
               </div>

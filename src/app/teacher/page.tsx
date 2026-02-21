@@ -6,13 +6,29 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 
+type ChartDay = {
+  day: string;
+  date: string;
+  revenue: number;
+  guests: number;
+  open: number;
+  booked: number;
+  completed: number;
+};
+
+type DashboardStats = {
+  thisWeek: { sessions: number; bookings: number; completed: number };
+  previousWeek: { sessions: number; bookings: number; completed: number };
+  today: { slotsAvailable: number; slotsBooked: number; guests: number };
+  totalRevenueCredits: number;
+  chartData: ChartDay[];
+};
+
 export default function TeacherDashboardPage() {
   const router = useRouter();
-  const [gcLoading, setGcLoading] = React.useState(true);
-  const [gcConnected, setGcConnected] = React.useState(false);
-  const [gcError, setGcError] = React.useState<string | null>(null);
-  const [syncing, setSyncing] = React.useState(false);
-  const [syncResult, setSyncResult] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [stats, setStats] = React.useState<DashboardStats | null>(null);
 
   React.useEffect(() => {
     const u: any = getAuthUser();
@@ -27,69 +43,67 @@ export default function TeacherDashboardPage() {
     }
   }, [router]);
 
-  async function loadGcStatus() {
-    setGcError(null);
-    setSyncResult(null);
-    setGcLoading(true);
-    const r = await apiJson<{ connected: boolean }>("/integrations/google-calendar/status", { auth: true });
-    if (!r.ok) {
-      setGcConnected(false);
-      setGcError(r.error);
-      setGcLoading(false);
-      return;
-    }
-    setGcConnected(Boolean((r.data as any)?.connected));
-    setGcLoading(false);
-  }
-
   React.useEffect(() => {
-    loadGcStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    async function load() {
+      setLoading(true);
+      setError(null);
+      const r = await apiJson<DashboardStats>("/teacher/dashboard/stats", { auth: true });
+      setLoading(false);
+      if (!r.ok) {
+        setError(r.error ?? "Failed to load dashboard");
+        return;
+      }
+      setStats(r.data);
+    }
+    load();
   }, []);
 
-  async function connectGoogleCalendar() {
-    setGcError(null);
-    setSyncResult(null);
-    setGcLoading(true);
-    const r = await apiJson<{ url?: string }>("/integrations/google-calendar/auth-url?returnTo=/teacher", {
-      auth: true,
-    });
-    setGcLoading(false);
-    if (!r.ok) {
-      setGcError(r.error);
-      return;
-    }
-    const url = (r.data as any)?.url;
-    if (url) window.location.href = url as string;
-    else setGcError("Google Calendar OAuth is not configured yet.");
+  if (loading || !stats) {
+    return (
+      <main className="min-h-[calc(100vh-107px)] bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full" />
+        </div>
+      </main>
+    );
   }
 
-  async function disconnectGoogleCalendar() {
-    setGcError(null);
-    setSyncResult(null);
-    setGcLoading(true);
-    const r = await apiJson("/integrations/google-calendar/disconnect", { method: "POST", auth: true });
-    setGcLoading(false);
-    if (!r.ok) {
-      setGcError(r.error);
-      return;
-    }
-    setGcConnected(false);
+  if (error) {
+    return (
+      <main className="min-h-[calc(100vh-107px)] bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-6">{error}</div>
+        </div>
+      </main>
+    );
   }
 
-  async function syncCalendar() {
-    setGcError(null);
-    setSyncResult(null);
-    setSyncing(true);
-    const r = await apiJson<{ created: number }>("/teacher/google-calendar/sync", { method: "POST", auth: true });
-    setSyncing(false);
-    if (!r.ok) {
-      setGcError(r.error);
-      return;
-    }
-    setSyncResult(`Successfully synced: created ${(r.data as any)?.created ?? 0} event(s).`);
-    await loadGcStatus();
-  }
+  const { thisWeek, previousWeek, today, totalRevenueCredits, chartData } = stats;
+  const sessionPct =
+    previousWeek.sessions > 0
+      ? ((thisWeek.sessions - previousWeek.sessions) / previousWeek.sessions) * 100
+      : thisWeek.sessions > 0
+        ? 100
+        : 0;
+  const completedPct =
+    previousWeek.completed > 0
+      ? ((thisWeek.completed - previousWeek.completed) / previousWeek.completed) * 100
+      : thisWeek.completed > 0
+        ? 100
+        : 0;
+  const bookingPct =
+    previousWeek.bookings > 0
+      ? ((thisWeek.bookings - previousWeek.bookings) / previousWeek.bookings) * 100
+      : thisWeek.bookings > 0
+        ? 100
+        : 0;
+
+  const maxRevenue = Math.max(1, ...chartData.map((d) => d.revenue));
+  const maxGuests = Math.max(1, ...chartData.map((d) => d.guests));
+  const maxRooms = Math.max(
+    1,
+    ...chartData.flatMap((d) => [d.open, d.booked, d.completed])
+  );
 
   return (
     <main className="min-h-[calc(100vh-107px)] bg-gray-50">
@@ -98,9 +112,8 @@ export default function TeacherDashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-gray-900 text-2xl font-bold">Teacher Dashboard</h1>
-            <p className="mt-1 text-gray-600 text-sm">Manage your teaching schedule and calendar integration</p>
+            <p className="mt-1 text-gray-600 text-sm">Overview and key metrics</p>
           </div>
-
           <Link
             href="/teacher/profile/edit"
             className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
@@ -112,178 +125,285 @@ export default function TeacherDashboardPage() {
           </Link>
         </div>
 
-        {/* Main Content */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Quick Links */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <div>
-                  <h2 className="text-gray-900 text-lg font-semibold">Quick Links</h2>
-                  <p className="text-gray-500 text-sm">Access your teaching tools</p>
-                </div>
-              </div>
-            </div>
+        {/* Top row - KPI cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          <KPICard
+            title="Sessions (This week)"
+            value={thisWeek.sessions}
+            change={sessionPct}
+            previousLabel="Previous week"
+            previousValue={previousWeek.sessions}
+            icon="arrow-right"
+            iconBg="bg-blue-100"
+            iconColor="text-blue-600"
+          />
+          <KPICard
+            title="Completed (This week)"
+            value={thisWeek.completed}
+            change={completedPct}
+            previousLabel="Previous week"
+            previousValue={previousWeek.completed}
+            icon="arrow-left"
+            iconBg="bg-amber-100"
+            iconColor="text-amber-600"
+          />
+          <KPICard
+            title="Booking (This week)"
+            value={thisWeek.bookings}
+            change={bookingPct}
+            previousLabel="Previous week"
+            previousValue={previousWeek.bookings}
+            icon="calendar"
+            iconBg="bg-blue-100"
+            iconColor="text-blue-600"
+          />
+          <TodayCard
+            slotsAvailable={today.slotsAvailable}
+            slotsBooked={today.slotsBooked}
+            guests={today.guests}
+            totalRevenueCredits={totalRevenueCredits}
+          />
+        </div>
 
-            <div className="p-6">
-              <div className="space-y-3">
-                <QuickLink
-                  href="/teacher/sessions"
-                  icon="calendar"
-                  title="Sessions"
-                  description="Create and manage bookable time slots"
-                />
-                <QuickLink
-                  href="/teacher/bookings"
-                  icon="users"
-                  title="Bookings"
-                  description="View students and write class reports"
-                />
-                <QuickLink
-                  href="/teacher/availability"
-                  icon="clock"
-                  title="Availability"
-                  description="Set weekly hours and time overrides"
-                />
-                <QuickLink
-                  href="/teacher/earnings"
-                  icon="chart"
-                  title="Earnings"
-                  description="Track your booking statistics"
-                />
-              </div>
+        {/* Bottom row - Charts */}
+        <div className="grid gap-6 lg:grid-cols-3 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold">Revenue</h2>
+              <span className="text-gray-500 text-sm">This week</span>
+            </div>
+            <div className="h-48 flex items-end gap-1">
+              {chartData.map((d) => (
+                <div key={d.date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                  <div
+                    className="w-full rounded-t bg-orange-500 min-h-[4px] transition-colors hover:bg-orange-600"
+                    style={{ height: `${Math.max(8, (d.revenue / maxRevenue) * 100)}%` }}
+                    title={`${d.day}: ${d.revenue} credits`}
+                  />
+                  <span className="text-gray-400 text-xs truncate w-full text-center">{d.day}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Google Calendar Integration */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <div>
-                    <h2 className="text-gray-900 text-lg font-semibold">Google Calendar</h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      {gcLoading ? "Checking status..." : gcConnected ? (
-                        <span className="inline-flex items-center gap-1.5 text-green-600">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Connected
-                        </span>
-                      ) : (
-                        <span className="text-gray-500">Not connected</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-100 border border-gray-200">
-                  <img src="/img/mars-logo.png" alt="Calendar" className="w-10 h-10" />
-                </div>
-              </div>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold">Guests</h2>
+              <span className="text-gray-500 text-sm">This week</span>
             </div>
+            <div className="h-48 relative">
+              <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
+                <polyline
+                  fill="none"
+                  stroke="#3B82F6"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={chartData
+                    .map((d, i) => {
+                      const x = chartData.length <= 1 ? 50 : (i / (chartData.length - 1)) * 100;
+                      const y = 100 - Math.max(0, (d.guests / maxGuests) * 100);
+                      return `${x},${y}`;
+                    })
+                    .join(" ")}
+                />
+                {chartData.map((d, i) => {
+                  const x = chartData.length <= 1 ? 50 : (i / (chartData.length - 1)) * 100;
+                  const y = 100 - Math.max(0, (d.guests / maxGuests) * 100);
+                  return (
+                    <circle
+                      key={d.date}
+                      cx={x}
+                      cy={y}
+                      r="2.5"
+                      fill="#3B82F6"
+                    />
+                  );
+                })}
+              </svg>
+            </div>
+            <div className="flex gap-2 mt-2">
+              {chartData.map((d) => (
+                <span key={d.date} className="text-gray-400 text-xs flex-1 text-center truncate">
+                  {d.day}
+                </span>
+              ))}
+            </div>
+          </div>
 
-            <div className="p-6">
-              {gcError && (
-                <div className="mb-4 flex items-start gap-3 border border-red-300 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm">
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{gcError}</span>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-gray-900 text-lg font-semibold">Sessions</h2>
+                <p className="text-gray-500 text-xs mt-0.5">By day (Open / Booked / Completed)</p>
+              </div>
+              <span className="text-gray-500 text-sm">This week</span>
+            </div>
+            <div className="h-48 flex items-end gap-1">
+              {chartData.map((d) => (
+                <div key={d.date} className="flex-1 flex gap-px justify-center items-end h-48 min-w-0">
+                  <div
+                    className="w-1/3 rounded-t min-h-[2px] bg-blue-500 hover:bg-blue-600 transition-colors"
+                    style={{ height: `${Math.max(4, (d.open / maxRooms) * 100)}%` }}
+                    title={`${d.day} Open: ${d.open}`}
+                  />
+                  <div
+                    className="w-1/3 rounded-t min-h-[2px] bg-green-500 hover:bg-green-600 transition-colors"
+                    style={{ height: `${Math.max(4, (d.booked / maxRooms) * 100)}%` }}
+                    title={`${d.day} Booked: ${d.booked}`}
+                  />
+                  <div
+                    className="w-1/3 rounded-t min-h-[2px] bg-orange-500 hover:bg-orange-600 transition-colors"
+                    style={{ height: `${Math.max(4, (d.completed / maxRooms) * 100)}%` }}
+                    title={`${d.day} Completed: ${d.completed}`}
+                  />
                 </div>
-              )}
-
-              {syncResult && (
-                <div className="mb-4 flex items-start gap-3 border border-green-300 bg-green-50 text-green-800 rounded-lg px-4 py-3 text-sm">
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{syncResult}</span>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {gcConnected ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={syncCalendar}
-                      disabled={syncing}
-                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {syncing ? (
-                        <>
-                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          <span>Syncing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          <span>Sync Calendar</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={disconnectGoogleCalendar}
-                      disabled={gcLoading}
-                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-red-300 hover:bg-red-50 text-red-700 text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Disconnect
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={connectGoogleCalendar}
-                    disabled={gcLoading}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {gcLoading ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Connecting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <span>Connect Google Calendar</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                <div className="flex items-start gap-2 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-xs">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Sync creates calendar events for your upcoming booked sessions</span>
-                </div>
+              ))}
+            </div>
+            <div className="flex gap-2 mt-2">
+              {chartData.map((d) => (
+                <span key={d.date} className="text-gray-400 text-xs flex-1 text-center truncate">
+                  {d.day}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-blue-500" />
+                <span className="text-gray-600 text-xs">Open</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="text-gray-600 text-xs">Booked</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-orange-500" />
+                <span className="text-gray-600 text-xs">Completed</span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Quick Links */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-gray-900 text-lg font-semibold">Quick Links</h2>
+            <p className="text-gray-500 text-sm">Access your teaching tools</p>
+          </div>
+          <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <QuickLink href="/teacher/sessions" icon="calendar" title="Sessions" description="Create and manage bookable time slots" />
+            <QuickLink href="/teacher/bookings" icon="users" title="Bookings" description="View students and write class reports" />
+            <QuickLink href="/teacher/availability" icon="clock" title="Availability" description="Set weekly hours and time overrides" />
+            <QuickLink href="/teacher/earnings" icon="chart" title="Earnings" description="Track your booking statistics" />
+          </div>
+        </div>
       </section>
     </main>
+  );
+}
+
+function KPICard({
+  title,
+  value,
+  change,
+  previousLabel,
+  previousValue,
+  icon,
+  iconBg,
+  iconColor,
+}: {
+  title: string;
+  value: number;
+  change: number;
+  previousLabel: string;
+  previousValue: number;
+  icon: string;
+  iconBg: string;
+  iconColor: string;
+}) {
+  const isPositive = change >= 0;
+  const isZero = change === 0 && !Number.isNaN(change);
+  const displayPct =
+    Number.isNaN(change) || !Number.isFinite(change)
+      ? null
+      : isZero
+        ? "0%"
+        : `${isPositive ? "+" : ""}${change.toFixed(0)}%`;
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div className="flex items-start gap-3">
+        <div className={`p-2.5 rounded-full ${iconBg} ${iconColor} flex-shrink-0`}>
+          {icon === "arrow-right" && (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          )}
+          {icon === "arrow-left" && (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l7-7m0 0l-7-7m7 7H3" />
+            </svg>
+          )}
+          {icon === "calendar" && (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-gray-500 text-sm font-medium">{title}</p>
+          <p className="text-gray-900 text-2xl font-bold mt-0.5">{value}</p>
+          {displayPct != null && (
+            <p className={`text-sm font-medium mt-1 ${isZero ? "text-gray-500" : isPositive ? "text-green-600" : "text-red-600"}`}>
+              {displayPct}
+            </p>
+          )}
+          <p className="text-gray-400 text-xs mt-0.5">
+            {previousLabel}: {previousValue}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TodayCard({
+  slotsAvailable,
+  slotsBooked,
+  guests,
+  totalRevenueCredits,
+}: {
+  slotsAvailable: number;
+  slotsBooked: number;
+  guests: number;
+  totalRevenueCredits: number;
+}) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <p className="text-gray-500 text-sm font-medium mb-3">Today Activities</p>
+      <div className="flex gap-4 mb-4">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
+            {slotsAvailable}
+          </div>
+          <span className="text-gray-500 text-xs mt-1">Slots Available</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
+            {slotsBooked}
+          </div>
+          <span className="text-gray-500 text-xs mt-1">Slots Booked</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
+            {guests}
+          </div>
+          <span className="text-gray-500 text-xs mt-1">Guests</span>
+        </div>
+      </div>
+      <p className="text-gray-900 font-semibold text-sm border-t border-gray-100 pt-3">
+        Total Revenue {totalRevenueCredits} credits
+      </p>
+    </div>
   );
 }
 
@@ -328,7 +448,6 @@ function QuickLink({
         return null;
     }
   };
-
   const getBgColor = () => {
     switch (icon) {
       case "calendar":
@@ -343,24 +462,17 @@ function QuickLink({
         return "bg-gray-100";
     }
   };
-
   return (
     <Link
       href={href}
-      className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all group"
+      className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all group"
     >
-      <div className={`p-2 rounded-lg ${getBgColor()} flex-shrink-0`}>
-        {getIcon()}
+      <div className={`p-2 rounded-lg ${getBgColor()} flex-shrink-0`}>{getIcon()}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-gray-900 text-sm font-semibold group-hover:text-[#0058C9]">{title}</div>
+        <div className="text-gray-500 text-xs mt-0.5">{description}</div>
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-gray-900 text-sm font-semibold group-hover:text-[#0058C9] transition-colors">
-          {title}
-        </div>
-        <div className="mt-0.5 text-gray-500 text-xs">
-          {description}
-        </div>
-      </div>
-      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </Link>

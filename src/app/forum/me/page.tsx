@@ -37,6 +37,17 @@ type NotificationRow = {
   createdAt: string;
 };
 
+function formatDateTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function ForumMePage() {
   const router = useRouter();
   const me = getAuthUser<any>();
@@ -45,6 +56,7 @@ export default function ForumMePage() {
   const [follows, setFollows] = React.useState<FollowRow[]>([]);
   const [notifications, setNotifications] = React.useState<NotificationRow[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (!getAuthToken()) router.replace("/login");
@@ -52,6 +64,7 @@ export default function ForumMePage() {
 
   async function load() {
     setError(null);
+    setLoading(true);
     const [s, a, f, n] = await Promise.all([
       apiJson<Summary>("/forum/me/summary"),
       apiJson<{ articles: MyArticle[] }>("/forum/me/articles"),
@@ -64,6 +77,7 @@ export default function ForumMePage() {
     if (f.ok) setFollows((f.data.follows || []) as any);
     if (n.ok) setNotifications(n.data.notifications || []);
     if (!s.ok) setError(s.error);
+    setLoading(false);
   }
 
   React.useEffect(() => {
@@ -76,170 +90,170 @@ export default function ForumMePage() {
   }
 
   return (
-    <main className="min-h-screen">
-      <section className="relative z-10 max-w-[1400px] mx-auto p-left p-right py-10">
-        <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
-          <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <h1 className="text-white text-2xl md:text-4xl font-extrabold">My forum dashboard</h1>
-                <p className="text-white/80 mt-2 text-sm md:text-base">Quota, posts, follows, and notifications.</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href="/forum"
-                  className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase"
-                >
-                  Forum
-                </Link>
-                <Link
-                  href="/forum/new"
-                  className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#CB4913] hover:bg-[#cb6c13f1] text-white text-xs font-extrabold uppercase"
-                >
-                  New article
-                </Link>
-                {me?.role === "admin" ? (
-                  <Link
-                    href="/admin/forum"
-                    className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#004bb0] text-white text-xs font-extrabold uppercase"
-                  >
-                    Admin
-                  </Link>
-                ) : null}
-              </div>
-            </div>
-
-            {error ? (
-              <div className="mt-6 border-2 border-[#2D2D2D] bg-[#B4005A]/40 text-white rounded-xl px-4 py-3 text-sm">
-                {error}
-              </div>
+    <main className="min-h-[calc(100vh-107px)] bg-gray-50">
+      <section className="relative z-10 max-w-[1200px] mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">My Posts</h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/forum"
+              className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
+            >
+              Forum
+            </Link>
+            <Link
+              href="/forum/new"
+              className="px-6 py-2 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
+            >
+              New Post
+            </Link>
+            {me?.role === "admin" ? (
+              <Link
+                href="/admin/forum"
+                className="px-6 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
+              >
+                Admin
+              </Link>
             ) : null}
+          </div>
+        </div>
 
+        {/* Search / Nav row (match forum list page) */}
+        <div className="mb-6 flex gap-3">
+          <Link
+            href="/forum"
+            className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Forum
+          </Link>
+        </div>
+
+        {error ? (
+          <div className="mb-6 border border-red-300 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm">
+            {error}
+          </div>
+        ) : null}
+
+        {loading ? (
+          <div className="text-center py-12 text-gray-500">Loading...</div>
+        ) : (
+          <>
             {summary ? (
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-                  <div className="p-5 md:p-6">
-                    <div className="text-white/70 text-xs uppercase tracking-[0.12em]">Remaining</div>
-                    <div className="text-white text-3xl font-extrabold mt-1">{summary.remaining}</div>
-                  </div>
+              <div className="mb-8 grid gap-4 sm:grid-cols-3">
+                <div className="bg-white rounded-lg border border-gray-200 p-5">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Remaining</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{summary.remaining}</div>
                 </div>
-                <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-                  <div className="p-5 md:p-6">
-                    <div className="text-white/70 text-xs uppercase tracking-[0.12em]">Forum credits</div>
-                    <div className="text-white text-3xl font-extrabold mt-1">{summary.creditsBalance}</div>
-                  </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-5">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Forum credits</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{summary.creditsBalance}</div>
                 </div>
-                <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-                  <div className="p-5 md:p-6">
-                    <div className="text-white/70 text-xs uppercase tracking-[0.12em]">Used</div>
-                    <div className="text-white text-3xl font-extrabold mt-1">{summary.used}</div>
-                  </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-5">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Used</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{summary.used}</div>
                 </div>
               </div>
             ) : null}
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-                <div className="p-5 md:p-6">
-                  <div className="text-white font-extrabold">My articles</div>
-                  <div className="mt-4 grid gap-2">
-                    {myArticles.length ? (
-                      myArticles.map((a) => (
-                        <Link
-                          key={a.id}
-                          href={`/forum/${a.id}`}
-                          className="block px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-[#000237]/45 hover:bg-[#000237]/55"
-                        >
-                          <div className="text-white font-semibold">{a.title}</div>
-                          <div className="mt-1 text-white/70 text-xs">
-                            {a.status} • {new Date(a.createdAt).toLocaleString()}
-                          </div>
-                          {a.status === "rejected" && a.rejectReason ? (
-                            <div className="mt-2 text-white/90 text-xs">Reason: {a.rejectReason}</div>
-                          ) : null}
-                        </Link>
-                      ))
-                    ) : (
-                      <div className="text-white/80 text-sm">No submissions yet.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-                <div className="p-5 md:p-6">
-                  <div className="text-white font-extrabold">Followed articles</div>
-                  <div className="mt-4 grid gap-2">
-                    {follows.length ? (
-                      follows.map((f) => (
-                        <Link
-                          key={f.articleId}
-                          href={`/forum/${f.articleId}`}
-                          className="block px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-[#000237]/45 hover:bg-[#000237]/55"
-                        >
-                          <div className="text-white font-semibold">{f.article?.title || "Article"}</div>
-                          <div className="mt-1 text-white/70 text-xs">
-                            Followed: {new Date(f.followedAt).toLocaleString()}
-                          </div>
-                        </Link>
-                      ))
-                    ) : (
-                      <div className="text-white/80 text-sm">You are not following any articles yet.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
-              <div className="p-5 md:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-white font-extrabold">Notifications</div>
-                  <div className="text-white/70 text-xs">{notifications.filter((n) => !n.readAt).length} unread</div>
-                </div>
-                <div className="mt-4 grid gap-2">
-                  {notifications.length ? (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className={[
-                          "px-4 py-3 rounded-xl border-2 border-[#2D2D2D]",
-                          n.readAt ? "bg-[#000237]/35" : "bg-[#0058C9]/20",
-                        ].join(" ")}
+            <div className="grid gap-6 lg:grid-cols-2 mb-8">
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">My articles</h2>
+                <div className="space-y-2">
+                  {myArticles.length ? (
+                    myArticles.map((a) => (
+                      <Link
+                        key={a.id}
+                        href={`/forum/${a.id}`}
+                        className="block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                       >
-                        <div className="text-white/90 text-xs">
-                          <span className="font-semibold">{n.type}</span> •{" "}
-                          <span className="text-white/70">{new Date(n.createdAt).toLocaleString()}</span>
+                        <div className="font-semibold text-gray-900">{a.title}</div>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                          <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">{a.status}</span>
+                          <span>{formatDateTime(a.createdAt)}</span>
                         </div>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <Link
-                            href={`/forum/${n.articleId}`}
-                            className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase"
-                          >
-                            Open
-                          </Link>
-                          {!n.readAt ? (
-                            <button
-                              type="button"
-                              onClick={() => markRead(n.id)}
-                              className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#000237]/60 hover:bg-[#000237]/75 text-white text-xs font-extrabold uppercase"
-                            >
-                              Mark read
-                            </button>
-                          ) : null}
-                        </div>
-                      </div>
+                        {a.status === "rejected" && a.rejectReason ? (
+                          <div className="mt-2 text-sm text-red-700">Reason: {a.rejectReason}</div>
+                        ) : null}
+                      </Link>
                     ))
                   ) : (
-                    <div className="text-white/80 text-sm">No notifications yet.</div>
+                    <div className="py-6 text-center text-gray-500 text-sm">No submissions yet.</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Followed articles</h2>
+                <div className="space-y-2">
+                  {follows.length ? (
+                    follows.map((f) => (
+                      <Link
+                        key={f.articleId}
+                        href={`/forum/${f.articleId}`}
+                        className="block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="font-semibold text-gray-900">{f.article?.title || "Article"}</div>
+                        <div className="mt-1 text-xs text-gray-500">Followed: {formatDateTime(f.followedAt)}</div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="py-6 text-center text-gray-500 text-sm">You are not following any articles yet.</div>
                   )}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Notifications</h2>
+                <span className="text-sm text-gray-500">
+                  {notifications.filter((n) => !n.readAt).length} unread
+                </span>
+              </div>
+              <div className="space-y-2">
+                {notifications.length ? (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`p-4 rounded-lg border ${
+                        n.readAt ? "border-gray-200 bg-gray-50" : "border-blue-200 bg-blue-50/50"
+                      }`}
+                    >
+                      <div className="text-sm text-gray-700">
+                        <span className="font-semibold">{n.type}</span>
+                        <span className="text-gray-500 ml-2">{formatDateTime(n.createdAt)}</span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <Link
+                          href={`/forum/${n.articleId}`}
+                          className="px-4 py-2 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
+                        >
+                          Open
+                        </Link>
+                        {!n.readAt ? (
+                          <button
+                            type="button"
+                            onClick={() => markRead(n.id)}
+                            className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
+                          >
+                            Mark read
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-gray-500 text-sm">No notifications yet.</div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </main>
   );
 }
-
