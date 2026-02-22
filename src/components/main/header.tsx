@@ -208,11 +208,11 @@ const Header = () => {
         {/* Hero: left content + right UFO */}
         {isHome ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center relative z-10 min-h-[calc(100vh-70px)] pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-36 px-4 md:px-8">
-            <div className="flex flex-col items-start text-left gap-8 max-w-xl py-4 md:py-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#CB4913] bg-black/40">
-                <span className="w-2 h-2 rounded-full bg-[#CB4913]" aria-hidden />
-                <span className="text-white text-xs font-medium uppercase tracking-wide">System online: Sector English</span>
-              </div>
+            <div className="flex flex-col items-start text-left gap-8 max-w-xl pb-4 md:pb-8">
+              {/* <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#CB4913] bg-black/40"> */}
+                {/* <span className="w-2 h-2 rounded-full bg-[#CB4913]" aria-hidden /> */}
+                {/* <span className="text-white text-xs font-medium uppercase tracking-wide">System online: Sector English</span> */}
+              {/* </div> */}
               <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight">
                 George English
               </h1>
@@ -232,10 +232,10 @@ const Header = () => {
               </p>
               <div className="flex flex-wrap gap-4 md:gap-5">
                 <Link
-                  href="/lessons"
+                  href="/register"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-white font-semibold text-sm md:text-base transition-colors"
                 >
-                  Start Your Mission
+                  Join now
                   <ArrowUpRight className="w-5 h-5 shrink-0" aria-hidden />
                 </Link>
                 <Link
