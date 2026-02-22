@@ -5,6 +5,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { ArrowUpRight, Play } from "lucide-react";
 import { getAuthToken, getAuthUser } from "@/utils/backend";
 
 const Sparkles = dynamic(() => import("@/components/ui/sparkle"), { ssr: false });
@@ -204,12 +205,53 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Hero visual */}
+        {/* Hero: left content + right UFO */}
         {isHome ? (
-          <div className="flex justify-center relative z-10 min-h-[calc(100vh-70px)] pt-6 md:pt-10 pb-10">
-            <Sparkles top={30} left={10} right={90} bottom={100} interval={120}>
-              <img className="bounce-effect" src="/img/ufo.png" alt="UFO" />
-            </Sparkles>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center relative z-10 min-h-[calc(100vh-70px)] pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-36 px-4 md:px-8">
+            <div className="flex flex-col items-start text-left gap-8 max-w-xl py-4 md:py-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#CB4913] bg-black/40">
+                <span className="w-2 h-2 rounded-full bg-[#CB4913]" aria-hidden />
+                <span className="text-white text-xs font-medium uppercase tracking-wide">System online: Sector English</span>
+              </div>
+              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight">
+                George English
+              </h1>
+              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight">
+                {/* Learn English,{" "} */}
+                <span className="text-[#CB4913]">one</span>{" "}
+                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  mission
+                </span>{" "}
+                
+              </h1>
+              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight">
+              at a time.  
+              </h1>
+              <p className="text-white/90 text-base md:text-lg">
+                Embark on a linguistic journey across the English Galaxy. No textbooks, no boring lectures—just pure interstellar exploration.
+              </p>
+              <div className="flex flex-wrap gap-4 md:gap-5">
+                <Link
+                  href="/lessons"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#CB4913] hover:bg-[#cb6c13f1] border-2 border-[#2D2D2D] text-white font-semibold text-sm md:text-base transition-colors"
+                >
+                  Start Your Mission
+                  <ArrowUpRight className="w-5 h-5 shrink-0" aria-hidden />
+                </Link>
+                <Link
+                  href="#"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-transparent border-2 border-white/80 text-white hover:bg-white/10 font-semibold text-sm md:text-base transition-colors"
+                >
+                  <Play className="w-5 h-5 shrink-0" aria-hidden />
+                  Watch Trailer
+                </Link>
+              </div>
+            </div>
+            <div className="flex justify-center lg:justify-end p-6">
+              <Sparkles top={30} left={10} right={90} bottom={100} interval={120}>
+                <img className="bounce-effect" src="/img/ufo.png" alt="UFO" />
+              </Sparkles>
+            </div>
           </div>
         ) : (
           <div className="pb-6 md:pb-8" />
