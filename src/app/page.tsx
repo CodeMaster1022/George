@@ -103,6 +103,27 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* New section below methodology */}
+        <div className="mt-16 md:mt-24 text-center">
+          <h2 className="text-white md:text-4xl font-bold leading-tight">
+            Why St. George&apos;s?
+          </h2>
+          <p className="text-white/80 mt-3 md:text-lg max-w-[700px] mx-auto mb-10">
+            We combine proven methodology with space-themed fun so every student stays motivated and makes real progress.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
+              Personalized learning paths
+            </div>
+            <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
+              Qualified native teachers
+            </div>
+            <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
+              Mission-based lessons
+            </div>
+          </div>
+        </div>
       </section>
       <section className="relative z-10 max-w-full mx-auto p-left p-right py-12 mt-12 bg-[url('/img/bg1.jpg')] bg-cover bg-no-repeat bg-[100%]">
         <div className="flex justify-center mb-6 pt-24">

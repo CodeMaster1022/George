@@ -6,6 +6,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (config: {
+        createOrder: () => Promise<string>;
+        onApprove: (data: { orderID: string }) => Promise<void>;
+        style?: { color?: string; shape?: string };
+      }) => { render: (selector: string | HTMLElement) => Promise<unknown> };
+    };
+  }
+}
+
 type Ticket = {
   title: string;
   price: string;
@@ -39,6 +51,9 @@ export default function BuyCreditsClient() {
   const [balance, setBalance] = React.useState<number>(0);
   const [loadingBalance, setLoadingBalance] = React.useState(true);
   const [payingMethod, setPayingMethod] = React.useState<"card" | "paypal" | null>(null);
+  const [paypalConfig, setPaypalConfig] = React.useState<{ enabled: boolean; clientId?: string }>({ enabled: false });
+  const paypalContainerRef = React.useRef<HTMLDivElement>(null);
+  const paypalButtonsRendered = React.useRef(false);
 
   React.useEffect(() => {
     const token = localStorage.getItem("auth_token") || "";
@@ -69,6 +84,17 @@ export default function BuyCreditsClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await apiJson<{ enabled: boolean; clientId?: string }>("/credits/paypal-config", { auth: true });
+      if (!cancelled && r.ok && r.data) setPaypalConfig({ enabled: !!r.data.enabled, clientId: r.data.clientId });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function onPay(method: "card" | "paypal") {
     setError(null);
     setInfo(null);
@@ -80,6 +106,8 @@ export default function BuyCreditsClient() {
       setError("Please agree to the Terms and Privacy Policy.");
       return;
     }
+    // Real PayPal uses the SDK button; only mock flows use this
+    if (method === "paypal" && paypalConfig.enabled) return;
     setPayingMethod(method);
     try {
       const r = await apiJson<{ ok: boolean; balance: number }>("/credits/purchase", {
@@ -102,6 +130,78 @@ export default function BuyCreditsClient() {
       setPayingMethod(null);
     }
   }
+
+  // Load PayPal SDK and render buttons when config ready, package selected, and agreed
+  React.useEffect(() => {
+    if (!selected || !agree || !paypalConfig.enabled || !paypalConfig.clientId || !paypalContainerRef.current) {
+      paypalButtonsRendered.current = false;
+      return;
+    }
+    const container = paypalContainerRef.current;
+    const credits = selected.credits;
+    const referralCode = referral.trim() || undefined;
+
+    const loadScript = (): Promise<void> =>
+      new Promise((resolve, reject) => {
+        if (typeof window !== "undefined" && window.paypal) {
+          resolve();
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = `https://www.paypal.com/sdk/js?client-id=${paypalConfig.clientId}&currency=USD`;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load PayPal SDK"));
+        document.body.appendChild(script);
+      });
+
+    let mounted = true;
+    (async () => {
+      try {
+        await loadScript();
+        if (!mounted || !container || !window.paypal) return;
+        container.innerHTML = "";
+        paypalButtonsRendered.current = true;
+        await window.paypal.Buttons({
+          createOrder: async () => {
+            const r = await apiJson<{ orderId: string }>("/credits/create-paypal-order", {
+              method: "POST",
+              auth: true,
+              body: JSON.stringify({ credits, referralCode }),
+            });
+            if (!r.ok) throw new Error(r.error || "Failed to create order");
+            return r.data.orderId;
+          },
+          onApprove: async (data: { orderID: string }) => {
+            setError(null);
+            setInfo(null);
+            setPayingMethod("paypal");
+            try {
+              const r = await apiJson<{ ok: boolean; balance: number; credits: number }>(
+                "/credits/capture-paypal-order",
+                { method: "POST", auth: true, body: JSON.stringify({ orderId: data.orderID }) }
+              );
+              if (!r.ok) {
+                setError(r.error ?? "Payment capture failed");
+                return;
+              }
+              setBalance(r.data.balance);
+              setInfo(`Added ${r.data.credits} credits. New balance: ${r.data.balance}.`);
+            } finally {
+              setPayingMethod(null);
+            }
+          },
+          style: { color: "gold", shape: "rect" },
+        }).render(container);
+      } catch (e) {
+        if (mounted) setError(e instanceof Error ? e.message : "PayPal failed to load");
+      }
+    })();
+    return () => {
+      mounted = false;
+      paypalButtonsRendered.current = false;
+    };
+  }, [selected, agree, paypalConfig.enabled, paypalConfig.clientId, referral]);
 
   return (
     <main className="min-h-[calc(100vh-100px)]">
@@ -229,15 +329,23 @@ export default function BuyCreditsClient() {
                           >
                             {payingMethod === "card" ? "Processing…" : "Pay with card"}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => onPay("paypal")}
-                            disabled={payingMethod !== null || !agree}
-                            aria-label={`Pay ${selected.price} with PayPal`}
-                            className="w-full px-4 py-3 rounded-lg border-2 border-[#2D2D2D] bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-60 disabled:cursor-not-allowed text-[#212429] font-extrabold text-sm uppercase transition-colors"
-                          >
-                            {payingMethod === "paypal" ? "Processing…" : "Pay with PayPal"}
-                          </button>
+                          {paypalConfig.enabled ? (
+                            <div
+                              ref={paypalContainerRef}
+                              className="min-h-[42px] flex items-center justify-center"
+                              aria-label="Pay with PayPal"
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => onPay("paypal")}
+                              disabled={payingMethod !== null || !agree}
+                              aria-label={`Pay ${selected.price} with PayPal`}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-[#2D2D2D] bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-60 disabled:cursor-not-allowed text-[#212429] font-extrabold text-sm uppercase transition-colors"
+                            >
+                              {payingMethod === "paypal" ? "Processing…" : "Pay with PayPal (demo)"}
+                            </button>
+                          )}
                         </div>
 
                         <p className="mt-4 text-[11px] text-[#212429]/70 leading-relaxed">
