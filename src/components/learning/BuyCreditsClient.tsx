@@ -12,6 +12,7 @@ declare global {
       Buttons: (config: {
         createOrder: () => Promise<string>;
         onApprove: (data: { orderID: string }) => Promise<void>;
+        onError?: (err: Error) => void;
         style?: { color?: string; shape?: string };
       }) => { render: (selector: string | HTMLElement) => Promise<unknown> };
     };
