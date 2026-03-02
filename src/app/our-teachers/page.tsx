@@ -8,52 +8,40 @@ import { motion } from "framer-motion";
 
 const TEACHERS = [
   {
-    name: "Teacher Natalia",
+    name: "Teacher Edison",
     country: "Ecuadro",
     quote: "My student improved quickly and felt confident speaking in class.",
-    img: "https://stgeorge.ec/img/Profesores/f7b58e5e-2e6a-436b-930d-9abcf37d5ecb.png",
+    img: "img/teachers/Edison.jpg",
   },
   {
-    name: "Teacher Josh",
+    name: "Teacher Ana",
     country: "Ecuadro",
     quote: "Short missions keep lessons fun and focused from start to finish.",
-    img: "https://stgeorge.ec/img/Profesores/2807fc4f-513f-4f87-933e-1b3138e29b7a.png",
+    img: "img/teachers/Ana.jpg",
   },
   {
-    name: "Teacher Taiba",
-    country: "Ecuadro",
-    quote: "Clear explanations and practice help learners remember new words.",
-    img: "https://stgeorge.ec/img/Profesores/06dd409b-150a-4f04-9a4f-4678ce297f2a.png",
-  },
-  {
-    name: "Teacher Pameia",
+    name: "Teacher Dennis",
     country: "Ecuadro",
     quote: "We learn step by step, and every lesson ends with a quick check.",
-    img: "https://stgeorge.ec/img/Profesores/62ea9f14-e720-4f20-b867-e6bfc9eb8be8.png",
-  },
-  {
-    name: "Teacher Estefania",
-    country: "Ecuadro",
-    quote: "Friendly guidance and simple examples make learning feel easy.",
-    img: "https://stgeorge.ec/img/Profesores/5b4ba08d-a79f-48f3-a4fd-93184e826bae.png",
+    img: "img/teachers/Dennis.jpg",
   },
   {
     name: "Teacher Johanna",
     country: "Ecuadro",
-    quote: "Practice prompts help students use new grammar in real sentences.",
-    img: "https://stgeorge.ec/img/Profesores/55858efb-17db-4e60-8f13-bfa53d916630.png",
+    quote: "Friendly guidance and simple examples make learning feel easy.",
+    img: "img/teachers/Johanna.jpg",
   },
   {
     name: "Teacher Estefania",
     country: "Ecuadro",
     quote: "Vocabulary sets by topic make daily learning simple and fast.",
-    img: "https://stgeorge.ec/img/Profesores/eb3eeced-c55e-4266-a034-cd18052b72b4.png",
+    img: "img/teachers/un.jpg",
   },
   {
-    name: "Teacher Anita",
+    name: "Teacher Xiomara",
     country: "Ecuadro",
     quote: "Quizzes with explanations help students learn from mistakes.",
-    img: "https://stgeorge.ec/img/Profesores/411ff372-0b04-45c8-9571-b443e6d66183.png",
+    img: "img/teachers/Xiomara.jpg",
   }
 ];
 
@@ -326,7 +314,7 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
           <h2 className="text-white md:text-5xl text-2xl">Meet a few of our English teachers</h2>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 space-x-4 sm:grid-cols-2 lg:grid-cols-3">
           {TEACHERS.map((t, index) => {
             return (
               <motion.div
@@ -353,7 +341,7 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
                 className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden
                   hover:border-[#0058C9] hover:bg-white/15 cursor-pointer hover:shadow-2xl hover:shadow-[#0058C9]/50"
               >
-                <div className="p-5">
+                <div className="p-6">
                   <motion.div 
                     className="relative group"
                     whileHover={{ scale: 1.05 }}
@@ -361,11 +349,11 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
                   >
                     <div className="rounded-[18px] border-2 border-[#2D2D2D] overflow-hidden bg-[#000237]/30
                       transition-all duration-300 group-hover:border-[#0058C9] group-hover:shadow-lg group-hover:shadow-[#0058C9]/20">
-                      <div className="aspect-square w-full overflow-hidden">
+                      <div className="aspect-[7/8] w-full overflow-hidden">
                         <motion.img 
                           src={t.img} 
                           alt="" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-fit"
                           whileHover={{ scale: 1.15, rotate: 2 }}
                           transition={{ duration: 0.4 }}
                         />
