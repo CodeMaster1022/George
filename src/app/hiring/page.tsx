@@ -308,7 +308,7 @@ export default function HiringPage() {
                   t("universityDegree"),
                   t("patientKindFun"),
                   t("experienceWithChildren"),
-                  t("availability"),
+                  t("availabilityRequirement"),
                   t("reliableInternet"),
                   t("wellLitSpace"),
                   t("punctualOrganized"),

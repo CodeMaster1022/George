@@ -204,7 +204,7 @@ const translations = {
     universityDegree: "Carrera universitaria",
     patientKindFun: "Pacientes, amables y sobre todo divertidos",
     experienceWithChildren: "Experiencia en el trato con niños",
-    availability: "Disponibilidad entre 3:30PM - 12:30AM (horario estadounidense) durante la semana, y 9:00AM - 12:30AM los fines de semana",
+    availabilityRequirement: "Disponibilidad entre 3:30PM - 12:30AM (horario estadounidense) durante la semana, y 9:00AM - 12:30AM los fines de semana",
     reliableInternet: "Conexión a Internet fiable y de alta velocidad",
     wellLitSpace: "Lugar bien iluminado, sin ruido, tranquilo y sin interrupciones",
     punctualOrganized: "Imprescindible ser puntual y organizado",
@@ -346,8 +346,8 @@ const translations = {
     history: "Historial",
     upcomingDesc: "Lecciones programadas. Selecciona una para unirte o marcar como completada.",
     historyDesc: "Lecciones completadas. Ver informes y estado de calificación.",
-    student: "Estudiante",
-    credits: "créditos",
+    studentLabel: "Estudiante",
+    creditsUnit: "créditos",
     sessionNotScheduled: "Sesión no programada",
     ending: "Finalizando...",
     doneLesson: "Lección completada",
@@ -381,7 +381,7 @@ const translations = {
     savedSuccessfully: "¡Guardado exitosamente! El estudiante ha sido notificado.",
     
     // Teacher Earnings Page
-    earnings: "Ganancias",
+    earningsPageTitle: "Ganancias",
     trackBookingsDesc: "Rastrea tus reservas y resumen de ganancias",
     bookingStatistics: "Estadísticas de reservas",
     bookingStatsDesc: "Resumen de las reservas de tus clases y ganancias",
@@ -419,8 +419,6 @@ const translations = {
     needTeacherAccount: "¿Necesitas una cuenta de profesor?",
     notTeacherAccount: "Esta cuenta no es una cuenta de profesor.",
     emailNotVerifiedTeacher: "Tu correo electrónico aún no está verificado. Reenvía el código y verifica en la página de Registro de Profesor.",
-    goToVerify: "Ir a verificar",
-    teacher: "Profesor",
   },
   en: {
     // Main Header
@@ -613,7 +611,7 @@ const translations = {
     universityDegree: "University degree",
     patientKindFun: "Patient, kind and above all fun",
     experienceWithChildren: "Experience working with children",
-    availability: "Availability between 3:30PM - 12:30AM (US time) during the week, and 9:00AM - 12:30AM on weekends",
+    availabilityRequirement: "Availability between 3:30PM - 12:30AM (US time) during the week, and 9:00AM - 12:30AM on weekends",
     reliableInternet: "Reliable and high-speed Internet connection",
     wellLitSpace: "Well-lit, quiet, noise-free space without interruptions",
     punctualOrganized: "Must be punctual and organized",
@@ -756,8 +754,8 @@ const translations = {
     history: "History",
     upcomingDesc: "Scheduled lessons. Select one to join or mark done.",
     historyDesc: "Completed lessons. View reports and rating status.",
-    student: "Student",
-    credits: "credits",
+    studentLabel: "Student",
+    creditsUnit: "credits",
     sessionNotScheduled: "Session not scheduled",
     ending: "Ending…",
     doneLesson: "Done lesson",
@@ -791,7 +789,7 @@ const translations = {
     savedSuccessfully: "Saved successfully! The student has been notified.",
     
     // Teacher Earnings Page
-    earnings: "Earnings",
+    earningsPageTitle: "Earnings",
     trackBookingsDesc: "Track your bookings and earnings summary",
     bookingStatistics: "Booking Statistics",
     bookingStatsDesc: "Overview of your class bookings and earnings",
@@ -829,8 +827,6 @@ const translations = {
     needTeacherAccount: "Need a teacher account?",
     notTeacherAccount: "This account is not a teacher account.",
     emailNotVerifiedTeacher: "Your email is not verified yet. Resend the code and verify on the Teacher Register page.",
-    goToVerify: "Go to verify",
-    teacher: "Teacher",
   },
 };
 

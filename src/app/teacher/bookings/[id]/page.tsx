@@ -230,7 +230,7 @@ export default function TeacherBookingDetailPage() {
           open={chatModalOpen}
           onClose={() => setChatModalOpen(false)}
           bookingId={booking.id}
-          otherPartyLabel={booking.studentNickname || t("student")}
+          otherPartyLabel={booking.studentNickname || t("studentLabel")}
           variant="teacher"
           title={t("messageStudent")}
         />
@@ -260,7 +260,7 @@ export default function TeacherBookingDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">{t("creditsCost")}</label>
-                    <div className="text-gray-900 font-semibold">{booking.priceCredits} {t("credits")}</div>
+                    <div className="text-gray-900 font-semibold">{booking.priceCredits} {t("creditsUnit")}</div>
                   </div>
                 </div>
               </div>
@@ -277,7 +277,7 @@ export default function TeacherBookingDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-lg font-semibold text-gray-900">{booking.studentNickname || t("student")}</div>
+                    <div className="text-lg font-semibold text-gray-900">{booking.studentNickname || t("studentLabel")}</div>
                     <div className="text-gray-600">{booking.studentEmail}</div>
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export default function TeacherBookingDetailPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{t("student")}:</span>
+                    <span className="text-sm text-gray-600">{t("studentLabel")}:</span>
                     <span className={`text-sm font-medium ${booking.studentRated ? "text-green-600" : "text-gray-400"}`}>
                       {booking.studentRated ? t("rated") : t("notRated")}
                     </span>

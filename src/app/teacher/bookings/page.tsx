@@ -294,7 +294,7 @@ export default function TeacherBookingsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-gray-900 text-sm font-semibold truncate">
-                                {b.studentNickname || t("student")}
+                                {b.studentNickname || t("studentLabel")}
                               </span>
                               {getUnreadCount(b.id) > 0 ? (
                                 <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
@@ -324,7 +324,7 @@ export default function TeacherBookingsPage() {
                             <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>{b.priceCredits} {t("credits")}</span>
+                            <span>{b.priceCredits} {t("creditsUnit")}</span>
                           </div>
                         </div>
                       </div>
@@ -461,7 +461,7 @@ export default function TeacherBookingsPage() {
                     open={chatModalOpen}
                     onClose={() => setChatModalOpen(false)}
                     bookingId={selected}
-                    otherPartyLabel={activeBooking?.studentNickname || "Student"}
+                    otherPartyLabel={activeBooking?.studentNickname || t("studentLabel")}
                     variant="teacher"
                     title={t("messageStudent")}
                   />

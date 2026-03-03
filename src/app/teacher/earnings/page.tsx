@@ -119,7 +119,7 @@ export default function TeacherEarningsPage() {
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{booked.count}</div>
-                <div className="mt-2 text-blue-600 text-sm font-medium">{booked.totalCredits} {t("credits")}</div>
+                <div className="mt-2 text-blue-600 text-sm font-medium">{booked.totalCredits} {t("creditsUnit")}</div>
               </div>
 
               {/* Completed */}
@@ -135,7 +135,7 @@ export default function TeacherEarningsPage() {
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{completed.count}</div>
-                <div className="mt-2 text-green-600 text-sm font-medium">{completed.totalCredits} {t("credits")}</div>
+                <div className="mt-2 text-green-600 text-sm font-medium">{completed.totalCredits} {t("creditsUnit")}</div>
               </div>
 
               {/* Cancelled */}
@@ -151,7 +151,7 @@ export default function TeacherEarningsPage() {
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{cancelled.count}</div>
-                <div className="mt-2 text-orange-600 text-sm font-medium">{cancelled.totalCredits} {t("credits")}</div>
+                <div className="mt-2 text-orange-600 text-sm font-medium">{cancelled.totalCredits} {t("creditsUnit")}</div>
               </div>
 
               {/* No Show */}
@@ -167,7 +167,7 @@ export default function TeacherEarningsPage() {
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{noShow.count}</div>
-                <div className="mt-2 text-red-600 text-sm font-medium">{noShow.totalCredits} {t("credits")}</div>
+                <div className="mt-2 text-red-600 text-sm font-medium">{noShow.totalCredits} {t("creditsUnit")}</div>
               </div>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function TeacherEarningsPage() {
               <div>
                 <div className="text-gray-600 text-sm font-medium">{t("totalEarnings")}</div>
                 <div className="mt-1 text-gray-900 text-2xl font-bold">
-                  {booked.totalCredits + completed.totalCredits + cancelled.totalCredits + noShow.totalCredits} {t("credits")}
+                  {booked.totalCredits + completed.totalCredits + cancelled.totalCredits + noShow.totalCredits} {t("creditsUnit")}
                 </div>
               </div>
               <div className="text-right">

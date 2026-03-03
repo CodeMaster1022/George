@@ -1,12 +1,12 @@
-\"use client\";
+"use client";
 
 /* eslint-disable @next/next/no-img-element */
-import React from \"react\";
-import { useRouter } from \"next/navigation\";
-import { apiJson, getAuthUser } from \"@/utils/backend\";
-import useToastr from \"@/hooks/useToastr\";
-import { useLanguage } from \"@/contexts/LanguageContext\";
-import { translate, type SupportedLanguage } from \"@/app/ebluelearning/book_by_teacher/translate\";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { apiJson, getAuthUser } from "@/utils/backend";
+import useToastr from "@/hooks/useToastr";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "@/app/ebluelearning/book_by_teacher/translate";
 
 type Teacher = {
   id: string; // TeacherProfile._id
