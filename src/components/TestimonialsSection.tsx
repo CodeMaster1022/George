@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Testimonial {
   id: number;
@@ -93,6 +94,7 @@ const TESTIMONIALS: Testimonial[] = [
 ];
 
 export default function TestimonialsSection() {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null);
 
@@ -114,7 +116,7 @@ export default function TestimonialsSection() {
     <>
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-24">
         <div className="text-center mb-8">
-          <h2 className="text-white md:text-6xl text-3xl">What learners say</h2>
+          <h2 className="text-white md:text-6xl text-3xl">{t("whatLearnersSay")}</h2>
           
           {/* Google Rating Section */}
           <div className="flex flex-col items-center gap-4 mt-6">
@@ -150,7 +152,7 @@ export default function TestimonialsSection() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-[#34A853] hover:bg-[#2d9248] text-white text-lg font-semibold rounded-full border-2 border-[#2D2D2D] transition-colors"
             >
-              Leave us a review on Google
+              {t("leaveReviewGoogle")}
             </a>
           </div>
         </div>
@@ -271,7 +273,7 @@ export default function TestimonialsSection() {
                     }}
                     transition={{ duration: 0.2 }}
                   >
-                    Read more →
+                    {t("readMore")} →
                   </motion.button>
                 </motion.div>
               </div>
@@ -291,7 +293,7 @@ export default function TestimonialsSection() {
           </button>
 
           <span className="text-white text-sm">
-            {currentIndex + 1} - {Math.min(currentIndex + 4, TESTIMONIALS.length)} of {TESTIMONIALS.length}
+            {currentIndex + 1} - {Math.min(currentIndex + 4, TESTIMONIALS.length)} {t("of")} {TESTIMONIALS.length}
           </span>
 
           <button

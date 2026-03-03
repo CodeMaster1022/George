@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTeachingNotifications } from "@/providers/NotificationProvider";
 import type { TeachingNotificationEvent } from "@/hooks/useNotificationSocket";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 function NavItem({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -124,6 +126,7 @@ function notificationLabel(type: TeachingNotificationEvent, payload: Record<stri
 
 function NotificationBell({ role }: { role: string }) {
   const { notifications, unreadCount, markAsRead, clearAll } = useTeachingNotifications();
+  const { t } = useLanguage();
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement | null>(null);
   const listHref = role === "teacher" ? "/teacher/bookings" : "/ebluelearning/class_list";
@@ -173,7 +176,7 @@ function NotificationBell({ role }: { role: string }) {
         <div className="absolute right-0 mt-2 w-[280px] max-h-[320px] overflow-y-auto border-[5px] border-[#2D2D2D] rounded-[18px] overflow-hidden bg-[url('/img/mars-bg.png')] bg-cover bg-center z-50">
           <div className="bg-[#000237]/55 backdrop-blur-sm p-2">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white font-semibold text-sm">Notifications</span>
+              <span className="text-white font-semibold text-sm">{t("notifications")}</span>
               <Link
                 href={listHref}
                 onClick={() => {
@@ -182,11 +185,11 @@ function NotificationBell({ role }: { role: string }) {
                 }}
                 className="text-white/80 hover:text-white text-xs"
               >
-                View all
+                {t("viewAll")}
               </Link>
             </div>
             {notifications.length === 0 ? (
-              <p className="text-white/70 text-sm py-2">No notifications yet.</p>
+              <p className="text-white/70 text-sm py-2">{t("noNotifications")}</p>
             ) : (
               <ul className="grid gap-1">
                 {notifications.slice(0, 20).map((n) => (
@@ -199,7 +202,7 @@ function NotificationBell({ role }: { role: string }) {
                           onClick={() => markAsRead(n.id)}
                           className="text-xs text-white/80 hover:text-white shrink-0"
                         >
-                          Mark read
+                          {t("markRead")}
                         </button>
                       )}
                     </div>
@@ -216,6 +219,7 @@ function NotificationBell({ role }: { role: string }) {
 
 export default function DashboardHeader() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const authUser = React.useMemo(() => {
@@ -270,43 +274,44 @@ export default function DashboardHeader() {
             <nav className="hidden lg:flex flex-wrap justify-center gap-2 md:gap-3">
               {role === "teacher" ? (
                 <>
-                  <NavItem href="/teacher" label="Teacher" />
-                  <NavItem href="/teacher/sessions" label="Sessions" />
-                  <NavItem href="/teacher/bookings" label="Bookings" />
-                  <NavItem href="/teacher/availability" label="Availability" />
-                  <NavItem href="/teacher/earnings" label="Earnings" />
-                  <NavItem href="/forum" label="Forum" />
+                  <NavItem href="/teacher" label={t("teacher")} />
+                  <NavItem href="/teacher/sessions" label={t("sessions")} />
+                  <NavItem href="/teacher/bookings" label={t("bookings")} />
+                  <NavItem href="/teacher/availability" label={t("availabilityMenu")} />
+                  <NavItem href="/teacher/earnings" label={t("earnings")} />
+                  <NavItem href="/forum" label={t("forum")} />
                 </>
               ) : role === "admin" ? (
                 <>
-                  <NavItem href="/forum" label="Forum" />
-                  <NavItem href="/admin/forum" label="Moderation" />
+                  <NavItem href="/forum" label={t("forum")} />
+                  <NavItem href="/admin/forum" label={t("moderation")} />
                 </>
               ) : (
                 <>
-                  <NavItem href="/ebluelearning/class_list" label="Your classes" />
+                  <NavItem href="/ebluelearning/class_list" label={t("yourClasses")} />
 
-                  <Menu label="Book classes">
+                  <Menu label={t("bookClasses")}>
                     <div className="grid gap-2">
-                      <MenuLink href="/ebluelearning/book_by_teacher" label="Book by teacher" />
-                      <MenuLink href="/ebluelearning/book_by_date" label="Book by date" />
+                      <MenuLink href="/ebluelearning/book_by_teacher" label={t("bookByTeacher")} />
+                      <MenuLink href="/ebluelearning/book_by_date" label={t("bookByDate")} />
                     </div>
                   </Menu>
 
-                  <Menu label="Credits">
+                  <Menu label={t("credits")}>
                     <div className="grid gap-2">
-                      <MenuLink href="/ebluelearning/buy_credits" label="Buy credits" />
-                      <MenuLink href="/ebluelearning/share_credits" label="Share credits" />
+                      <MenuLink href="/ebluelearning/buy_credits" label={t("buyCredits")} />
+                      <MenuLink href="/ebluelearning/share_credits" label={t("shareCredits")} />
                     </div>
                   </Menu>
 
-                  <NavItem href="/forum" label="Forum" />
+                  <NavItem href="/forum" label={t("forum")} />
                 </>
               )}
             </nav>
 
             {/* Desktop Avatar & Mobile Menu Button */}
             <div className="flex items-center gap-3">
+              <LanguageSwitcher />
               {/* Notifications (teacher & student only) */}
               {(role === "teacher" || role === "student") && (
                 <NotificationBell role={role} />
@@ -319,14 +324,14 @@ export default function DashboardHeader() {
                       <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#2D2D2D] bg-[#0058C9] text-white font-extrabold">
                         {initials}
                       </span>
-                      <span className="text-white/90">Profile</span>
+                      <span className="text-white/90">{t("profile")}</span>
                     </span>
                   }
                 >
                   <div className="grid gap-2">
                     <MenuLink
                       href={role === "teacher" ? "/teacher/profile" : "/ebluelearning/profile"}
-                      label="Profile"
+                      label={t("profile")}
                     />
                     <button
                       type="button"
@@ -344,7 +349,7 @@ export default function DashboardHeader() {
                         router.refresh();
                       }}
                     >
-                      Logout
+                      {t("logout")}
                     </button>
                   </div>
                 </Menu>
@@ -378,26 +383,26 @@ export default function DashboardHeader() {
                 <nav className="grid gap-2">
                   {role === "teacher" ? (
                     <>
-                      <MobileNavItem href="/teacher" label="Teacher" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/teacher/sessions" label="Sessions" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/teacher/bookings" label="Bookings" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/teacher/availability" label="Availability" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/teacher/earnings" label="Earnings" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher" label={t("teacher")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/sessions" label={t("sessions")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/bookings" label={t("bookings")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/availability" label={t("availabilityMenu")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/teacher/earnings" label={t("earnings")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum" label={t("forum")} onClick={() => setMobileMenuOpen(false)} />
                     </>
                   ) : role === "admin" ? (
                     <>
-                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/admin/forum" label="Moderation" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum" label={t("forum")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/admin/forum" label={t("moderation")} onClick={() => setMobileMenuOpen(false)} />
                     </>
                   ) : (
                     <>
-                      <MobileNavItem href="/ebluelearning/class_list" label="Your classes" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/ebluelearning/book_by_teacher" label="Book by teacher" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/ebluelearning/book_by_date" label="Book by date" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/ebluelearning/buy_credits" label="Buy credits" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/ebluelearning/share_credits" label="Share credits" onClick={() => setMobileMenuOpen(false)} />
-                      <MobileNavItem href="/forum" label="Forum" onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/class_list" label={t("yourClasses")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/book_by_teacher" label={t("bookByTeacher")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/book_by_date" label={t("bookByDate")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/buy_credits" label={t("buyCredits")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/ebluelearning/share_credits" label={t("shareCredits")} onClick={() => setMobileMenuOpen(false)} />
+                      <MobileNavItem href="/forum" label={t("forum")} onClick={() => setMobileMenuOpen(false)} />
                     </>
                   )}
                   
@@ -405,7 +410,7 @@ export default function DashboardHeader() {
                   
                   <MobileNavItem
                     href={role === "teacher" ? "/teacher/profile" : "/ebluelearning/profile"}
-                    label="Profile"
+                    label={t("profile")}
                     onClick={() => setMobileMenuOpen(false)}
                   />
                   <button
@@ -424,7 +429,7 @@ export default function DashboardHeader() {
                       router.refresh();
                     }}
                   >
-                    Logout
+                    {t("logout")}
                   </button>
                 </nav>
               </div>

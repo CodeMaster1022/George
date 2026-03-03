@@ -4,9 +4,11 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SocialIcons from "@/components/learning/SocialIcons";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
   const router = useRouter();
+  const { t } = useLanguage();
   const year = new Date().getFullYear();
 
   return (
@@ -24,40 +26,40 @@ const Footer = () => {
                 height={50} 
                 width={50}
               />
-              <h3 className="text-white text-xl font-semibold mb-3">Keep Learning</h3>
-              <p className="text-white/80 text-sm mb-4">Small steps, every day</p>
+              <h3 className="text-white text-xl font-semibold mb-3">{t("keepLearning")}</h3>
+              <p className="text-white/80 text-sm mb-4">{t("smallStepsEveryDay")}</p>
               <SocialIcons size={22} className="justify-center md:justify-start" />
             </div>
 
             {/* Quick Links */}
             <div className="text-center md:text-left">
               <h4 className="text-white text-lg font-semibold mb-4 border-b-2 border-[#0058C9] pb-2 inline-block">
-                Quick Links
+                {t("quickLinks")}
               </h4>
               <ul className="space-y-3">
                 <li>
                   <Link href="/lessons" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Lessons
+                    {t("lessons")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/quizzes" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Quizzes
+                    {t("quizzes")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/vocabulary" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Vocabulary
+                    {t("vocabulary")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/our-teachers" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Our Teachers
+                    {t("ourTeachers")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/pricing" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Pricing
+                    {t("pricing")}
                   </Link>
                 </li>
               </ul>
@@ -66,32 +68,32 @@ const Footer = () => {
             {/* About */}
             <div className="text-center md:text-left">
               <h4 className="text-white text-lg font-semibold mb-4 border-b-2 border-[#0058C9] pb-2 inline-block">
-                About Us
+                {t("aboutUs")}
               </h4>
               <ul className="space-y-3">
                 <li>
                   <Link href="/about" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    About St. George
+                    {t("aboutStGeorge")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/methodology" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Our Methodology
+                    {t("ourMethodology")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/contact" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Contact Us
+                    {t("contactUs")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/forum" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    Community Forum
+                    {t("communityForum")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/faq" className="text-white/80 hover:text-white hover:underline transition-colors">
-                    FAQ
+                    {t("faq")}
                   </Link>
                 </li>
               </ul>
@@ -100,22 +102,22 @@ const Footer = () => {
             {/* CTA Section */}
             <div className="text-center md:text-left">
               <h4 className="text-white text-lg font-semibold mb-4 border-b-2 border-[#0058C9] pb-2 inline-block">
-                Get Started
+                {t("getStarted")}
               </h4>
               <p className="text-white/80 text-sm mb-4 leading-relaxed">
-                Start your English learning journey today with our interactive lessons and expert teachers.
+                {t("getStartedDesc")}
               </p>
               <button
                 onClick={() => router.push("/lessons")}
                 className="w-full md:w-auto px-6 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-white font-semibold transition-colors cursor-pointer"
               >
-                Start Learning
+                {t("startLearning")}
               </button>
               <button
                 onClick={() => router.push("/contact")}
                 className="w-full md:w-auto mt-3 px-6 py-3 rounded-full bg-[#B4005A] hover:bg-[#B4005A]/90 border-2 border-[#2D2D2D] text-white font-semibold transition-colors cursor-pointer"
               >
-                Book Free Trial
+                {t("bookFreeTrial")}
               </button>
             </div>
           </div>
@@ -126,17 +128,17 @@ const Footer = () => {
       <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[url('/img/bg1.jpg')] bg-cover bg-no-repeat bg-[100%]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-white text-xs md:text-sm">
           <div className="opacity-90">
-            © Copyright {year} · St. George English · All Rights Reserved
+            © {t("copyright")} {year} · St. George English · {t("allRightsReserved")}
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link href="/terms-and-conditions" className="hover:underline transition-all">
-              Terms & Conditions
+              {t("termsConditions")}
             </Link>
             <Link href="/legal-advisory" className="hover:underline transition-all">
-              Legal Advisory
+              {t("legalAdvisory")}
             </Link>
             <Link href="/privacy-policy" className="hover:underline transition-all">
-              Privacy Policy
+              {t("privacyPolicy")}
             </Link>
           </div>
         </div>

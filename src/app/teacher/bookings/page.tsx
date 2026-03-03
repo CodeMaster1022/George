@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
 import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type BookingRow = {
   id: string;
@@ -30,6 +31,7 @@ type Report = {
 
 export default function TeacherBookingsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [bookings, setBookings] = React.useState<BookingRow[]>([]);
@@ -132,7 +134,7 @@ export default function TeacherBookingsPage() {
       strengths: savedReport?.strengths ?? "",
     });
     setReportEditMode(false);
-    setReportMsg("Saved successfully! The student has been notified.");
+    setReportMsg(t("savedSuccessfully"));
   }
 
   async function completeLesson(bookingId: string) {
@@ -184,7 +186,7 @@ export default function TeacherBookingsPage() {
     return (
       <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
-          <div className="text-gray-600 text-center">Loading...</div>
+          <div className="text-gray-600 text-center">{t("loading")}</div>
         </section>
       </main>
     );
@@ -196,8 +198,8 @@ export default function TeacherBookingsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-gray-900 text-2xl font-bold">Bookings</h1>
-            <p className="mt-1 text-gray-600 text-sm">Manage your class bookings and write student reports</p>
+            <h1 className="text-gray-900 text-2xl font-bold">{t("bookings")}</h1>
+            <p className="mt-1 text-gray-600 text-sm">{t("manageBookingsDesc")}</p>
           </div>
 
           <button
@@ -209,7 +211,7 @@ export default function TeacherBookingsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -234,12 +236,12 @@ export default function TeacherBookingsPage() {
                   </svg>
                   <div>
                     <h2 className="text-gray-900 text-lg font-semibold">
-                      {bookingFilter === "upcoming" ? "Upcoming" : "History"}
+                      {bookingFilter === "upcoming" ? t("upcoming") : t("history")}
                     </h2>
                     <p className="text-gray-500 text-sm">
                       {bookingFilter === "upcoming"
-                        ? "Scheduled lessons. Select one to join or mark done."
-                        : "Completed lessons. View reports and rating status."}
+                        ? t("upcomingDesc")
+                        : t("historyDesc")}
                     </p>
                   </div>
                 </div>
@@ -251,7 +253,7 @@ export default function TeacherBookingsPage() {
                       bookingFilter === "upcoming" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
-                    Upcoming
+                    {t("upcoming")}
                   </button>
                   <button
                     type="button"
@@ -260,7 +262,7 @@ export default function TeacherBookingsPage() {
                       bookingFilter === "history" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
-                    History
+                    {t("history")}
                   </button>
                 </div>
               </div>
@@ -292,7 +294,7 @@ export default function TeacherBookingsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-gray-900 text-sm font-semibold truncate">
-                                {b.studentNickname || "Student"}
+                                {b.studentNickname || t("student")}
                               </span>
                               {getUnreadCount(b.id) > 0 ? (
                                 <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
@@ -316,13 +318,13 @@ export default function TeacherBookingsPage() {
                               </span>
                             </div>
                           ) : (
-                            <div className="text-gray-400">Session not scheduled</div>
+                            <div className="text-gray-400">{t("sessionNotScheduled")}</div>
                           )}
                           <div className="flex items-center gap-1.5">
                             <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>{b.priceCredits} credits</span>
+                            <span>{b.priceCredits} {t("credits")}</span>
                           </div>
                         </div>
                       </div>
@@ -344,14 +346,14 @@ export default function TeacherBookingsPage() {
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                 </svg>
-                                Ending…
+                                {t("ending")}
                               </>
                             ) : (
                               <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                Done lesson
+                                {t("doneLesson")}
                               </>
                             )}
                           </button>
@@ -370,7 +372,7 @@ export default function TeacherBookingsPage() {
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
-                            Rate student
+                            {t("rateStudent")}
                           </button>
                         )}
                         {safeJoinHref(b.session?.meetingLink) ? (
@@ -384,19 +386,19 @@ export default function TeacherBookingsPage() {
                             <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
-                            Join
+                            {t("join")}
                           </a>
                         ) : (
                           <button
                             type="button"
                             disabled
                             className="flex items-center justify-center px-4 py-2 rounded-lg bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed"
-                            title="No meeting link available"
+                            title={t("noMeetingLink")}
                           >
                             <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
-                            Join
+                            {t("join")}
                           </button>
                         )}
                       </div>
@@ -407,7 +409,7 @@ export default function TeacherBookingsPage() {
                     <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    {bookingFilter === "history" ? "No completed lessons yet. History will appear here." : "No upcoming bookings yet"}
+                    {bookingFilter === "history" ? t("noCompletedLessons") : t("noUpcomingBookings")}
                   </div>
                 )}
               </div>
@@ -422,8 +424,8 @@ export default function TeacherBookingsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <div>
-                  <h2 className="text-gray-900 text-lg font-semibold">Class Report</h2>
-                  <p className="text-gray-500 text-sm">Document the student&apos;s progress and assign homework</p>
+                  <h2 className="text-gray-900 text-lg font-semibold">{t("classReport")}</h2>
+                  <p className="text-gray-500 text-sm">{t("classReportDesc")}</p>
                 </div>
               </div>
             </div>
@@ -434,7 +436,7 @@ export default function TeacherBookingsPage() {
                   <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Select a booking to write a report
+                  {t("selectBookingToWriteReport")}
                 </div>
               ) : (
                 <>
@@ -447,7 +449,7 @@ export default function TeacherBookingsPage() {
                       <svg className="w-5 h-5 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
-                      <span>Chat with student</span>
+                      <span>{t("chatWithStudent")}</span>
                       {getUnreadCount(selected) > 0 ? (
                         <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(selected)} unread messages`}>
                           {getUnreadCount(selected) > 99 ? "99+" : getUnreadCount(selected)}
@@ -461,7 +463,7 @@ export default function TeacherBookingsPage() {
                     bookingId={selected}
                     otherPartyLabel={activeBooking?.studentNickname || "Student"}
                     variant="teacher"
-                    title="Message student"
+                    title={t("messageStudent")}
                   />
 
                   {reportMsg && (
@@ -484,36 +486,36 @@ export default function TeacherBookingsPage() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        Edit Report
+                        {t("editReport")}
                       </button>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <Field label="Class Summary" icon="document">
+                      <Field label={t("classSummary")} icon="document">
                         <Textarea
                           value={rForm.summary}
                           onChange={(v) => setRForm((s) => ({ ...s, summary: v }))}
-                          placeholder="Describe what was covered in this class..."
+                          placeholder={t("classSummaryPlaceholder")}
                           rows={4}
                           disabled={reportLoading}
                         />
                       </Field>
 
-                      <Field label="Student Strengths" icon="star">
+                      <Field label={t("studentStrengths")} icon="star">
                         <Textarea
                           value={rForm.strengths}
                           onChange={(v) => setRForm((s) => ({ ...s, strengths: v }))}
-                          placeholder="What did the student do well?"
+                          placeholder={t("studentStrengthsPlaceholder")}
                           rows={3}
                           disabled={reportLoading}
                         />
                       </Field>
 
-                      <Field label="Homework Assignment" icon="clipboard">
+                      <Field label={t("homeworkAssignment")} icon="clipboard">
                         <Textarea
                           value={rForm.homework}
                           onChange={(v) => setRForm((s) => ({ ...s, homework: v }))}
-                          placeholder="Assign homework or practice activities..."
+                          placeholder={t("homeworkPlaceholder")}
                           rows={3}
                           disabled={reportLoading}
                         />
@@ -531,14 +533,14 @@ export default function TeacherBookingsPage() {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span>Saving...</span>
+                            <span>{t("saving")}</span>
                           </>
                         ) : (
                           <>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            <span>{report ? "Update Report" : "Save Report"}</span>
+                            <span>{report ? t("updateReport") : t("saveReport")}</span>
                           </>
                         )}
                       </button>
@@ -567,9 +569,9 @@ export default function TeacherBookingsPage() {
             className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Rate this lesson</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">{t("rateThisLesson")}</h3>
             <p className="text-sm text-gray-500 mb-4">
-              How was {ratingModalBooking.studentNickname || "the student"}&apos;s participation?
+              {t("howWasParticipation").replace("{student}", ratingModalBooking.studentNickname || "the student")}
             </p>
             <div className="flex gap-2 mb-4">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -590,11 +592,11 @@ export default function TeacherBookingsPage() {
                 </button>
               ))}
             </div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Comment (optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("commentOptional")}</label>
             <textarea
               value={ratingComment}
               onChange={(e) => setRatingComment(e.target.value)}
-              placeholder="Any feedback for the student..."
+              placeholder={t("feedbackPlaceholder")}
               rows={3}
               className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm resize-none mb-4"
             />
@@ -608,7 +610,7 @@ export default function TeacherBookingsPage() {
                 }}
                 className="flex-1 py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 type="button"
@@ -616,7 +618,7 @@ export default function TeacherBookingsPage() {
                 onClick={submitTeacherRating}
                 className="flex-1 py-2.5 rounded-lg bg-[#CB4913] hover:bg-[#B03D0F] text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {ratingSaving ? "Submitting…" : "Submit rating"}
+                {ratingSaving ? t("submitting") : t("submitRating")}
               </button>
             </div>
           </div>
@@ -627,6 +629,7 @@ export default function TeacherBookingsPage() {
 }
 
 function ReadOnlyReport({ summary, strengths, homework }: { summary: string; strengths: string; homework: string }) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-4 text-sm text-gray-700">
       <div>
@@ -634,7 +637,7 @@ function ReadOnlyReport({ summary, strengths, homework }: { summary: string; str
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          Class Summary
+          {t("classSummary")}
         </div>
         <p className="whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 min-h-[80px]">{summary || "—"}</p>
       </div>
@@ -643,7 +646,7 @@ function ReadOnlyReport({ summary, strengths, homework }: { summary: string; str
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
           </svg>
-          Student Strengths
+          {t("studentStrengths")}
         </div>
         <p className="whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 min-h-[60px]">{strengths || "—"}</p>
       </div>
@@ -652,7 +655,7 @@ function ReadOnlyReport({ summary, strengths, homework }: { summary: string; str
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          Homework Assignment
+          {t("homeworkAssignment")}
         </div>
         <p className="whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 min-h-[60px]">{homework || "—"}</p>
       </div>

@@ -2,9 +2,11 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function LoginClient() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -56,7 +58,7 @@ export default function LoginClient() {
       const msg = err?.message || "Login failed.";
       setError(msg);
       if (String(msg).toLowerCase().includes("not verified")) {
-        setInfo("Your email is not verified yet. Resend the code and verify via the Register flow.");
+        setInfo(t("emailNotVerifiedYet"));
       }
     } finally {
       setSubmitting(false);
@@ -68,15 +70,15 @@ export default function LoginClient() {
       <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-white text-2xl md:text-4xl font-extrabold">Login</h1>
+            <h1 className="text-white text-2xl md:text-4xl font-extrabold">{t("loginTitle")}</h1>
             <p className="text-white/80 mt-2 text-sm md:text-base">
-              Student login (email must be verified).
+              {t("studentLoginDesc")}
             </p>
           </div>
           <div className="text-white/80 text-sm">
-            Need an account?{" "}
+            {t("needAnAccount")}{" "}
             <a href="/register" className="underline text-white">
-              Register
+              {t("register")}
             </a>
           </div>
         </div>
@@ -89,7 +91,7 @@ export default function LoginClient() {
 
         {info ? (
           <div className="mt-4 border-2 border-[#2D2D2D] bg-[#0058C9]/25 text-white rounded-xl px-4 py-3 text-sm">
-            <div className="font-extrabold">Heads up</div>
+            <div className="font-extrabold">{t("headsUp")}</div>
             <div className="mt-1 text-white/90">{info}</div>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <button
@@ -101,21 +103,21 @@ export default function LoginClient() {
                   setError(null);
                   try {
                     await resendCode();
-                    setInfo("Verification code resent. Check your email (or backend console in dev).");
+                    setInfo(t("verificationCodeResent"));
                   } catch (e: any) {
-                    setError(e?.message || "Could not resend code.");
+                    setError(t("couldNotResendCode"));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
               >
-                Resend code
+                {t("resendCode")}
               </button>
               <a
                 href="/register"
                 className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#CB4913] hover:bg-[#cb6c13f1] text-white text-xs font-extrabold uppercase"
               >
-                Go to verify
+                {t("goToVerify")}
               </a>
             </div>
           </div>
@@ -127,7 +129,7 @@ export default function LoginClient() {
             <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
               <div className="p-5 md:p-6 grid gap-4">
                 <div>
-                  <label className="block text-white/90 text-sm mb-1">Email</label>
+                  <label className="block text-white/90 text-sm mb-1">{t("email")}</label>
                   <input
                     type="email"
                     value={email}
@@ -139,14 +141,14 @@ export default function LoginClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-white/90 text-sm mb-1">Password</label>
+                  <label className="block text-white/90 text-sm mb-1">{t("password")}</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pr-24 px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                      placeholder="Your password"
+                      placeholder={t("yourPassword")}
                       autoComplete="current-password"
                       required
                     />
@@ -155,7 +157,7 @@ export default function LoginClient() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/70 hover:bg-white text-[#212429] text-xs font-extrabold uppercase"
                     >
-                      {showPassword ? "Hide" : "Show"}
+                      {showPassword ? t("hide") : t("show")}
                     </button>
                   </div>
                 </div>
@@ -169,7 +171,7 @@ export default function LoginClient() {
                       !valid || submitting ? "opacity-60 cursor-not-allowed" : "",
                     ].join(" ")}
                   >
-                    {submitting ? "Signing in..." : "Login"}
+                    {submitting ? t("signingIn") : t("loginTitle")}
                   </button>
                   {/* <div className="text-white/70 text-xs leading-5">
                     Tip: If you can’t receive email in dev, the backend prints the code to its console.

@@ -3,11 +3,13 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Earnings = Record<string, { count: number; totalCredits: number }>;
 
 export default function TeacherEarningsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [byStatus, setByStatus] = React.useState<Earnings>({});
@@ -51,7 +53,7 @@ export default function TeacherEarningsPage() {
     return (
       <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
-          <div className="text-gray-600 text-center">Loading...</div>
+          <div className="text-gray-600 text-center">{t("loading")}</div>
         </section>
       </main>
     );
@@ -63,8 +65,8 @@ export default function TeacherEarningsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-gray-900 text-2xl font-bold">Earnings</h1>
-            <p className="mt-1 text-gray-600 text-sm">Track your bookings and earnings summary</p>
+            <h1 className="text-gray-900 text-2xl font-bold">{t("earnings")}</h1>
+            <p className="mt-1 text-gray-600 text-sm">{t("trackBookingsDesc")}</p>
           </div>
 
           <button
@@ -76,7 +78,7 @@ export default function TeacherEarningsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -98,8 +100,8 @@ export default function TeacherEarningsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Booking Statistics</h2>
-                <p className="text-gray-500 text-sm">Overview of your class bookings and earnings</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("bookingStatistics")}</h2>
+                <p className="text-gray-500 text-sm">{t("bookingStatsDesc")}</p>
               </div>
             </div>
 
@@ -113,11 +115,11 @@ export default function TeacherEarningsPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">Booked</div>
+                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">{t("booked")}</div>
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{booked.count}</div>
-                <div className="mt-2 text-blue-600 text-sm font-medium">{booked.totalCredits} credits</div>
+                <div className="mt-2 text-blue-600 text-sm font-medium">{booked.totalCredits} {t("credits")}</div>
               </div>
 
               {/* Completed */}
@@ -129,11 +131,11 @@ export default function TeacherEarningsPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">Completed</div>
+                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">{t("completed")}</div>
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{completed.count}</div>
-                <div className="mt-2 text-green-600 text-sm font-medium">{completed.totalCredits} credits</div>
+                <div className="mt-2 text-green-600 text-sm font-medium">{completed.totalCredits} {t("credits")}</div>
               </div>
 
               {/* Cancelled */}
@@ -145,11 +147,11 @@ export default function TeacherEarningsPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">Cancelled</div>
+                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">{t("cancelled")}</div>
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{cancelled.count}</div>
-                <div className="mt-2 text-orange-600 text-sm font-medium">{cancelled.totalCredits} credits</div>
+                <div className="mt-2 text-orange-600 text-sm font-medium">{cancelled.totalCredits} {t("credits")}</div>
               </div>
 
               {/* No Show */}
@@ -161,11 +163,11 @@ export default function TeacherEarningsPage() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">No Show</div>
+                    <div className="text-gray-600 text-xs font-medium uppercase tracking-wide">{t("noShow")}</div>
                   </div>
                 </div>
                 <div className="text-gray-900 text-3xl font-bold">{noShow.count}</div>
-                <div className="mt-2 text-red-600 text-sm font-medium">{noShow.totalCredits} credits</div>
+                <div className="mt-2 text-red-600 text-sm font-medium">{noShow.totalCredits} {t("credits")}</div>
               </div>
             </div>
           </div>
@@ -174,13 +176,13 @@ export default function TeacherEarningsPage() {
           <div className="p-6 border-t border-gray-200 bg-gray-50">
             <div className="ml-7 flex items-center justify-between">
               <div>
-                <div className="text-gray-600 text-sm font-medium">Total Earnings</div>
+                <div className="text-gray-600 text-sm font-medium">{t("totalEarnings")}</div>
                 <div className="mt-1 text-gray-900 text-2xl font-bold">
-                  {booked.totalCredits + completed.totalCredits + cancelled.totalCredits + noShow.totalCredits} credits
+                  {booked.totalCredits + completed.totalCredits + cancelled.totalCredits + noShow.totalCredits} {t("credits")}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-gray-600 text-sm font-medium">Total Classes</div>
+                <div className="text-gray-600 text-sm font-medium">{t("totalClasses")}</div>
                 <div className="mt-1 text-gray-900 text-2xl font-bold">
                   {booked.count + completed.count + cancelled.count + noShow.count}
                 </div>
@@ -194,7 +196,7 @@ export default function TeacherEarningsPage() {
           <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>This is a simple summary based on bookings. Detailed payout information will be available in future updates.</span>
+          <span>{t("payoutInfoNote")}</span>
         </div>
       </section>
     </main>

@@ -3,9 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TeacherLoginClient() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -23,7 +25,7 @@ export default function TeacherLoginClient() {
       body: JSON.stringify({ email: email.trim() }),
     });
     const json = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(json?.error || "Could not resend code.");
+    if (!res.ok) throw new Error(json?.error || t("couldNotResendCode"));
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -45,7 +47,7 @@ export default function TeacherLoginClient() {
       if (!res.ok) throw new Error(json?.error || "Login failed.");
 
       if (json?.user?.role && json.user.role !== "teacher") {
-        throw new Error("This account is not a teacher account.");
+        throw new Error(t("notTeacherAccount"));
       }
 
       try {
@@ -60,7 +62,7 @@ export default function TeacherLoginClient() {
       const msg = err?.message || "Login failed.";
       setError(msg);
       if (String(msg).toLowerCase().includes("not verified")) {
-        setInfo("Your email is not verified yet. Resend the code and verify on the Teacher Register page.");
+        setInfo(t("emailNotVerifiedTeacher"));
       }
     } finally {
       setSubmitting(false);
@@ -72,13 +74,13 @@ export default function TeacherLoginClient() {
       <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-white text-2xl md:text-4xl font-extrabold">Teacher Login</h1>
-            <p className="text-white/80 mt-2 text-sm md:text-base">Teacher login (email must be verified).</p>
+            <h1 className="text-white text-2xl md:text-4xl font-extrabold">{t("teacherLogin")}</h1>
+            <p className="text-white/80 mt-2 text-sm md:text-base">{t("teacherLoginDesc")}</p>
           </div>
           <div className="text-white/80 text-sm">
-            Need a teacher account?{" "}
+            {t("needTeacherAccount")}{" "}
             <a href="/teacher/register" className="underline text-white">
-              Register
+              {t("register")}
             </a>
           </div>
         </div>
@@ -91,7 +93,7 @@ export default function TeacherLoginClient() {
 
         {info ? (
           <div className="mt-4 border-2 border-[#2D2D2D] bg-[#0058C9]/25 text-white rounded-xl px-4 py-3 text-sm">
-            <div className="font-extrabold">Heads up</div>
+            <div className="font-extrabold">{t("headsUp")}</div>
             <div className="mt-1 text-white/90">{info}</div>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <button
@@ -103,21 +105,21 @@ export default function TeacherLoginClient() {
                   setError(null);
                   try {
                     await resendCode();
-                    setInfo("Verification code resent. Check your email (or backend console in dev).");
+                    setInfo(t("verificationCodeResent"));
                   } catch (e: any) {
-                    setError(e?.message || "Could not resend code.");
+                    setError(e?.message || t("couldNotResendCode"));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
               >
-                Resend code
+                {t("resendCode")}
               </button>
               <a
                 href="/teacher/register"
                 className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#CB4913] hover:bg-[#cb6c13f1] text-white text-xs font-extrabold uppercase"
               >
-                Go to verify
+                {t("goToVerify")}
               </a>
             </div>
           </div>
@@ -129,7 +131,7 @@ export default function TeacherLoginClient() {
             <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
               <div className="p-5 md:p-6 grid gap-4">
                 <div>
-                  <label className="block text-white/90 text-sm mb-1">Email</label>
+                  <label className="block text-white/90 text-sm mb-1">{t("email")}</label>
                   <input
                     type="email"
                     value={email}
@@ -141,14 +143,14 @@ export default function TeacherLoginClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-white/90 text-sm mb-1">Password</label>
+                  <label className="block text-white/90 text-sm mb-1">{t("password")}</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pr-24 px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
-                      placeholder="Your password"
+                      placeholder={t("yourPassword")}
                       autoComplete="current-password"
                       required
                     />
@@ -157,7 +159,7 @@ export default function TeacherLoginClient() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg border-2 border-[#2D2D2D] bg-white/70 hover:bg-white text-[#212429] text-xs font-extrabold uppercase"
                     >
-                      {showPassword ? "Hide" : "Show"}
+                      {showPassword ? t("hide") : t("show")}
                     </button>
                   </div>
                 </div>
@@ -171,7 +173,7 @@ export default function TeacherLoginClient() {
                       !valid || submitting ? "opacity-60 cursor-not-allowed" : "",
                     ].join(" ")}
                   >
-                    {submitting ? "Signing in..." : "Login"}
+                    {submitting ? t("signingIn") : t("loginTitle")}
                   </button>
                 </div>
               </div>
@@ -183,7 +185,7 @@ export default function TeacherLoginClient() {
             <div className="rounded-[18px] border-[5px] border-[#2D2D2D] overflow-hidden">
               <div className="p-5 md:p-6">
                 <div className="mt-4 rounded-[16px] border-2 border-[#2D2D2D] overflow-hidden grid place-items-center p-4 bg-white">
-                  <img src="/img/mars-logo.png" alt="Teacher" className="w-full max-w-[260px] h-auto" />
+                  <img src="/img/mars-logo.png" alt={t("teacher")} className="w-full max-w-[260px] h-auto" />
                 </div>
               </div>
             </div>

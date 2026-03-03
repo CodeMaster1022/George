@@ -4,6 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type SpanishLevel = "Beginner" | "Elementary" | "Intermediate" | "Advanced";
 
@@ -144,6 +145,7 @@ function ActionButton({
 
 export default function RegisterWizard() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [step, setStep] = React.useState<Step>("account");
   const [verifiedEmail, setVerifiedEmail] = React.useState(false);
@@ -311,25 +313,25 @@ export default function RegisterWizard() {
           <div className="p-6 md:p-10 bg-[#000237]/50 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
               <div>
-                <h1 className="text-white text-3xl md:text-5xl font-extrabold">Student Registration</h1>
+                <h1 className="text-white text-3xl md:text-5xl font-extrabold">{t("studentRegistration")}</h1>
                 <p className="text-white/80 mt-3 text-sm md:text-base max-w-2xl">
-                  Join our learning community and start your Spanish journey today
+                  {t("joinLearningCommunity")}
                 </p>
               </div>
               <div className="text-white/80 text-sm bg-white/10 px-4 py-2 rounded-lg border border-white/20">
-                Already registered?{" "}
+                {t("alreadyRegistered")}{" "}
                 <Link href="/login" className="underline text-white font-semibold hover:text-white/90 transition-colors">
-                  Sign In
+                  {t("signIn")}
                 </Link>
               </div>
             </div>
 
             {/* Step pills */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <StepPill number={1} label="Account" active={step === "account"} done={["verify", "parent", "student", "done"].includes(step)} />
-              <StepPill number={2} label="Verify Email" active={step === "verify"} done={["parent", "student", "done"].includes(step)} />
-              <StepPill number={3} label="Parent Info" active={step === "parent"} done={["student", "done"].includes(step)} />
-              <StepPill number={4} label="Student Info" active={step === "student"} done={step === "done"} />
+              <StepPill number={1} label={t("account")} active={step === "account"} done={["verify", "parent", "student", "done"].includes(step)} />
+              <StepPill number={2} label={t("verifyEmailStep")} active={step === "verify"} done={["parent", "student", "done"].includes(step)} />
+              <StepPill number={3} label={t("parentInfo")} active={step === "parent"} done={["student", "done"].includes(step)} />
+              <StepPill number={4} label={t("studentInfo")} active={step === "student"} done={step === "done"} />
             </div>
 
             {error ? (

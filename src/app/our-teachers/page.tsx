@@ -5,47 +5,98 @@ import Footer from "@/components/main/footer";
 import Link from "next/link";
 import BlockTitle from "@/components/learning/BlockTitle";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TEACHERS = [
   {
-    name: "Teacher Edison",
-    country: "Ecuadro",
+    name: "Natalia",
+    country: "Canada",
+    role: "English Teacher",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Natalia.jpg",
+  },
+  {
+    name: "Erika Villarroel",
+    country: "Ecuador",
+    role: "Our secretary",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Erika.jpg",
+  },
+  {
+    name: "Edisson Cocha",
+    country: "Ecuador",
+    role: "English Teacher",
     quote: "My student improved quickly and felt confident speaking in class.",
     img: "img/teachers/Edison.jpg",
   },
   {
-    name: "Teacher Ana",
-    country: "Ecuadro",
+    name: "Ana María Urrego",
+    country: "Colombia",
+    role: "English Teacher",
     quote: "Short missions keep lessons fun and focused from start to finish.",
     img: "img/teachers/Ana.jpg",
   },
   {
-    name: "Teacher Dennis",
-    country: "Ecuadro",
+    name: "Dennis Herrera",
+    country: "Ecuador",
+    role: "English Teacher",
     quote: "We learn step by step, and every lesson ends with a quick check.",
     img: "img/teachers/Dennis.jpg",
   },
   {
-    name: "Teacher Johanna",
-    country: "Ecuadro",
+    name: "Johanna Mariño",
+    country: "Ecuador",
+    role: "English Teacher",
     quote: "Friendly guidance and simple examples make learning feel easy.",
     img: "img/teachers/Johanna.jpg",
   },
   {
-    name: "Teacher Estefania",
-    country: "Ecuadro",
+    name: "Carolyn Páez",
+    country: "Ecuador",
+    role: "English Teacher",
     quote: "Vocabulary sets by topic make daily learning simple and fast.",
     img: "img/teachers/un.jpg",
   },
   {
-    name: "Teacher Xiomara",
-    country: "Ecuadro",
+    name: "Xiomara Guevara",
+    country: "Ecuador",
+    role: "English Teacher",
     quote: "Quizzes with explanations help students learn from mistakes.",
     img: "img/teachers/Xiomara.jpg",
+  },
+  {
+    name: "Platon Tranchuk",
+    country: "Russia",
+    role: "English Teacher",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Platon.jpg",
+  },
+  {
+    name: "Josh Beedham",
+    country: "Canada",
+    role: "English Teacher",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Josh.jpg",
+  },
+  {
+    name: "Jeremy Andrade",
+    country: "Canada",
+    role: "Social Media Manager",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Jeremy.jpg",
+  },
+  {
+    name: "Lorena Lescano",
+    country: "Canada",
+    role: "Educational Content Developer",
+    quote: "Quizzes with explanations help students learn from mistakes.",
+    img: "img/teachers/Lorena.jpg",
   }
 ];
 
 export default function OurTeachersPage() {
+  const { t } = useLanguage();
+  
   return (
     <main className="min-h-screen">
       {/* Hero */}
@@ -61,13 +112,7 @@ export default function OurTeachersPage() {
 
             <div className="absolute inset-0 flex items-center justify-center px-4">
               <div className="max-w-[900px] text-center">
-                <BlockTitle text="Our Teachers" className="mb-6 md:mb-8" />
-                {/* <p className="text-white/90 mt-4 md:text-xl leading-8">
-                  At St. George, we use our exclusive methodology called Path to Fluency, designed to help students learn English in a natural, structured, and engaging way—just like acquiring their first language.
-                </p>
-                <p className="text-white/90 mt-4 md:text-xl leading-8">
-                  Our methodology is based on four essential language skills: Listening First, Speaking with Confidence, Writing with Purpose, and Reading for Understanding.
-                </p> */}
+                <BlockTitle text={t("ourTeachersTitle")} className="mb-6 md:mb-8" />
                 <motion.p 
                   className="text-white/90 mt-4 md:text-xl leading-8 text-left"
                   initial={{ opacity: 0, y: 30 }}
@@ -75,22 +120,20 @@ export default function OurTeachersPage() {
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
                 >
-                  Learn English in a natural and practical context by studying real-life situations that will allow you to excel in the language. Our teaching materials are designed to make our classes not only informative but also incredibly entertaining.
-Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that learning is both natural and fascinating. Join us now and experience the most engaging and effective English training program available!
-
+                  {t("ourTeachersDesc")}
                 </motion.p>
                 <div className="mt-8 md:mt-10 flex flex-wrap justify-center gap-3 md:gap-4">
                   <Link
                     href="/contact"
                     className="text-white cursor-pointer px-8 py-3.5 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
                   >
-                    Book a free trial class now!
+                    {t("bookFreeTrialNow")}
                   </Link>
                   <Link
                     href="/pricing"
                     className="text-white cursor-pointer px-8 py-3.5 rounded-full bg-[#000237]/60 hover:bg-white/10 border-2 border-[#2D2D2D] text-sm md:text-base"
                   >
-                    View pricing
+                    {t("viewPricing")}
                   </Link>
                 </div>
               </div>
@@ -207,31 +250,31 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
           <div className="bg-setting bg-[url('/img/bg6.jpg')] max-w-[1300px] w-full mx-auto">
             <div className="px-6 md:px-12 py-12 md:py-20">
               <div className="text-center mb-10">
-                <h2 className="text-white md:text-5xl text-2xl">Our Teacher Selection Process</h2>
+                <h2 className="text-white md:text-5xl text-2xl">{t("teacherSelectionTitle")}</h2>
                 <p className="text-white/80 mt-4 md:text-lg max-w-[900px] mx-auto">
-                  We recognize that our method is unique and special, and our expectations for classes are very high.
+                  {t("teacherSelectionDesc")}
                 </p>
               </div>
               <div className="grid gap-6 md:gap-8 md:grid-cols-4">
                 {[
                   {
-                    title: "Selection Process",
-                    desc: "We select teachers for clarity, patience, and kid-friendly communication.",
+                    title: t("selectionProcess"),
+                    desc: t("selectionProcessDesc"),
                     img: "/img/icon1.png",
                   },
                   {
-                    title: "Energy and Charisma",
-                    desc: "Lessons are lively and engaging to keep attention from start to finish.",
+                    title: t("energyCharisma"),
+                    desc: t("energyCharismaDesc"),
                     img: "/img/icon2.png",
                   },
                   {
-                    title: "High Energy",
-                    desc: "Interactive practice makes learners participate—not just watch.",
+                    title: t("highEnergy"),
+                    desc: t("highEnergyDesc"),
                     img: "/img/icon3.png",
                   },
                   {
-                    title: "Child's Attention",
-                    desc: "Short missions and clear steps help build confidence quickly.",
+                    title: t("childAttention"),
+                    desc: t("childAttentionDesc"),
                     img: "/img/icon4.png",
                   },
                 ].map((c, idx) => (
@@ -298,9 +341,7 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
 
               <div className="text-center md:text-left">
                 <p className="text-white/95 md:text-lg leading-7 max-w-[900px] mx-auto md:mx-0">
-                  We don&apos;t stop there. Our Head Teacher Coordinator and Head of Studies monitor classes for
-                  quality, suggest improvements, and coach teachers for continuous progress. We hold high
-                  standards and improve together with our teachers.
+                  {t("qualityMonitoringDesc")}
                 </p>
               </div>
             </div>
@@ -309,12 +350,15 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
       </section>
 
       {/* Teachers grid */}
-      <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
-        <div className="text-center mb-10">
-          <h2 className="text-white md:text-5xl text-2xl">Meet a few of our English teachers</h2>
+      <section className="relative z-10 max-w-[1400px] mx-auto p-left p-right py-12 md:py-18">
+        <div className="text-center mb-12">
+          <h2 className="text-white md:text-5xl text-2xl">{t("meetTeachersTitle")}</h2>
+          <p className="text-white/70 mt-4 md:text-lg">
+            {t("experiencedEducators")}
+          </p>
         </div>
 
-        <div className="grid gap-6 space-x-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
           {TEACHERS.map((t, index) => {
             return (
               <motion.div
@@ -324,44 +368,38 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ 
                   duration: 0.5, 
-                  delay: index * 0.1,
+                  delay: index * 0.05,
                   ease: [0.25, 0.4, 0.25, 1]
                 }}
                 whileHover={{ 
-                  scale: 1.08,
-                  rotateY: 5,
-                  rotateX: 5,
-                  z: 50,
+                  scale: 1.05,
+                  y: -8,
                   transition: { duration: 0.3 }
                 }}
-                style={{ 
-                  transformStyle: 'preserve-3d',
-                  perspective: 1000
-                }}
                 className="bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden
-                  hover:border-[#0058C9] hover:bg-white/15 cursor-pointer hover:shadow-2xl hover:shadow-[#0058C9]/50"
+                  hover:border-[#0058C9] hover:bg-white/15 cursor-pointer hover:shadow-2xl hover:shadow-[#0058C9]/50
+                  transition-all duration-300"
               >
-                <div className="p-6">
+                <div className="p-5">
                   <motion.div 
-                    className="relative group"
+                    className="relative group mb-4"
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="rounded-[18px] border-2 border-[#2D2D2D] overflow-hidden bg-[#000237]/30
-                      transition-all duration-300 group-hover:border-[#0058C9] group-hover:shadow-lg group-hover:shadow-[#0058C9]/20">
-                      <div className="aspect-[7/8] w-full overflow-hidden">
-                        <motion.img 
-                          src={t.img} 
-                          alt="" 
-                          className="w-full h-full object-fit"
-                          whileHover={{ scale: 1.15, rotate: 2 }}
-                          transition={{ duration: 0.4 }}
-                        />
-                      </div>
+                    <div className="rounded-full border-4 border-[#2D2D2D] overflow-hidden bg-[#000237]/30
+                      transition-all duration-300 group-hover:border-[#0058C9] group-hover:shadow-lg group-hover:shadow-[#0058C9]/30
+                      w-32 h-32 mx-auto">
+                      <motion.img 
+                        src={t.img} 
+                        alt={t.name}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.4 }}
+                      />
                     </div>
                     <motion.div 
-                      className="absolute right-2 bottom-2 w-7 h-7 rounded-md border-2 border-[#2D2D2D] bg-white/90 
-                        flex items-center justify-center"
+                      className="absolute right-[calc(50%-70px)] bottom-0 w-8 h-8 rounded-full border-2 border-[#2D2D2D] bg-white/90 
+                        flex items-center justify-center shadow-lg"
                       whileHover={{ 
                         scale: 1.2, 
                         backgroundColor: "#EF4444",
@@ -369,31 +407,38 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
                       }}
                       transition={{ duration: 0.2 }}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path
                           d="M10 8.5v7l6-3.5-6-3.5Z"
                           fill="#EF4444"
-                          className="group-hover:fill-white"
+                          className="group-hover:fill-white transition-colors"
                         />
                       </svg>
                     </motion.div>
                   </motion.div>
 
                   <motion.div 
-                    className="mt-4"
+                    className="text-center"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    transition={{ delay: index * 0.1 + 0.2 }}
+                    transition={{ delay: index * 0.05 + 0.2 }}
                   >
                     <motion.div 
-                      className="text-[#60a5fa] text-sm font-semibold"
-                      whileHover={{ color: "#0058C9", x: 5 }}
+                      className="text-[#60a5fa] text-base font-semibold"
+                      whileHover={{ color: "#0058C9" }}
                       transition={{ duration: 0.2 }}
                     >
                       {t.name}
                     </motion.div>
-                    <div className="text-white/70 text-xs mt-0.5">{t.country}</div>
-                    <p className="text-white/85 text-sm leading-6 mt-3">
+                    <div className="flex justify-center mt-2 mb-1">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        bg-[#0058C9]/20 text-[#60a5fa] border border-[#0058C9]/40
+                        hover:bg-[#0058C9]/30 hover:border-[#0058C9]/60 transition-all duration-200">
+                        {t.role}
+                      </span>
+                    </div>
+                    <div className="text-white/70 text-xs mb-3">{t.country}</div>
+                    <p className="text-white/85 text-sm leading-5 line-clamp-3">
                       &quot;{t.quote}&quot;
                     </p>
                   </motion.div>
@@ -409,14 +454,14 @@ Furthermore, we adapt our curriculum to each student&apos;s age, ensuring that l
         <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-[#B4005A]">
           <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-10 md:py-12 text-center">
             <div className="text-white text-xl md:text-3xl font-semibold">
-              It&apos;s English time!! Join our club!!
+              {t("joinClubCta")}
             </div>
             <div className="mt-5 flex justify-center">
               <Link
                 href="/contact"
                 className="text-white cursor-pointer px-7 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
               >
-                Book a free trial class now!
+                {t("bookFreeTrialNow")}
               </Link>
             </div>
           </div>

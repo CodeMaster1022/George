@@ -3,9 +3,12 @@
 import Footer from "@/components/main/footer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function PricingPage() {
   const router = useRouter();
+  const { t } = useLanguage();
+  
   return (
     <main className="min-h-screen">
       {/* Pricing hero (first part like screenshot) */}
@@ -20,12 +23,12 @@ export default function PricingPage() {
               {/* Ticket cards */}
               <div className="flex flex-wrap justify-center gap-5 md:gap-8 mb-12">
                 {[
-                  { title: "Admit one", price: "$20", sub: "$20 each class", bg: "#EF4444", credits: 1 },
-                  { title: "Admit five", price: "$95", sub: "$19 each class", bg: "#22C55E", credits: 5 },
-                  { title: "Admit ten", price: "$180", sub: "$18 each class", bg: "#F59E0B", credits: 10 },
-                ].map((t) => (
+                  { title: t("admitOne"), price: "$20", sub: `$20 ${t("eachClass")}`, bg: "#EF4444", credits: 1 },
+                  { title: t("admitFive"), price: "$95", sub: `$19 ${t("eachClass")}`, bg: "#22C55E", credits: 5 },
+                  { title: t("admitTen"), price: "$180", sub: `$18 ${t("eachClass")}`, bg: "#F59E0B", credits: 10 },
+                ].map((ticket) => (
                   <div
-                    key={t.title}
+                    key={ticket.title}
                     className={[
                       "w-[190px] sm:w-[210px] md:w-[230px]",
                       "border-[5px] border-[#2D2D2D] rounded-[20px] overflow-hidden",
@@ -34,7 +37,7 @@ export default function PricingPage() {
                       "active:scale-[0.99]",
                       "focus-within:-translate-y-2 focus-within:scale-[1.03] focus-within:shadow-[0_18px_0_0_rgba(0,0,0,0.25)]",
                     ].join(" ")}
-                    style={{ backgroundColor: t.bg }}
+                    style={{ backgroundColor: ticket.bg }}
                   >
                     <div className="px-5 py-5 md:px-6 md:py-6 text-white">
                       <div className="flex justify-center gap-1.5 mb-3" aria-hidden="true">
@@ -42,16 +45,16 @@ export default function PricingPage() {
                           <span key={i} className="w-2.5 h-2.5 rounded-full bg-white/90" />
                         ))}
                       </div>
-                      <div className="text-xs md:text-sm uppercase tracking-wider">{t.title}</div>
-                      <div className="text-3xl md:text-4xl font-extrabold mt-2">{t.price}</div>
-                      <div className="text-xs md:text-sm mt-2 opacity-90">{t.sub}</div>
+                      <div className="text-xs md:text-sm uppercase tracking-wider">{ticket.title}</div>
+                      <div className="text-3xl md:text-4xl font-extrabold mt-2">{ticket.price}</div>
+                      <div className="text-xs md:text-sm mt-2 opacity-90">{ticket.sub}</div>
                     </div>
                     <div className="bg-white/20 border-t-[5px] border-[#2D2D2D] px-5 md:px-6 py-4">
                       <button
                         onClick={() => router.push('/register')}
                         className="w-full bg-white text-gray-900 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-sm md:text-base"
                       >
-                        Buy Now
+                        {t("buyNow")}
                       </button>
                     </div>
                   </div>
@@ -59,9 +62,9 @@ export default function PricingPage() {
               </div>
 
               <h2 className="text-white text-2xl md:text-5xl leading-tight">
-                Classes starting from $18 per class
+                {t("classesStartingFrom")}
                 <br />
-                Each class lasts 25 minutes
+                {t("classLasts")}
               </h2>
 
               <div className="mt-8 flex justify-center">
@@ -69,7 +72,7 @@ export default function PricingPage() {
                   href="/register"
                   className="text-white cursor-pointer px-8 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
                 >
-                  I want to Register and Purchase Classes Now!
+                  {t("registerPurchaseNow")}
                 </Link>
               </div>
             </div>
@@ -84,11 +87,10 @@ export default function PricingPage() {
             />
             <div className="relative px-6 md:px-12 py-12 md:py-16 text-center">
               <p className="text-white/95 md:text-lg leading-7 max-w-[980px] mx-auto">
-                Register your child for a free trial class and purchase more classes to book your
-                favorite teacher at the day and time of your convenience.
+                {t("registerTrialDesc")}
               </p>
               <p className="text-white/95 md:text-lg leading-7 max-w-[980px] mx-auto mt-4">
-                No charge when you reschedule or cancel your class with enough notice.
+                {t("noChargeReschedule")}
               </p>
             </div>
           </div>

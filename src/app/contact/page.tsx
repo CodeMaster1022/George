@@ -7,8 +7,10 @@ import ContactForm from "@/components/learning/ContactForm";
 import Footer from "@/components/main/footer";
 import SocialIcons from "@/components/learning/SocialIcons";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ContactPage() {
+  const { t } = useLanguage();
   return (
     <main className="min-h-screen">
       {/* Full-width hero banner */}
@@ -30,14 +32,14 @@ export default function ContactPage() {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <BlockTitle text="Contact Us" className="mx-auto" />
+              <BlockTitle text={t("contactUsTitle")} className="mx-auto" />
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="text-white/90 mt-4 text-lg md:text-xl max-w-[700px] mx-auto"
               >
-                Have questions? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+                {t("contactUsDesc")}
               </motion.p>
             </motion.div>
 
@@ -81,29 +83,29 @@ export default function ContactPage() {
           {[
             {
               icon: Mail,
-              title: "Email Us",
+              title: t("emailUs"),
               content: "hola@stgeorge.ec",
               link: "mailto:hola@stgeorge.et",
               color: "#0058C9",
             },
             {
               icon: Phone,
-              title: "Call Us",
+              title: t("callUs"),
               content: "+523 99 123 4567",
               link: "tel:+523991234567",
               color: "#B4005A",
             },
             {
               icon: MapPin,
-              title: "Visit Us",
+              title: t("visitUs"),
               content: "Baños, Ecuador",
               link: "https://maps.google.com",
               color: "#D97706",
             },
             {
               icon: Clock,
-              title: "Working Hours",
-              content: "Mon-Fri: 8AM-6PM",
+              title: t("workingHours"),
+              content: t("workingHoursTime"),
               link: null,
               color: "#5B2AA6",
             },
@@ -156,17 +158,17 @@ export default function ContactPage() {
                 transition={{ duration: 0.6 }}
               >
                 <h2 className="text-white text-2xl md:text-4xl font-extrabold">
-                  Get in touch with us!
+                  {t("getInTouch")}
                 </h2>
                 <p className="text-white/80 text-sm md:text-base mt-2">
-                  We are working on offering you the best learning experience.
+                  {t("bestLearningExperience")}
                 </p>
 
                 <ul className="mt-6 space-y-3 text-white/85 text-sm md:text-base leading-7">
                   {[
-                    "If you want to get a free trial class",
-                    "If you want to receive information about our methods and programs",
-                    "If you want to be updated with our latest courses",
+                    t("freeTrialClass"),
+                    t("receiveInformation"),
+                    t("latestCourses"),
                   ].map((item, index) => (
                     <motion.li
                       key={item}
@@ -190,7 +192,7 @@ export default function ContactPage() {
                   className="mt-6 p-5 rounded-[18px] border-2 border-[#2D2D2D] bg-white/10 backdrop-blur-sm"
                 >
                   <p className="text-white/90 text-sm md:text-base">
-                    For more information, contact us at:
+                    {t("moreInformation")}
                   </p>
                   <a
                     href="mailto:hola@stgeorge.ec"
@@ -208,7 +210,7 @@ export default function ContactPage() {
                   transition={{ delay: 0.5, duration: 0.6 }}
                   className="mt-6"
                 >
-                  <p className="text-white/90 text-sm mb-3">Follow us on social media:</p>
+                  <p className="text-white/90 text-sm mb-3">{t("followSocialMedia")}</p>
                   <SocialIcons size={24} />
                 </motion.div>
 
@@ -237,10 +239,10 @@ export default function ContactPage() {
                 transition={{ duration: 0.6 }}
               >
                 <h2 className="text-white text-2xl md:text-4xl font-extrabold">
-                  Send us a message
+                  {t("sendMessage")}
                 </h2>
                 <p className="text-white/75 text-sm md:text-base mt-2">
-                  Your email address will not be published. Required fields are marked with *.
+                  {t("emailNotPublished")}
                 </p>
 
                 <ContactForm />

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import AOS from "aos";
@@ -6,21 +6,24 @@ import dynamic from "next/dynamic";
 import { Headphones, MessageCircle, PenLine, BookOpen, Image as ImageIcon, Gamepad2, FileText, LayoutGrid, Trophy } from "lucide-react";
 import Footer from "@/components/main/footer";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SparklesCore = dynamic(() => import("@/components/ui/sparkles"), { ssr: false });
 const Meteors = dynamic(() => import("@/components/ui/meteors"), { ssr: false });
 const Sparkles = dynamic(() => import("@/components/ui/sparkle"), { ssr: false });
 import Link from "next/link";
-import { getQuizzes, getVocabLists } from "@/content";
+// import { getQuizzes, getVocabLists } from "@/content";
 
 export default function Home() {
+  const { t } = useLanguage();
+  
   React.useEffect(() => {
     AOS.init();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  const quizzes = getQuizzes().slice(0, 1);
-  const vocab = getVocabLists().slice(0, 1);
+  // const quizzes = getQuizzes().slice(0, 1);
+  // const vocab = getVocabLists().slice(0, 1);
   
   return (
     <main className="min-h-screen relative">
@@ -29,41 +32,41 @@ export default function Home() {
       <section className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:pt-24">
         <div className="text-center mb-10 md:mb-14">
           <h2 className="text-white md:text-5xl font-bold leading-tight">
-            St. George&apos;s Methodology
+            {t("methodologyTitle")}
           </h2>
           <p className="text-white/80 mt-3 md:text-lg max-w-[900px] mx-auto">
-            Our exclusive Path to Fluency helps students learn English naturally, step by step.
+            {t("methodologyDesc")}
           </p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
               step: 1,
-              label: "Listen",
+              label: t("stepListen"),
               color: "#5B2AA6",
               icon: Headphones,
-              desc: "Understand natural, real-life English through immersive listening practice.",
+              desc: t("stepListenDesc"),
             },
             {
               step: 2,
-              label: "Speak",
+              label: t("stepSpeak"),
               color: "#B4005A",
               icon: MessageCircle,
-              desc: "Express ideas clearly and build confidence in everyday conversations.",
+              desc: t("stepSpeakDesc"),
             },
             {
               step: 3,
-              label: "Write",
+              label: t("stepWrite"),
               color: "#D97706",
               icon: PenLine,
-              desc: "Communicate effectively in written form with guided exercises.",
+              desc: t("stepWriteDesc"),
             },
             {
               step: 4,
-              label: "Read",
+              label: t("stepRead"),
               color: "#0058C9",
               icon: BookOpen,
-              desc: "Build vocabulary and internalize grammar through engaging reading.",
+              desc: t("stepReadDesc"),
             },
           ].map((skill, idx) => (
             <div
@@ -107,20 +110,20 @@ export default function Home() {
         {/* New section below methodology */}
         <div className="mt-16 md:mt-24 text-center">
           <h2 className="text-white md:text-4xl font-bold leading-tight">
-            Why St. George&apos;s?
+            {t("whyStGeorge")}
           </h2>
           <p className="text-white/80 mt-3 md:text-lg max-w-[700px] mx-auto mb-10">
-            We combine proven methodology with space-themed fun so every student stays motivated and makes real progress.
+            {t("whyStGeorgeDesc")}
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
-              Personalized learning paths
+              {t("personalizedPaths")}
             </div>
             <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
-              Qualified native teachers
+              {t("qualifiedTeachers")}
             </div>
             <div className="px-6 py-4 rounded-2xl border-2 border-[#2D2D2D] bg-white/5 text-white text-sm md:text-base font-medium">
-              Mission-based lessons
+              {t("missionBasedLessons")}
             </div>
           </div>
         </div>
@@ -132,7 +135,7 @@ export default function Home() {
                 href="/lessons"
                 className="text-white cursor-pointer px-6 py-2 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
               >
-                Explore lessons
+                {t("exploreLessons")}
               </Link>
           </Sparkles>
         </div>
@@ -173,17 +176,16 @@ export default function Home() {
 
               <div className="text-center md:text-left">
                 <h2 className="text-white md:text-6xl text-3xl leading-tight">
-                  Our lessons are seriously fun
+                  {t("seriouslyFunTitle")}
                 </h2>
                 <p className="text-white/90 mt-4 md:text-lg leading-7">
-                  Our English missions are designed to keep attention with short lessons, simple
-                  practice, and quick quizzes.
+                  {t("seriouslyFunDesc1")}
                 </p>
                 <p className="text-white/90 mt-4 md:text-lg leading-7">
-                  Learn anywhere, anytime — and build vocabulary and confidence step by step.
+                  {t("seriouslyFunDesc2")}
                 </p>
                 <p className="text-white/90 mt-4 md:text-lg leading-7">
-                  You’ll be learning so much you won’t even notice you’re studying.
+                  {t("seriouslyFunDesc3")}
                 </p>
               </div>
             </div>
@@ -214,20 +216,16 @@ export default function Home() {
 
               <div className="text-center md:text-left order-1 md:order-2">
                 <h3 className="text-white text-2xl md:text-4xl font-bold leading-tight">
-                  {"St. George's Methodology"}
+                  {t("methodologyFullTitle")}
                 </h3>
                 <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
-                  {"At St. George, we use our exclusive methodology called "}
-                  <strong className="text-white">Path to Fluency</strong>
-                  {", designed to help students learn English in a natural, structured, and engaging way\u2014just like acquiring their first language."}
+                  {t("methodologyFullDesc1")} <strong className="text-white">{t("pathToFluency")}</strong>{t("methodologyFullDesc2")}
                 </p>
                 <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
-                  {"What truly makes our method unique is that we design our own materials, adapted to the age and knowledge level of each student."}
+                  {t("methodologyFullDesc3")}
                 </p>
                 <p className="text-white/90 mt-4 md:text-lg leading-relaxed">
-                  {"This personalized and hands-on approach ensures that every class is not only effective, but also "}
-                  <strong className="text-white">{"fun, motivating, and meaningful"}</strong>
-                  {"\u2014so students enjoy the process as they become fluent in English."}
+                  {t("methodologyFullDesc4")} <strong className="text-white">{t("methodologyFullDesc5")}</strong>{t("methodologyFullDesc6")}
                 </p>
               </div>
             </div>
@@ -240,13 +238,13 @@ export default function Home() {
             <div className="grid gap-10 md:gap-14 md:grid-cols-2 items-center">
               <div className="text-center md:text-left">
                 <h2 className="text-white md:text-4xl font-bold leading-tight">
-                  Select your study time, day, and mission
+                  {t("selectTimeTitle")}
                 </h2>
                 <p className="text-white/80 mt-4 md:text-lg">
-                  No travel needed — learn from home with short, focused practice.
+                  {t("selectTimeDesc1")}
                 </p>
                 <p className="text-white/80 mt-2 md:text-lg">
-                  Choose a lesson, follow the examples, then quiz yourself.
+                  {t("selectTimeDesc2")}
                 </p>
 
                 <div className="mt-6 flex justify-center md:justify-start">
@@ -255,7 +253,7 @@ export default function Home() {
                       href="/lessons"
                       className="text-white cursor-pointer px-6 py-3 rounded-xl bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] md:text-lg"
                     >
-                      Start Learning!
+                      {t("startLearning")}
                     </Link>
                   </Sparkles>
                 </div>
@@ -292,19 +290,19 @@ export default function Home() {
 
         <div className="relative z-10 max-w-[1300px] mx-auto p-left p-right py-12 md:py-18">
           <div className="text-center py-16">
-            <h2 className="text-white md:text-6xl text-3xl">Custom Materials for Every Student</h2>
+            <h2 className="text-white md:text-6xl text-3xl">{t("customMaterialsTitle")}</h2>
             <p className="text-white/80 mt-3 md:text-lg max-w-[900px] mx-auto py-6">
-              We design our own resources, adapted to the age and knowledge level of each student.
+              {t("customMaterialsDesc")}
             </p>
           </div>
 
         <div className="grid gap-6 md:grid-cols-5 pb-12">
           {[
-            { label: "Illustrated Flashcards", color: "#5B2AA6", iconType: "image" as const, href: "/" },
-            { label: "Themed Games", color: "#B4005A", iconType: "gamepad" as const, href: "/" },
-            { label: "Interactive Worksheets", color: "#D97706", iconType: "file" as const, href: "/" },
-            { label: "Educational Board Games", color: "#0058C9", iconType: "grid" as const, href: "/" },
-            { label: "Gamified Activities", color: "#00A3D9", iconType: "trophy" as const, href: "/" },
+            { label: t("illustratedFlashcards"), color: "#5B2AA6", iconType: "image" as const, href: "/" },
+            { label: t("themedGames"), color: "#B4005A", iconType: "gamepad" as const, href: "/" },
+            { label: t("interactiveWorksheets"), color: "#D97706", iconType: "file" as const, href: "/" },
+            { label: t("educationalBoardGames"), color: "#0058C9", iconType: "grid" as const, href: "/" },
+            { label: t("gamifiedActivities"), color: "#00A3D9", iconType: "trophy" as const, href: "/" },
           ].map((item) => (
             <Link
               key={item.label}
@@ -335,7 +333,7 @@ export default function Home() {
             href="/lessons"
             className="text-white px-8 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base transition-colors"
           >
-            Start your first mission
+            {t("startFirstMission")}
           </Link>
         </div>
         </div>
@@ -359,9 +357,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-xl md:text-2xl">Bridging the Gap</h3>
+                <h3 className="text-white text-xl md:text-2xl">{t("bridgingGapTitle")}</h3>
                 <p className="text-white/90 mt-2 text-sm md:text-base">
-                  Guided missions that make learning feel simple and fun.
+                  {t("bridgingGapDesc")}
                 </p>
               </div>
             </div>
@@ -381,9 +379,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-xl md:text-2xl">Kid Tested</h3>
+                <h3 className="text-white text-xl md:text-2xl">{t("kidTestedTitle")}</h3>
                 <p className="text-white/90 mt-2 text-sm md:text-base">
-                  Short lessons designed to keep attention and build confidence.
+                  {t("kidTestedDesc")}
                 </p>
               </div>
             </div>
@@ -403,9 +401,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full">
-                <h3 className="text-white text-xl md:text-2xl">Online is the New Home</h3>
+                <h3 className="text-white text-xl md:text-2xl">{t("onlineNewHomeTitle")}</h3>
                 <p className="text-white/90 mt-2 text-sm md:text-base">
-                  Learn anywhere and check your progress with quick quizzes.
+                  {t("onlineNewHomeDesc")}
                 </p>
               </div>
             </div>
@@ -418,7 +416,7 @@ export default function Home() {
               href="/lessons"
               className="text-white cursor-pointer px-8 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
             >
-              More About Our English Missions
+              {t("moreAboutMissions")}
             </Link>
           </Sparkles>
         </div>
@@ -435,17 +433,14 @@ export default function Home() {
             <div className="p-10 md:p-20">
               <div className="grid gap-12 md:grid-cols-2 items-center">
                 <div className="text-center md:text-left">
-                  <h2 className="text-white md:text-7xl text-4xl leading-tight">
-                    Look no further
-                    <br />
-                    Get started today!
+                  <h2 className="text-white md:text-7xl text-4xl leading-tight whitespace-pre-line">
+                    {t("lookNoFurtherTitle")}
                   </h2>
                   <p className="text-white/90 mt-5 md:text-xl leading-8 max-w-[620px] md:max-w-none mx-auto md:mx-0">
-                    Start with short lessons, learn useful vocabulary, and finish with quick quizzes.
-                    Perfect for daily practice.
+                    {t("lookNoFurtherDesc1")}
                   </p>
                   <p className="text-white/90 mt-5 md:text-xl leading-8 max-w-[620px] md:max-w-none mx-auto md:mx-0">
-                    Learn anywhere, anytime — and build confidence step by step.
+                    {t("lookNoFurtherDesc2")}
                   </p>
 
                   <div className="mt-8 flex justify-center md:justify-start">
@@ -454,7 +449,7 @@ export default function Home() {
                         href=""
                         className="text-white cursor-pointer px-12 py-4 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-base md:text-lg"
                       >
-                        Join Now!
+                        {t("joinNowCta")}
                       </Link>
                     </Sparkles>
                   </div>

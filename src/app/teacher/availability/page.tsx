@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Availability = {
   _id: string;
@@ -20,6 +21,7 @@ const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 
 export default function TeacherAvailabilityPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [items, setItems] = React.useState<Availability[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -31,6 +33,17 @@ export default function TeacherAvailabilityPage() {
     endAt: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16),
     status: "blocked" as "blocked" | "available",
   });
+
+  // Get translated weekdays
+  const getWeekdays = () => [
+    t("sunday"),
+    t("monday"), 
+    t("tuesday"),
+    t("wednesday"),
+    t("thursday"),
+    t("friday"),
+    t("saturday")
+  ];
 
   React.useEffect(() => {
     const u: any = getAuthUser();
@@ -119,7 +132,7 @@ export default function TeacherAvailabilityPage() {
     return (
       <main className="min-h-screen bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
-          <div className="text-gray-600 text-center">Loading...</div>
+          <div className="text-gray-600 text-center">{t("loading")}</div>
         </section>
       </main>
     );
@@ -131,8 +144,8 @@ export default function TeacherAvailabilityPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-gray-900 text-2xl font-bold">Availability</h1>
-            <p className="mt-1 text-gray-600 text-sm">Manage your weekly schedule and one-off time blocks</p>
+            <h1 className="text-gray-900 text-2xl font-bold">{t("availability")}</h1>
+            <p className="mt-1 text-gray-600 text-sm">{t("manageScheduleDesc")}</p>
           </div>
 
           <button
@@ -144,7 +157,7 @@ export default function TeacherAvailabilityPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -166,15 +179,15 @@ export default function TeacherAvailabilityPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Weekly Schedule</h2>
-                <p className="text-gray-500 text-sm">Set recurring availability for specific days and times</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("weeklySchedule")}</h2>
+                <p className="text-gray-500 text-sm">{t("weeklyScheduleDesc")}</p>
               </div>
             </div>
 
             <div className="ml-7 grid gap-4 md:grid-cols-2">
-              <Field label="Weekday" icon="calendar">
+              <Field label={t("weekday")} icon="calendar">
                 <Select value={String(weekly.weekday)} onChange={(v) => setWeekly((s) => ({ ...s, weekday: Number(v) }))}>
-                  {WEEKDAYS.map((d, i) => (
+                  {getWeekdays().map((d, i) => (
                     <option key={d} value={i}>
                       {d}
                     </option>
@@ -182,7 +195,7 @@ export default function TeacherAvailabilityPage() {
                 </Select>
               </Field>
 
-              <Field label="Timezone" icon="globe">
+              <Field label={t("timezone")} icon="globe">
                 <Input
                   value={weekly.timezone}
                   onChange={(v) => setWeekly((s) => ({ ...s, timezone: v }))}
@@ -190,7 +203,7 @@ export default function TeacherAvailabilityPage() {
                 />
               </Field>
 
-              <Field label="Start Time" icon="clock">
+              <Field label={t("startTime")} icon="clock">
                 <Input
                   value={weekly.startTime}
                   onChange={(v) => setWeekly((s) => ({ ...s, startTime: v }))}
@@ -198,7 +211,7 @@ export default function TeacherAvailabilityPage() {
                 />
               </Field>
 
-              <Field label="End Time" icon="clock">
+              <Field label={t("endTime")} icon="clock">
                 <Input
                   value={weekly.endTime}
                   onChange={(v) => setWeekly((s) => ({ ...s, endTime: v }))}
@@ -220,14 +233,14 @@ export default function TeacherAvailabilityPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Adding...</span>
+                    <span>{t("adding")}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    <span>Add Weekly Block</span>
+                    <span>{t("addWeeklyBlock")}</span>
                   </>
                 )}
               </button>
@@ -241,13 +254,13 @@ export default function TeacherAvailabilityPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Time Override</h2>
-                <p className="text-gray-500 text-sm">Block or add availability for specific dates and times</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("timeOverride")}</h2>
+                <p className="text-gray-500 text-sm">{t("timeOverrideDesc")}</p>
               </div>
             </div>
 
             <div className="ml-7 grid gap-4 md:grid-cols-2">
-              <Field label="Start Date & Time" icon="calendar">
+              <Field label={t("startDateTime")} icon="calendar">
                 <input
                   type="datetime-local"
                   value={override.startAt}
@@ -256,7 +269,7 @@ export default function TeacherAvailabilityPage() {
                 />
               </Field>
 
-              <Field label="End Date & Time" icon="calendar">
+              <Field label={t("endDateTime")} icon="calendar">
                 <input
                   type="datetime-local"
                   value={override.endAt}
@@ -266,10 +279,10 @@ export default function TeacherAvailabilityPage() {
               </Field>
 
               <div className="md:col-span-2">
-                <Field label="Status" icon="status">
+                <Field label={t("status")} icon="status">
                   <Select value={override.status} onChange={(v) => setOverride((s) => ({ ...s, status: v as any }))}>
-                    <option value="blocked">Blocked (Unavailable)</option>
-                    <option value="available">Available</option>
+                    <option value="blocked">{t("blockedUnavailable")}</option>
+                    <option value="available">{t("available")}</option>
                   </Select>
                 </Field>
               </div>
@@ -288,14 +301,14 @@ export default function TeacherAvailabilityPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Adding...</span>
+                    <span>{t("adding")}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    <span>Add Override</span>
+                    <span>{t("addOverride")}</span>
                   </>
                 )}
               </button>
@@ -309,8 +322,8 @@ export default function TeacherAvailabilityPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Current Availability</h2>
-                <p className="text-gray-500 text-sm">All your scheduled availability blocks</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("currentAvailability")}</h2>
+                <p className="text-gray-500 text-sm">{t("currentAvailabilityDesc")}</p>
               </div>
             </div>
 
@@ -338,15 +351,15 @@ export default function TeacherAvailabilityPage() {
                       <div>
                         {it.type === "weekly" ? (
                           <>
-                            <div className="text-gray-900 text-sm font-semibold">Weekly Schedule</div>
+                            <div className="text-gray-900 text-sm font-semibold">{t("weeklyScheduleItem")}</div>
                             <div className="mt-1 text-gray-600 text-sm">
-                              {WEEKDAYS[it.weekday ?? 0]} • {it.startTime}–{it.endTime} • {it.timezone || "UTC"}
+                              {getWeekdays()[it.weekday ?? 0]} • {it.startTime}–{it.endTime} • {it.timezone || "UTC"}
                             </div>
                           </>
                         ) : (
                           <>
                             <div className="text-gray-900 text-sm font-semibold">
-                              {it.status === "blocked" ? "Blocked Time" : "Available Time"}
+                              {it.status === "blocked" ? t("blockedTime") : t("availableTime")}
                             </div>
                             <div className="mt-1 text-gray-600 text-sm">
                               {formatDate(it.startAt)} → {formatDate(it.endAt)}
@@ -363,13 +376,13 @@ export default function TeacherAvailabilityPage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
-                      Delete
+                      {t("delete")}
                     </button>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-500 text-sm">
-                  No availability set yet. Add weekly blocks or overrides above.
+                  {t("noAvailabilitySet")}
                 </div>
               )}
             </div>
@@ -381,7 +394,7 @@ export default function TeacherAvailabilityPage() {
           <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Timezone is stored but slot generation is currently UTC-based. Weekly blocks repeat every week, while overrides apply to specific dates.</span>
+          <span>{t("timezoneNote")}</span>
         </div>
       </section>
     </main>
