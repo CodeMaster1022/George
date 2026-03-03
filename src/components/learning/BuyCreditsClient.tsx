@@ -5,6 +5,8 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "@/app/ebluelearning/buy_credits/translate";
 
 declare global {
   interface Window {
@@ -38,10 +40,13 @@ function CreditIcon({ className }: { className?: string }) {
 
 export default function BuyCreditsClient() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = React.useCallback((key: string) => translate(key, language), [language]);
+
   const tickets: Ticket[] = [
-    { title: "Single class", price: "$20", sub: "$20 per class", credits: 1 },
-    { title: "5 classes", price: "$95", sub: "$19 per class", credits: 5, highlight: true },
-    { title: "10 classes", price: "$180", sub: "$18 per class", credits: 10 },
+    { title: t("singleClassTitle"), price: "$20", sub: t("singleClassSub"), credits: 1 },
+    { title: t("fiveClassesTitle"), price: "$95", sub: t("fiveClassesSub"), credits: 5, highlight: true },
+    { title: t("tenClassesTitle"), price: "$180", sub: t("tenClassesSub"), credits: 10 },
   ];
 
   const [selected, setSelected] = React.useState<Ticket | null>(null);
@@ -132,18 +137,19 @@ export default function BuyCreditsClient() {
               body: JSON.stringify({ credits, referralCode }),
             });
             if (!r.ok) {
-              const msg = r.error || (r as any).data?.error || "Failed to create order";
+              const msg = r.error || (r as any).data?.error || t("failedToCreateOrder");
               setError(msg);
               throw new Error(msg);
             }
             if (!r.data?.orderId) {
-              setError("Invalid response from server");
-              throw new Error("Invalid response from server");
+              const msg = t("invalidServerResponse");
+              setError(msg);
+              throw new Error(msg);
             }
             return r.data.orderId;
           },
           onError: (err: Error) => {
-            setError(err?.message || "PayPal is not available. Try again or check your connection.");
+            setError(err?.message || t("paypalUnavailable"));
           },
           onApprove: async (data: { orderID: string }) => {
             setError(null);
@@ -155,11 +161,15 @@ export default function BuyCreditsClient() {
                 { method: "POST", auth: true, body: JSON.stringify({ orderId: data.orderID }) }
               );
               if (!r.ok) {
-                setError(r.error ?? "Payment capture failed");
+                setError(r.error ?? t("paymentCaptureFailed"));
                 return;
               }
               setBalance(r.data.balance);
-              setInfo(`Added ${r.data.credits} credits. New balance: ${r.data.balance}.`);
+              setInfo(
+                `${t("addedCreditsPrefix")} ${r.data.credits} ${t(
+                  "addedCreditsSuffix"
+                )} ${t("newBalancePrefix")} ${r.data.balance}.`
+              );
             } finally {
               setPayingMethod(null);
             }
@@ -167,13 +177,13 @@ export default function BuyCreditsClient() {
           style: { color: "gold", shape: "rect" },
         }).render(container);
       } catch (e) {
-        if (mounted) setError(e instanceof Error ? e.message : "PayPal failed to load");
+        if (mounted) setError(e instanceof Error ? e.message : t("paypalFailedToLoad"));
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [selected, agree, paypalConfig.enabled, paypalConfig.clientId, referral]);
+  }, [selected, agree, paypalConfig.enabled, paypalConfig.clientId, referral, t]);
 
   return (
     <main className="min-h-[calc(100vh-100px)]">
@@ -183,10 +193,10 @@ export default function BuyCreditsClient() {
             {/* Header */}
             <div className="text-center mb-8 md:mb-10">
               <h1 className="text-white text-2xl md:text-4xl font-extrabold">
-                Buy credits
+                {t("buyCreditsTitle")}
               </h1>
               <p className="mt-2 text-white/85 text-sm md:text-base font-semibold max-w-xl mx-auto">
-                Each credit = one 25-minute class. Choose a package and pay with PayPal.
+                {t("buyCreditsSubtitle")}
               </p>
             </div>
 
@@ -194,33 +204,33 @@ export default function BuyCreditsClient() {
               {/* Packages */}
               <div>
                 <div className="text-white/90 text-sm font-semibold mb-3 uppercase tracking-wide">
-                  Choose a package
+                  {t("choosePackage")}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {tickets.map((t) => {
-                    const isSelected = selected?.credits === t.credits;
+                  {tickets.map((ticket) => {
+                    const isSelected = selected?.credits === ticket.credits;
                     return (
                       <button
-                        key={t.credits}
+                        key={ticket.credits}
                         type="button"
-                        onClick={() => setSelected(t)}
+                        onClick={() => setSelected(ticket)}
                         aria-pressed={isSelected}
                         className={`text-left rounded-[18px] border-[5px] overflow-hidden transition-all ${
                           isSelected
                             ? "border-[#0058C9] ring-2 ring-[#0058C9]/40 scale-[1.02]"
                             : "border-[#2D2D2D] hover:border-white/40 hover:scale-[1.01]"
-                        } ${t.highlight ? "bg-[#0058C9]/20" : "bg-white/10"}`}
+                        } ${ticket.highlight ? "bg-[#0058C9]/20" : "bg-white/10"}`}
                       >
                         <div className="p-5 md:p-6 text-white">
                           <div className="flex items-center justify-center w-14 h-14 rounded-xl border-2 border-white/30 bg-white/10">
                             <CreditIcon className="w-8 h-8 text-white" />
                           </div>
-                          <div className="mt-4 font-extrabold text-lg">{t.title}</div>
-                          <div className="mt-2 text-2xl md:text-3xl font-extrabold leading-none">{t.price}</div>
-                          <div className="mt-1 text-white/85 text-sm font-semibold">{t.sub}</div>
-                          {t.highlight && (
+                          <div className="mt-4 font-extrabold text-lg">{ticket.title}</div>
+                          <div className="mt-2 text-2xl md:text-3xl font-extrabold leading-none">{ticket.price}</div>
+                          <div className="mt-1 text-white/85 text-sm font-semibold">{ticket.sub}</div>
+                          {ticket.highlight && (
                             <div className="mt-3 inline-block px-2 py-0.5 rounded-md bg-amber-400/90 text-[#212429] text-xs font-bold uppercase">
-                              Best value
+                              {t("bestValueBadge")}
                             </div>
                           )}
                         </div>
@@ -236,7 +246,7 @@ export default function BuyCreditsClient() {
                   <div className="p-5 md:p-6">
                     {/* Current balance */}
                     <div className="rounded-xl border-2 border-[#2D2D2D] bg-[#B4005A]/10 px-4 py-3 flex items-center justify-between">
-                      <span className="text-[#212429] font-semibold text-sm">Your credits</span>
+                      <span className="text-[#212429] font-semibold text-sm">{t("yourCreditsLabel")}</span>
                       <span className="text-[#B4005A] font-extrabold text-xl">
                         {loadingBalance ? "…" : balance}
                       </span>
@@ -244,14 +254,14 @@ export default function BuyCreditsClient() {
 
                     {/* Referral */}
                     <div className="mt-5">
-                      <div className="text-[#212429] font-extrabold text-sm">Referral code</div>
+                      <div className="text-[#212429] font-extrabold text-sm">{t("referralCodeLabel")}</div>
                       <p className="mt-0.5 text-[#212429]/70 text-xs">
-                        Enter a code if someone referred you.
+                        {t("referralHint")}
                       </p>
                       <input
                         value={referral}
                         onChange={(e) => setReferral(e.target.value)}
-                        placeholder="Optional"
+                        placeholder={t("referralPlaceholder")}
                         className="mt-2 w-full px-4 py-2.5 rounded-lg border-2 border-[#2D2D2D] bg-white text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-[#0058C9]"
                       />
                     </div>
@@ -260,7 +270,7 @@ export default function BuyCreditsClient() {
                     {selected ? (
                       <div className="mt-6 pt-5 border-t-2 border-[#E5E7EB]" role="region" aria-labelledby="payment-heading">
                         <h2 id="payment-heading" className="text-[#212429] font-extrabold text-sm mb-3">
-                          Pay {selected.price} — {selected.title}
+                          {t("payHeadingPrefix")} {selected.price} — {selected.title}
                         </h2>
 
                         <label className="flex items-start gap-2 text-xs text-[#212429] cursor-pointer mb-3">
@@ -273,13 +283,13 @@ export default function BuyCreditsClient() {
                             aria-describedby="agree-desc"
                           />
                           <span id="agree-desc">
-                            I agree to the{" "}
+                            {t("agreeTextPrefix")}{" "}
                             <Link href="/terms-and-conditions" className="text-[#0058C9] font-semibold underline hover:no-underline">
-                              Terms
+                              {t("agreeTerms")}
                             </Link>{" "}
-                            and{" "}
+                            {t("agreeAnd")}{" "}
                             <Link href="/privacy-policy" className="text-[#0058C9] font-semibold underline hover:no-underline">
-                              Privacy Policy
+                              {t("agreePrivacy")}
                             </Link>
                             .
                           </span>
@@ -287,7 +297,7 @@ export default function BuyCreditsClient() {
 
                         {!agree && (
                           <p className="mb-3 text-xs text-[#212429]/70 font-medium">
-                            Check the box above to enable payment.
+                            {t("agreeHint")}
                           </p>
                         )}
 
@@ -295,25 +305,25 @@ export default function BuyCreditsClient() {
                           <div
                             ref={paypalContainerRef}
                             className="min-h-[42px] flex items-center justify-center"
-                            aria-label="Pay with PayPal"
+                            aria-label={t("paypalAriaLabel")}
                           />
                         ) : (
                           <div className="py-4 px-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium">
-                            PayPal is not configured. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in the backend .env to accept payments.
+                            {t("paypalNotConfigured")}
                           </div>
                         )}
 
                         {payingMethod === "paypal" && (
-                          <p className="mt-2 text-xs text-[#212429]/70 font-medium">Processing your payment…</p>
+                          <p className="mt-2 text-xs text-[#212429]/70 font-medium">{t("processingPayment")}</p>
                         )}
 
                         <p className="mt-4 text-[11px] text-[#212429]/70 leading-relaxed">
-                          Prices are in USD. Exact charge may vary with exchange rates.
+                          {t("usdNote")}
                         </p>
                       </div>
                     ) : (
                       <div className="mt-6 pt-5 border-t-2 border-[#E5E7EB] text-center text-[#212429]/60 text-sm font-semibold">
-                        Select a package above to see payment options.
+                        {t("selectPackageForPayment")}
                       </div>
                     )}
 

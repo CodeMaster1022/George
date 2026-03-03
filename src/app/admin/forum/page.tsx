@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type PendingArticle = {
   id: string;
@@ -32,6 +34,8 @@ type PendingAttachment = {
 };
 
 export default function AdminForumPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<"articles" | "attachments" | "actions">("articles");
@@ -92,7 +96,7 @@ export default function AdminForumPage() {
 
   async function rejectAttachment(id: string) {
     const reason = (rejectAttachmentReason[id] || "").trim();
-    if (!reason) return setError("Please provide an attachment rejection reason.");
+    if (!reason) return setError(t("provideAttachmentRejectionReason"));
     const r = await apiJson(`/admin/forum/attachments/${encodeURIComponent(id)}/reject`, {
       method: "POST",
       body: JSON.stringify({ reason }),
@@ -140,8 +144,8 @@ export default function AdminForumPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Forum Management</h1>
-            <p className="mt-2 text-gray-600">Moderate articles, attachments, and user actions</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("forumManagement")}</h1>
+            <p className="mt-2 text-gray-600">{t("forumModerateDesc")}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -152,7 +156,7 @@ export default function AdminForumPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              View Forum
+              {t("viewForum")}
             </Link>
             <button
               type="button"
@@ -163,7 +167,7 @@ export default function AdminForumPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Refresh
+              {t("refresh")}
             </button>
           </div>
         </div>
@@ -189,7 +193,7 @@ export default function AdminForumPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Pending Articles ({pendingArticles.length})
+              {t("pendingArticles")} ({pendingArticles.length})
             </button>
             <button
               type="button"
@@ -200,7 +204,7 @@ export default function AdminForumPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Pending Attachments ({pendingAttachments.length})
+              {t("pendingAttachments")} ({pendingAttachments.length})
             </button>
             <button
               type="button"
@@ -211,14 +215,14 @@ export default function AdminForumPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              User Actions
+              {t("userActions")}
             </button>
           </nav>
         </div>
 
         {loading ? (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="text-gray-500">Loading...</div>
+            <div className="text-gray-500">{t("loading")}</div>
           </div>
         ) : (
           <>
@@ -230,7 +234,7 @@ export default function AdminForumPage() {
                     <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <p className="text-gray-500">No pending articles</p>
+                    <p className="text-gray-500">{t("noPendingArticles")}</p>
                   </div>
                 ) : (
                   pendingArticles.map((article) => (
@@ -243,7 +247,7 @@ export default function AdminForumPage() {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
-                              {article.author?.email || "Unknown"}
+                              {article.author?.email || t("unknown")}
                             </span>
                             <span className="flex items-center gap-1">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +270,7 @@ export default function AdminForumPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            Review
+                            {t("review")}
                           </Link>
                           <button
                             type="button"
@@ -276,7 +280,7 @@ export default function AdminForumPage() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            Approve
+                            {t("approve")}
                           </button>
                         </div>
                       </div>
@@ -284,7 +288,7 @@ export default function AdminForumPage() {
                         <input
                           value={rejectReason[article.id] || ""}
                           onChange={(e) => setRejectReason((prev) => ({ ...prev, [article.id]: e.target.value }))}
-                          placeholder="Rejection reason..."
+                          placeholder={t("rejectionReasonPlaceholder")}
                           className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                         />
                         <button
@@ -295,7 +299,7 @@ export default function AdminForumPage() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                          Reject
+                          {t("reject")}
                         </button>
                       </div>
                     </div>
@@ -312,7 +316,7 @@ export default function AdminForumPage() {
                     <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
-                    <p className="text-gray-500">No pending attachments</p>
+                    <p className="text-gray-500">{t("noPendingAttachments")}</p>
                   </div>
                 ) : (
                   pendingAttachments.map((attachment) => (
@@ -351,7 +355,7 @@ export default function AdminForumPage() {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                               </svg>
-                              Open
+                              {t("open")}
                             </Link>
                           )}
                           <button
@@ -362,7 +366,7 @@ export default function AdminForumPage() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            Approve
+                            {t("approve")}
                           </button>
                         </div>
                       </div>
@@ -370,7 +374,7 @@ export default function AdminForumPage() {
                         <input
                           value={rejectAttachmentReason[attachment.id] || ""}
                           onChange={(e) => setRejectAttachmentReason((prev) => ({ ...prev, [attachment.id]: e.target.value }))}
-                          placeholder="Rejection reason..."
+                          placeholder={t("rejectionReasonPlaceholder")}
                           className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                         />
                         <button

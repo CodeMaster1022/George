@@ -1,0 +1,96 @@
+export type SupportedLanguage = "en" | "es";
+
+const translations: Record<SupportedLanguage, Record<string, string>> = {
+  en: {
+    teacherProfileTitle: "Teacher Profile",
+    teacherProfileSubtitle: "View your professional information",
+    aboutSectionTitle: "About",
+    contactInformationTitle: "Contact Information",
+    socialMediaTitle: "Social Media",
+    lessonsCompletedLabel: "Lessons completed",
+    backToDashboard: "Back to Dashboard",
+    editProfile: "Edit Profile",
+    viewResume: "View Resume",
+    loadingProfile: "Loading profile...",
+    errorLoadingProfile: "Error loading profile",
+    phone: "Phone",
+    timezone: "Timezone",
+    address: "Address",
+    country: "Country",
+    viewProfile: "View Profile",
+    contact: "Contact",
+    review: "review",
+    reviews: "reviews",
+    // Edit page
+    editProfileTitle: "Edit Profile",
+    editProfileSubtitle: "Update your professional information",
+    cancel: "Cancel",
+    saving: "Saving...",
+    saveChanges: "Save Changes",
+    profilePhoto: "Profile Photo",
+    profilePhotoDesc: "Upload a professional photo",
+    uploadPhoto: "Upload Photo",
+    basicInfo: "Basic Information",
+    basicInfoDesc: "Your name and professional details",
+    fullName: "Full Name",
+    city: "City",
+    aboutYou: "About You",
+    aboutYouDesc: "Tell students about your teaching experience and style",
+    professionalLinks: "Professional Links",
+    professionalLinksDesc: "Add your resume and portfolio",
+    resumeUrlLabel: "Resume URL",
+    socialMediaDesc: "Connect your social profiles",
+    loading: "Loading...",
+  },
+  es: {
+    teacherProfileTitle: "Perfil del profesor",
+    teacherProfileSubtitle: "Consulta tu información profesional",
+    aboutSectionTitle: "Acerca de ti",
+    contactInformationTitle: "Información de contacto",
+    socialMediaTitle: "Redes sociales",
+    lessonsCompletedLabel: "Clases completadas",
+    backToDashboard: "Volver al panel",
+    editProfile: "Editar perfil",
+    viewResume: "Ver currículum",
+    loadingProfile: "Cargando perfil...",
+    errorLoadingProfile: "Error al cargar el perfil",
+    phone: "Teléfono",
+    timezone: "Zona horaria",
+    address: "Dirección",
+    country: "País",
+    viewProfile: "Ver perfil",
+    contact: "Contactar",
+    review: "reseña",
+    reviews: "reseñas",
+    // Edit page
+    editProfileTitle: "Editar perfil",
+    editProfileSubtitle: "Actualiza tu información profesional",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    saveChanges: "Guardar cambios",
+    profilePhoto: "Foto de perfil",
+    profilePhotoDesc: "Sube una foto profesional",
+    uploadPhoto: "Subir foto",
+    basicInfo: "Información básica",
+    basicInfoDesc: "Tu nombre y datos profesionales",
+    fullName: "Nombre completo",
+    city: "Ciudad",
+    aboutYou: "Sobre ti",
+    aboutYouDesc: "Cuéntales a los estudiantes sobre tu experiencia y estilo de enseñanza",
+    professionalLinks: "Enlaces profesionales",
+    professionalLinksDesc: "Añade tu currículum y portafolio",
+    resumeUrlLabel: "URL del currículum",
+    socialMediaDesc: "Conecta tus redes sociales",
+    loading: "Cargando...",
+  },
+};
+
+/**
+ * Translates a string key into the requested language.
+ * Falls back to the original key when no translation is found.
+ */
+export function translate(key: string, language: SupportedLanguage = "en"): string {
+  const table = translations[language];
+  return (table && table[key]) || key;
+}
+

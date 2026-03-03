@@ -4,6 +4,8 @@
 import React from "react";
 import Link from "next/link";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type StudentProfile = {
   _id: string;
@@ -38,16 +40,16 @@ function makeUserTag(nickname: string) {
   return `${base}#${String(hash).slice(0, 4)}`;
 }
 
-function getDisplayName(profile: StudentProfile | null) {
+function getDisplayName(profile: StudentProfile | null, t: (key: string) => string) {
   if (profile?.nickname) return profile.nickname;
-  return "Explorer";
+  return t("explorer");
 }
 
-function levelLabel(level?: string) {
+function levelLabel(level: string | undefined, t: (key: string) => string) {
   const v = (level ?? "").toLowerCase();
-  if (!v) return "Absolute beginner";
-  if (v.includes("beginner")) return "Absolute beginner";
-  return level ?? "Absolute beginner";
+  if (!v) return t("absoluteBeginner");
+  if (v.includes("beginner")) return t("absoluteBeginner");
+  return level ?? t("absoluteBeginner");
 }
 
 const LEVEL_PILLS = ["A0", "A1", "A2", "B1", "B2"] as const;
@@ -109,6 +111,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export default function EBlueProfilePage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [profile, setProfile] = React.useState<StudentProfile | null>(null);
   const [creditsBalance, setCreditsBalance] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -139,7 +143,7 @@ export default function EBlueProfilePage() {
     load();
   }, []);
 
-  const name = React.useMemo(() => getDisplayName(profile), [profile]);
+  const name = React.useMemo(() => getDisplayName(profile, t), [profile, t]);
   const tag = React.useMemo(() => makeUserTag(profile?.nickname || "user"), [profile]);
 
   const lessonsCompleted = profile?.stats?.lessonsCompleted ?? 0;
@@ -151,7 +155,7 @@ export default function EBlueProfilePage() {
   const coins = 0;
   const credits = creditsBalance ?? 0;
 
-  const studentLevel = levelLabel(profile?.spanishLevel);
+  const studentLevel = levelLabel(profile?.spanishLevel, t);
   const levelPill = React.useMemo(() => profileLevelToPill(profile?.spanishLevel), [profile?.spanishLevel]);
   const u: any = getAuthUser();
   const verified = Boolean(u?.emailVerified ?? u?.email_verified);
@@ -160,7 +164,7 @@ export default function EBlueProfilePage() {
     return (
       <main className="min-h-screen">
         <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
-          <div className="text-white text-center">Loading profile...</div>
+          <div className="text-white text-center">{t("loadingProfile")}</div>
         </section>
       </main>
     );
@@ -171,9 +175,9 @@ export default function EBlueProfilePage() {
       <main className="min-h-screen">
         <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
           <div className="text-red-500 text-center">
-            <p>Error loading profile: {error}</p>
+            <p>{t("errorLoadingProfile")}: {error}</p>
             <Link href="/ebluelearning" className="text-blue-500 underline mt-4 inline-block">
-              Back to dashboard
+              {t("backToDashboard")}
             </Link>
           </div>
         </section>
@@ -188,7 +192,7 @@ export default function EBlueProfilePage() {
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
-                <h1 className="text-white text-2xl md:text-5xl font-extrabold leading-none">Profile</h1>
+                <h1 className="text-white text-2xl md:text-5xl font-extrabold leading-none">{t("profile")}</h1>
                 <div className="mt-3 text-white/85 text-sm md:text-base font-semibold">{tag}</div>
               </div>
 
@@ -199,7 +203,7 @@ export default function EBlueProfilePage() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Edit profile
+                {t("editProfile")}
               </Link>
             </div>
 
@@ -218,7 +222,7 @@ export default function EBlueProfilePage() {
                   <div className="mt-4 text-[#212429] font-extrabold text-lg">{name}</div>
 
                   <div className="mt-3">
-                    <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">Grade</div>
+                    <div className="text-[#212429]/70 text-xs tracking-[0.16em] uppercase">{t("grade")}</div>
                     <div className="mt-1 text-[#F59E0B] text-2xl font-extrabold">{grade.toFixed(1)}</div>
                     <StarRow filled={starsFilled} />
                   </div>
@@ -232,32 +236,32 @@ export default function EBlueProfilePage() {
 
                   <div className="mt-6 grid gap-3 text-left">
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Lessons completed</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">{t("lessonsCompleted")}</div>
                       <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#5B2AA6] text-white grid place-items-center font-extrabold text-xs">
                         {lessonsCompleted}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Feedback given</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">{t("feedbackGiven")}</div>
                       <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#F59E0B] text-white grid place-items-center font-extrabold text-xs">
                         {feedbackGiven}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Rating from teachers</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">{t("ratingFromTeachers")}</div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-amber-500 font-bold text-sm">★ {ratingFromTeachers.toFixed(1)}</span>
                         <span className="text-[#212429]/60 text-xs">({ratingCountFromTeachers})</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Your Monedas</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">{t("yourMonedas")}</div>
                       <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#22C55E] text-white grid place-items-center font-extrabold text-xs">
                         {coins}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-[#212429]/70 text-sm font-semibold">Your Credits</div>
+                      <div className="text-[#212429]/70 text-sm font-semibold">{t("yourCredits")}</div>
                       <div className="w-7 h-7 rounded-full border-2 border-[#2D2D2D] bg-[#B4005A] text-white grid place-items-center font-extrabold text-xs">
                         {credits}
                       </div>
@@ -271,7 +275,7 @@ export default function EBlueProfilePage() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Buy credits
+                    {t("buyCredits")}
                   </Link>
                 </div>
               </div>
@@ -280,21 +284,21 @@ export default function EBlueProfilePage() {
               <div className="bg-white rounded-[22px] border-[5px] border-[#2D2D2D] overflow-hidden h-full">
                 <div className="p-5 md:p-7">
                   <div className="flex items-center justify-between gap-4">
-                    <div className="text-[#212429] text-xl md:text-2xl font-extrabold">Profile details</div>
+                    <div className="text-[#212429] text-xl md:text-2xl font-extrabold">{t("profileDetails")}</div>
                     <div className="text-xs font-extrabold text-[#212429]/70">
                       {verified ? (
                         <span className="inline-flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full border-2 border-[#2D2D2D] bg-[#22C55E] grid place-items-center text-white">
                             ✓
                           </span>
-                          Email verified
+                          {t("emailVerified")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full border-2 border-[#2D2D2D] bg-[#F59E0B] grid place-items-center text-white">
                             !
                           </span>
-                          Email not verified
+                          {t("emailNotVerified")}
                         </span>
                       )}
                     </div>
@@ -303,34 +307,34 @@ export default function EBlueProfilePage() {
                   <div className="mt-6 border-t border-[#E5E7EB]" />
 
                   <div className="mt-6">
-                    <SectionTitle>Learning Objectives</SectionTitle>
+                    <SectionTitle>{t("learningObjectives")}</SectionTitle>
                     <div className="mt-3 rounded-[16px] border-2 border-[#2D2D2D] bg-[#F8FAFC] p-4 text-sm text-[#212429]/85 leading-6">
                       {safeText(profile?.questionnaire)}
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <SectionTitle>Spanish Level</SectionTitle>
+                    <SectionTitle>{t("spanishLevel")}</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="Level" value={safeText(profile?.spanishLevel)} />
-                      <InfoField label="Can read?" value={safeText(profile?.canRead)} />
+                      <InfoField label={t("level")} value={safeText(profile?.spanishLevel)} />
+                      <InfoField label={t("canRead")} value={safeText(profile?.canRead)} />
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <SectionTitle>Parent Contact Information</SectionTitle>
+                    <SectionTitle>{t("parentContactInfo")}</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="Parent Name" value={safeText(profile?.parentContact?.name)} />
-                      <InfoField label="Telephone Number" value={safeText(profile?.parentContact?.phone)} />
+                      <InfoField label={t("parentName")} value={safeText(profile?.parentContact?.name)} />
+                      <InfoField label={t("telephoneNumber")} value={safeText(profile?.parentContact?.phone)} />
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <SectionTitle>Additional Information</SectionTitle>
+                    <SectionTitle>{t("additionalInfo")}</SectionTitle>
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
-                      <InfoField label="Nickname" value={safeText(profile?.nickname)} />
-                      <InfoField label="Birthdate" value={safeText(profile?.birthdate)} />
-                      <InfoField label="Homeschool funding" value={safeText(profile?.homeschoolFunding)} />
+                      <InfoField label={t("nickname")} value={safeText(profile?.nickname)} />
+                      <InfoField label={t("birthdate")} value={safeText(profile?.birthdate)} />
+                      <InfoField label={t("homeschoolFunding")} value={safeText(profile?.homeschoolFunding)} />
                     </div>
                   </div>
 
@@ -342,7 +346,7 @@ export default function EBlueProfilePage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                       </svg>
-                      Back to dashboard
+                      {t("backToDashboard")}
                     </Link>
                     <Link
                       href="/"
@@ -351,7 +355,7 @@ export default function EBlueProfilePage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                       </svg>
-                      Home
+                      {t("home")}
                     </Link>
                   </div>
                 </div>

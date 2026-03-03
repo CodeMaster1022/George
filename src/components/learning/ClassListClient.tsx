@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
 import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "@/app/ebluelearning/class_list/translate";
 
 type BookingRow = {
   id: string;
@@ -39,6 +41,8 @@ type ClassReport = {
 
 export default function ClassListClient() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [open, setOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<Filter>("all");
   const [previewId, setPreviewId] = React.useState<string>("");
@@ -178,12 +182,12 @@ export default function ClassListClient() {
 
   const emptyText =
     filter === "cancelled"
-      ? "No cancelled classes."
+      ? t("noCancelledClasses")
       : filter === "history"
-        ? "No history yet. Completed lessons will appear here."
+        ? t("noHistoryYet")
         : filter === "upcoming"
-          ? "No upcoming classes yet."
-          : "No classes yet.";
+          ? t("noUpcomingClasses")
+          : t("noClassesYet");
 
   return (
     <>
@@ -196,16 +200,24 @@ export default function ClassListClient() {
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="text-white text-sm font-semibold">
-                      {filter === "history" ? "History" : filter === "upcoming" ? "Your Classes" : filter === "cancelled" ? "Cancelled" : "Your Classes"}
+                      {filter === "history"
+                        ? t("historyHeading")
+                        : filter === "upcoming"
+                          ? t("yourClassesHeading")
+                          : filter === "cancelled"
+                            ? t("cancelledHeading")
+                            : t("yourClassesHeading")}
                     </div>
                     <div className="mt-2 text-white text-xl sm:text-2xl md:text-4xl font-extrabold break-words">
                       {loading
-                        ? "Loading…"
+                        ? t("loading")
                         : filter === "history"
-                          ? (filtered.length ? "Your lesson history" : "No history yet")
+                          ? filtered.length
+                            ? t("lessonHistoryTitle")
+                            : t("noHistoryShort")
                           : bookings.length
-                            ? "Here are your classes"
-                            : "Oops! You haven't booked any classes yet…"}
+                            ? t("hereAreYourClasses")
+                            : t("noClassesBooked")}
                     </div>
                     {error ? (
                       <div className="mt-3 border-2 border-[#2D2D2D] bg-[#B4005A]/40 text-white rounded-xl px-4 py-3 text-sm">
@@ -222,7 +234,7 @@ export default function ClassListClient() {
                         onClick={load}
                         className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-3 rounded-md border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white font-extrabold text-xs sm:text-sm uppercase disabled:opacity-60"
                       >
-                        Refresh
+                        {t("refresh")}
                       </button>
 
                       <button
@@ -237,14 +249,16 @@ export default function ClassListClient() {
                         >
                           ⌄
                         </span>
-                        <span className="truncate">Filter</span>
+                        <span className="truncate">{t("filterLabel")}</span>
                       </button>
                     </div>
 
                     {open ? (
                       <div className="absolute right-0 mt-2 w-[240px] max-w-[calc(100vw-2rem)] rounded-[16px] border-[5px] border-[#2D2D2D] overflow-hidden bg-white shadow-[0_15px_40px_rgba(0,0,0,0.2)] z-[100]">
                         <div className="p-3 text-sm text-[#212429]/80">
-                          <div className="font-extrabold text-[#212429] mb-2">Filters</div>
+                          <div className="font-extrabold text-[#212429] mb-2">
+                            {t("filtersTitle")}
+                          </div>
                           <label className="flex items-center gap-2 py-2">
                             <input
                               type="radio"
@@ -252,7 +266,7 @@ export default function ClassListClient() {
                               checked={filter === "all"}
                               onChange={() => setFilter("all")}
                             />
-                            <span>All</span>
+                            <span>{t("filterAll")}</span>
                           </label>
                           <label className="flex items-center gap-2 py-2">
                             <input
@@ -261,7 +275,7 @@ export default function ClassListClient() {
                               checked={filter === "upcoming"}
                               onChange={() => setFilter("upcoming")}
                             />
-                            <span>Upcoming</span>
+                            <span>{t("filterUpcoming")}</span>
                           </label>
                           <label className="flex items-center gap-2 py-2">
                             <input
@@ -270,7 +284,7 @@ export default function ClassListClient() {
                               checked={filter === "history"}
                               onChange={() => setFilter("history")}
                             />
-                            <span>History</span>
+                            <span>{t("filterHistory")}</span>
                           </label>
                           <label className="flex items-center gap-2 py-2">
                             <input
@@ -279,14 +293,14 @@ export default function ClassListClient() {
                               checked={filter === "cancelled"}
                               onChange={() => setFilter("cancelled")}
                             />
-                            <span>Cancelled</span>
+                            <span>{t("filterCancelled")}</span>
                           </label>
                           <button
                             type="button"
                             className="mt-3 w-full px-4 py-2 rounded-md border-2 border-[#2D2D2D] bg-[#CB4913] hover:bg-[#cb6c13f1] text-white font-extrabold"
                             onClick={() => setOpen(false)}
                           >
-                            Apply
+                            {t("applyFilters")}
                           </button>
                         </div>
                       </div>
@@ -296,7 +310,7 @@ export default function ClassListClient() {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {loading ? (
-                    <div className="text-white/80 text-sm">Loading…</div>
+                    <div className="text-white/80 text-sm">{t("loading")}</div>
                   ) : filtered.length ? (
                     filtered.map((b) => {
                       const joinHref = safeJoinHref(b.session?.meetingLink);
@@ -326,7 +340,7 @@ export default function ClassListClient() {
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="text-xs text-[#212429]/70 min-w-0">
-                                    {b.session?.startAt ? fmtCompact(b.session.startAt) : "—"}
+                                  {b.session?.startAt ? fmtCompact(b.session.startAt) : "—"}
                                   </div>
                                   {getUnreadCount(b.id) > 0 ? (
                                     <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
@@ -335,7 +349,7 @@ export default function ClassListClient() {
                                   ) : null}
                                 </div>
                                 <div className="mt-1 font-semibold text-sm truncate">
-                                  {b.teacher?.name ? b.teacher.name : "Teacher"}
+                                  {b.teacher?.name ? b.teacher.name : t("teacherFallback")}
                                 </div>
 
                                 <div className="mt-1 flex items-center gap-2 text-xs text-[#212429]/70">
@@ -354,7 +368,7 @@ export default function ClassListClient() {
 
                                 <div className="mt-2 text-sm text-[#212429]/80 truncate">{title}</div>
                                 <div className="mt-1 text-xs text-[#212429]/55">
-                                  {b.priceCredits} credits
+                                  {b.priceCredits} {t("creditsWord")}
                                   {b.status ? (
                                     <>
                                       {" "}
@@ -368,40 +382,59 @@ export default function ClassListClient() {
                             {previewId === b.id ? (
                               <div className="mt-3 rounded-md border border-[#E5E7EB] bg-[#F8FAFC] p-3 text-xs text-[#212429]/80">
                                 <div>
-                                  <span className="font-extrabold text-[#212429]">Time:</span>{" "}
+                                  <span className="font-extrabold text-[#212429]">{t("timeLabel")}</span>{" "}
                                   {b.session ? `${fmt(b.session.startAt)} → ${fmt(b.session.endAt)}` : "—"}
                                 </div>
                                 <div className="mt-1">
-                                  <span className="font-extrabold text-[#212429]">Meeting:</span>{" "}
+                                  <span className="font-extrabold text-[#212429]">{t("meetingLabel")}</span>{" "}
                                   {joinHref ? (
-                                    <a className="text-[#0058C9] underline" href={joinHref} target="_blank" rel="noreferrer noopener">
-                                      Open link
+                                    <a
+                                      className="text-[#0058C9] underline"
+                                      href={joinHref}
+                                      target="_blank"
+                                      rel="noreferrer noopener"
+                                    >
+                                      {t("openLink")}
                                     </a>
                                   ) : (
-                                    "Not available yet"
+                                    t("notAvailableYet")
                                   )}
                                 </div>
                                 {b.calendarEventId ? (
                                   <div className="mt-1">
-                                    <span className="font-extrabold text-[#212429]">Calendar:</span> {b.calendarEventId}
+                                    <span className="font-extrabold text-[#212429]">{t("calendarLabel")}</span>{" "}
+                                    {b.calendarEventId}
                                   </div>
                                 ) : null}
                                 <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
-                                  <button
-                                    type="button"
-                                    onClick={() => setChatModalBookingId(b.id)}
-                                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#212429] text-sm font-medium transition-colors"
-                                  >
-                                    <svg className="w-4 h-4 text-[#0058C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    <span>Message teacher</span>
-                                    {getUnreadCount(b.id) > 0 ? (
-                                      <span className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" aria-label={`${getUnreadCount(b.id)} unread messages`}>
-                                        {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
-                                      </span>
-                                    ) : null}
-                                  </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setChatModalBookingId(b.id)}
+                                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E7EB] bg-white hover:bg-gray-50 text-[#212429] text-sm font-medium transition-colors"
+                                    >
+                                      <svg
+                                        className="w-4 h-4 text-[#0058C9]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                        />
+                                      </svg>
+                                      <span>{t("messageTeacher")}</span>
+                                      {getUnreadCount(b.id) > 0 ? (
+                                        <span
+                                          className="flex-shrink-0 min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center"
+                                          aria-label={`${getUnreadCount(b.id)} ${t("unreadMessagesAriaSuffix")}`}
+                                        >
+                                          {getUnreadCount(b.id) > 99 ? "99+" : getUnreadCount(b.id)}
+                                        </span>
+                                      ) : null}
+                                    </button>
                                 </div>
                                 <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
                                   {reportForBookingId !== b.id ? (
@@ -410,37 +443,37 @@ export default function ClassListClient() {
                                       onClick={() => loadReport(b.id)}
                                       className="text-[#0058C9] font-semibold hover:underline"
                                     >
-                                      View class report
+                                      {t("classReportTitle")}
                                     </button>
                                   ) : reportLoading ? (
-                                    <span className="text-[#212429]/70">Loading report…</span>
+                                    <span className="text-[#212429]/70">{t("loadingReport")}</span>
                                   ) : reportData ? (
                                     <div className="space-y-2 text-[#212429]/90">
-                                      <div className="font-extrabold text-[#212429]">Class Report</div>
+                                      <div className="font-extrabold text-[#212429]">{t("classReportTitle")}</div>
                                       {reportData.summary ? (
                                         <div>
-                                          <span className="font-semibold">Summary:</span>
+                                          <span className="font-semibold">{t("summaryLabel")}</span>
                                           <p className="mt-0.5 whitespace-pre-wrap">{reportData.summary}</p>
                                         </div>
                                       ) : null}
                                       {reportData.strengths ? (
                                         <div>
-                                          <span className="font-semibold">Strengths:</span>
+                                          <span className="font-semibold">{t("strengthsLabel")}</span>
                                           <p className="mt-0.5 whitespace-pre-wrap">{reportData.strengths}</p>
                                         </div>
                                       ) : null}
                                       {reportData.homework ? (
                                         <div>
-                                          <span className="font-semibold">Homework:</span>
+                                          <span className="font-semibold">{t("homeworkLabel")}</span>
                                           <p className="mt-0.5 whitespace-pre-wrap">{reportData.homework}</p>
                                         </div>
                                       ) : null}
                                       {!reportData.summary && !reportData.strengths && !reportData.homework ? (
-                                        <p className="text-[#212429]/70">No details in this report yet.</p>
+                                        <p className="text-[#212429]/70">{t("noDetailsInReport")}</p>
                                       ) : null}
                                     </div>
                                   ) : (
-                                    <p className="text-[#212429]/70">No report yet for this class.</p>
+                                    <p className="text-[#212429]/70">{t("noReportYet")}</p>
                                   )}
                                 </div>
                                 {b.status === "completed" && !b.studentRated && (
@@ -455,8 +488,10 @@ export default function ClassListClient() {
                                       }}
                                       className="inline-flex items-center gap-1.5 text-[#0058C9] font-semibold hover:underline"
                                     >
-                                      <span className="text-amber-500" aria-hidden>★</span>
-                                      Give feedback to your teacher
+                                      <span className="text-amber-500" aria-hidden>
+                                        ★
+                                      </span>
+                                      {t("giveFeedbackCta")}
                                     </button>
                                   </div>
                                 )}
@@ -493,11 +528,11 @@ export default function ClassListClient() {
                                 }}
                                 className="py-3 text-white font-extrabold text-xs uppercase bg-[#F59E0B] hover:bg-[#D97706] border-t border-l border-[#E5E7EB]"
                               >
-                                ★ Give feedback
+                                ★ {t("giveFeedbackCta")}
                               </button>
                             ) : b.status === "completed" && b.studentRated ? (
                               <div className="py-3 text-center text-[#212429]/60 text-xs uppercase font-extrabold border-t border-l border-[#E5E7EB] bg-gray-50 flex items-center justify-center">
-                                Rated
+                                {t("ratedLabel")}
                               </div>
                             ) : (
                               <button
@@ -505,9 +540,11 @@ export default function ClassListClient() {
                                 disabled={!canCancel || busyCancel === b.id}
                                 onClick={() => cancelBooking(b.id)}
                                 className="relative py-3 text-white font-extrabold text-xs uppercase bg-[#DC3545] hover:bg-[#c62f3e] disabled:opacity-60 border-t border-l border-[#E5E7EB]"
-                                title={canCancel ? "Cancel this class" : "Only upcoming booked classes can be cancelled."}
+                                title={
+                                  canCancel ? t("cancelClassTitle") : t("cancelClassDisabledTitle")
+                                }
                               >
-                                {busyCancel === b.id ? "Cancel…" : "Cancel"}
+                                {busyCancel === b.id ? t("cancelling") : t("cancelClass")}
                                 {showBadge ? (
                                   <span className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white text-[#DC3545] border border-white grid place-items-center text-[11px] font-extrabold">
                                     {hoursLeft}
@@ -542,14 +579,19 @@ export default function ClassListClient() {
               className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-[#E5E7EB]"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-[#212429] mb-1">Give feedback to your teacher</h3>
+              <h3 className="text-lg font-semibold text-[#212429] mb-1">
+                {t("ratingModalTitle")}
+              </h3>
               {ratingError && (
                 <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
                   {ratingError}
                 </div>
               )}
               <p className="text-sm text-[#212429]/70 mb-4">
-                How was your experience with {b.teacher?.name || "your teacher"}? Your feedback helps improve future lessons.
+                {t("ratingModalIntro").replace(
+                  "{teacher}",
+                  b.teacher?.name || t("teacherFallback")
+                )}
               </p>
               <div className="flex gap-2 mb-4">
                 {[1, 2, 3, 4, 5].map((n) => (
@@ -562,7 +604,9 @@ export default function ClassListClient() {
                       borderColor: ratingStars >= n ? "#F59E0B" : "#E5E7EB",
                       background: ratingStars >= n ? "#FEF3C7" : "white",
                     }}
-                    aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                    aria-label={`${n} ${
+                      n > 1 ? t("ratingStarAriaPluralSuffix") : t("ratingStarAriaSuffix")
+                    }`}
                   >
                     <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -570,11 +614,13 @@ export default function ClassListClient() {
                   </button>
                 ))}
               </div>
-              <label className="block text-sm font-medium text-[#212429] mb-1">Your feedback (optional)</label>
+              <label className="block text-sm font-medium text-[#212429] mb-1">
+                {t("ratingFeedbackLabel")}
+              </label>
               <textarea
                 value={ratingComment}
                 onChange={(e) => setRatingComment(e.target.value)}
-                placeholder="Share what went well or what could be better. Your teacher will see this."
+                placeholder={t("ratingFeedbackPlaceholder")}
                 rows={3}
                 className="w-full px-3 py-2 rounded-lg border border-[#E5E7EB] text-sm resize-none mb-4 text-[#212429]"
               />
@@ -589,7 +635,7 @@ export default function ClassListClient() {
                   }}
                   className="flex-1 py-2.5 rounded-lg border-2 border-[#E5E7EB] text-[#212429] text-sm font-medium hover:bg-gray-50"
                 >
-                  Cancel
+                  {t("ratingCancel")}
                 </button>
                 <button
                   type="button"
@@ -597,7 +643,7 @@ export default function ClassListClient() {
                   onClick={submitStudentRating}
                   className="flex-1 py-2.5 rounded-lg bg-[#CB4913] hover:bg-[#B03D0F] text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {ratingSaving ? "Submitting…" : "Submit rating"}
+                  {ratingSaving ? t("ratingSubmitting") : t("ratingSubmit")}
                 </button>
               </div>
             </div>
@@ -610,9 +656,9 @@ export default function ClassListClient() {
         open={!!chatModalBookingId}
         onClose={() => setChatModalBookingId(null)}
         bookingId={chatModalBookingId}
-        otherPartyLabel={chatBooking?.teacher?.name ?? "Teacher"}
+        otherPartyLabel={chatBooking?.teacher?.name ?? t("lessonChatOtherParty")}
         variant="student"
-        title="Message teacher"
+        title={t("lessonChatTitle")}
       />
     ) : null}
     </>

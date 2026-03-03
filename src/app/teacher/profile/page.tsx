@@ -4,6 +4,8 @@
 import React from "react";
 import Link from "next/link";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "./translate";
 
 type TeacherProfile = {
   _id: string;
@@ -48,9 +50,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export default function TeacherProfilePage() {
+  const { language } = useLanguage();
   const [profile, setProfile] = React.useState<TeacherProfile | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+
+  const t = (key: string) => translate(key, language);
 
   React.useEffect(() => {
     async function loadProfile() {
@@ -74,7 +79,7 @@ export default function TeacherProfilePage() {
     return (
       <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
-          <div className="text-gray-600 text-center">Loading profile...</div>
+          <div className="text-gray-600 text-center">{t("loadingProfile")}</div>
         </section>
       </main>
     );
@@ -85,9 +90,9 @@ export default function TeacherProfilePage() {
       <main className="min-h-[calc(100vh-107px)] bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
           <div className="text-red-600 text-center">
-            <p>Error loading profile: {error}</p>
+            <p>{t("errorLoadingProfile")}: {error}</p>
             <Link href="/teacher/" className="text-blue-600 underline mt-4 inline-block">
-              Back to dashboard
+              {t("backToDashboard")}
             </Link>
           </div>
         </section>
@@ -101,8 +106,8 @@ export default function TeacherProfilePage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Teacher Profile</h1>
-            <p className="mt-2 text-gray-600 text-sm">View your professional information</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("teacherProfileTitle")}</h1>
+            <p className="mt-2 text-gray-600 text-sm">{t("teacherProfileSubtitle")}</p>
           </div>
 
           <Link
@@ -112,7 +117,7 @@ export default function TeacherProfilePage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Edit Profile
+            {t("editProfile")}
           </Link>
         </div>
 
@@ -138,12 +143,12 @@ export default function TeacherProfilePage() {
                     ★ {Number(profile?.stats?.ratingAvg ?? 0).toFixed(1)}
                   </span>
                   <span className="text-gray-500 text-sm">
-                    ({profile?.stats?.ratingCount ?? 0} review{(profile?.stats?.ratingCount ?? 0) !== 1 ? "s" : ""})
+                    ({profile?.stats?.ratingCount ?? 0} {(profile?.stats?.ratingCount ?? 0) !== 1 ? t("reviews") : t("review")})
                   </span>
                 </div>
                 <div className="rounded-lg bg-gray-100 px-4 py-2 text-center">
                   <div className="text-gray-900 font-bold text-lg">{profile?.stats?.lessonsCompleted ?? 0}</div>
-                  <div className="text-gray-500 text-xs font-medium">Lessons completed</div>
+                  <div className="text-gray-500 text-xs font-medium">{t("lessonsCompletedLabel")}</div>
                 </div>
               </div>
 
@@ -157,7 +162,7 @@ export default function TeacherProfilePage() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  View Resume
+                  {t("viewResume")}
                 </a>
               )}
             </div>
@@ -168,7 +173,7 @@ export default function TeacherProfilePage() {
             <div className="p-6 space-y-8">
               {/* Bio Section */}
               <div>
-                <SectionTitle>About</SectionTitle>
+                <SectionTitle>{t("aboutSectionTitle")}</SectionTitle>
                 <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {safeText(profile?.bio)}
                 </div>
@@ -180,13 +185,13 @@ export default function TeacherProfilePage() {
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <SectionTitle>Contact Information</SectionTitle>
+                  <SectionTitle>{t("contactInformationTitle")}</SectionTitle>
                 </div>
                 <div className="mt-3 grid gap-4 md:grid-cols-2">
-                  <InfoField label="Phone" value={safeText(profile?.phone)} />
-                  <InfoField label="Timezone" value={safeText(profile?.timezone)} />
-                  <InfoField label="Address" value={safeText(profile?.address)} />
-                  <InfoField label="Country" value={safeText(profile?.country)} />
+                  <InfoField label={t("phone")} value={safeText(profile?.phone)} />
+                  <InfoField label={t("timezone")} value={safeText(profile?.timezone)} />
+                  <InfoField label={t("address")} value={safeText(profile?.address)} />
+                  <InfoField label={t("country")} value={safeText(profile?.country)} />
                 </div>
               </div>
 
@@ -200,7 +205,7 @@ export default function TeacherProfilePage() {
                     <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <SectionTitle>Social Media</SectionTitle>
+                    <SectionTitle>{t("socialMediaTitle")}</SectionTitle>
                   </div>
                   <div className="mt-3 grid gap-4 md:grid-cols-2">
                     {profile?.social?.linkedin && (
@@ -213,7 +218,7 @@ export default function TeacherProfilePage() {
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
-                            View Profile
+                            {t("viewProfile")}
                           </a>
                         }
                       />
@@ -228,7 +233,7 @@ export default function TeacherProfilePage() {
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
-                            View Profile
+                            {t("viewProfile")}
                           </a>
                         }
                       />
@@ -243,7 +248,7 @@ export default function TeacherProfilePage() {
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
-                            View Profile
+                            {t("viewProfile")}
                           </a>
                         }
                       />
@@ -258,7 +263,7 @@ export default function TeacherProfilePage() {
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
-                            Contact
+                            {t("contact")}
                           </a>
                         }
                       />
@@ -276,7 +281,7 @@ export default function TeacherProfilePage() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Back to Dashboard
+                  {t("backToDashboard")}
                 </Link>
               </div>
             </div>

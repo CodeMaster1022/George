@@ -1,10 +1,12 @@
-"use client";
+ "use client";
 
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import toast from "react-hot-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "./translate";
 
 type Session = {
   _id: string;
@@ -17,6 +19,8 @@ type Session = {
 
 export default function TeacherSessionsPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [sessions, setSessions] = React.useState<Session[]>([]);
@@ -67,7 +71,7 @@ export default function TeacherSessionsPage() {
     const r = await apiJson<{ sessions: Session[] }>(`/teacher/sessions?${qs.toString()}`, { auth: true });
     setLoading(false);
     if (!r.ok) {
-      setError(r.error ?? "Failed to load sessions");
+      setError(r.error ?? t("failedToLoadSessions"));
       return;
     }
     setSessions(((r.data as any)?.sessions ?? []) as Session[]);
@@ -97,7 +101,7 @@ export default function TeacherSessionsPage() {
       toast.error(r.error);
       return;
     }
-    toast.success("Slot created");
+    toast.success(t("slotCreated"));
     await load();
   }
 
@@ -121,10 +125,10 @@ export default function TeacherSessionsPage() {
     }
     const created = (r.data as any)?.created ?? 0;
     if (created > 0) {
-      toast.success(`Generated ${created} slot(s)`);
+      toast.success(`${t("generated")} ${created} ${t("slotsWord")}`);
       await load();
     } else {
-      toast("No slots generated. Set weekly availability first.", { icon: "ℹ️" });
+      toast(t("noSlotsGenerated"), { icon: "ℹ️" });
     }
   }
 
@@ -142,7 +146,7 @@ export default function TeacherSessionsPage() {
       toast.error(r.error);
       return;
     }
-    toast.success("Session updated");
+    toast.success(t("sessionUpdated"));
     await load();
   }
 
@@ -170,12 +174,12 @@ export default function TeacherSessionsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Dashboard
+            {t("backToDashboard")}
           </Link>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-gray-900 text-2xl font-bold">Sessions</h1>
-              <p className="mt-1 text-gray-600 text-sm">Create bookable time slots and manage meeting links</p>
+              <h1 className="text-gray-900 text-2xl font-bold">{t("sessionsTitle")}</h1>
+              <p className="mt-1 text-gray-600 text-sm">{t("sessionsSubtitle")}</p>
             </div>
             <button
               type="button"
@@ -186,7 +190,7 @@ export default function TeacherSessionsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Refresh
+              {t("refresh")}
             </button>
           </div>
         </div>
@@ -204,15 +208,15 @@ export default function TeacherSessionsPage() {
         {!loading && sessions.length > 0 && (
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-              <p className="text-gray-500 text-sm font-medium">Open</p>
+              <p className="text-gray-500 text-sm font-medium">{t("open")}</p>
               <p className="text-green-600 text-2xl font-bold mt-0.5">{stats.open}</p>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-              <p className="text-gray-500 text-sm font-medium">Booked</p>
+              <p className="text-gray-500 text-sm font-medium">{t("booked")}</p>
               <p className="text-blue-600 text-2xl font-bold mt-0.5">{stats.booked}</p>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-              <p className="text-gray-500 text-sm font-medium">Cancelled</p>
+              <p className="text-gray-500 text-sm font-medium">{t("cancelled")}</p>
               <p className="text-red-600 text-2xl font-bold mt-0.5">{stats.cancelled}</p>
             </div>
           </div>
@@ -233,8 +237,8 @@ export default function TeacherSessionsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-gray-900 font-semibold">Create single slot</h2>
-                  <p className="text-gray-500 text-sm">Add one bookable slot with custom time and price</p>
+                  <h2 className="text-gray-900 font-semibold">{t("createSingleSlotTitle")}</h2>
+                  <p className="text-gray-500 text-sm">{t("createSingleSlotDesc")}</p>
                 </div>
               </div>
               <svg
@@ -249,7 +253,7 @@ export default function TeacherSessionsPage() {
             {manualOpen && (
               <div className="px-5 pb-5 pt-0 border-t border-gray-100">
                 <div className="pt-5 grid gap-4 md:grid-cols-2">
-                  <Field label="Start" icon="calendar">
+                  <Field label={t("start")} icon="calendar">
                     <input
                       type="datetime-local"
                       value={manual.startAt}
@@ -257,7 +261,7 @@ export default function TeacherSessionsPage() {
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
-                  <Field label="End" icon="calendar">
+                  <Field label={t("end")} icon="calendar">
                     <input
                       type="datetime-local"
                       value={manual.endAt}
@@ -265,7 +269,7 @@ export default function TeacherSessionsPage() {
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
-                  <Field label="Price (credits)" icon="money">
+                  <Field label={t("priceCredits")} icon="money">
                     <input
                       type="number"
                       min={1}
@@ -274,12 +278,12 @@ export default function TeacherSessionsPage() {
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
-                  <Field label="Meeting link" icon="link">
+                  <Field label={t("meetingLink")} icon="link">
                     <input
                       type="url"
                       value={manual.meetingLink}
                       onChange={(e) => setManual((s) => ({ ...s, meetingLink: e.target.value }))}
-                      placeholder="https://..."
+                      placeholder={t("meetingLinkPlaceholder")}
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
@@ -292,7 +296,7 @@ export default function TeacherSessionsPage() {
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#CB4913] hover:bg-[#B03D0F] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {busy ? <Spinner /> : <PlusIcon />}
-                    {busy ? "Creating..." : "Create slot"}
+                    {busy ? t("creating") : t("createSlot")}
                   </button>
                 </div>
               </div>
@@ -312,8 +316,8 @@ export default function TeacherSessionsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-gray-900 font-semibold">Generate from availability</h2>
-                  <p className="text-gray-500 text-sm">Create many slots from your weekly availability</p>
+                  <h2 className="text-gray-900 font-semibold">{t("generateFromAvailabilityTitle")}</h2>
+                  <p className="text-gray-500 text-sm">{t("generateFromAvailabilityDesc")}</p>
                 </div>
               </div>
               <svg
@@ -328,7 +332,7 @@ export default function TeacherSessionsPage() {
             {generateOpen && (
               <div className="px-5 pb-5 pt-0 border-t border-gray-100">
                 <div className="pt-5 grid gap-4 md:grid-cols-3">
-                  <Field label="From date" icon="calendar">
+                  <Field label={t("fromDate")} icon="calendar">
                     <input
                       type="date"
                       value={gen.from}
@@ -336,7 +340,7 @@ export default function TeacherSessionsPage() {
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
-                  <Field label="To date" icon="calendar">
+                  <Field label={t("toDate")} icon="calendar">
                     <input
                       type="date"
                       value={gen.to}
@@ -344,7 +348,7 @@ export default function TeacherSessionsPage() {
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
                     />
                   </Field>
-                  <Field label="Price (credits)" icon="money">
+                  <Field label={t("priceCredits")} icon="money">
                     <input
                       type="number"
                       min={1}
@@ -357,13 +361,13 @@ export default function TeacherSessionsPage() {
                 <div className="mt-4 flex flex-col gap-3">
                   <button type="button" onClick={generate} disabled={busy} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#0058C9] hover:bg-[#0046A3] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
                     {busy ? <Spinner /> : <LayersIcon />}
-                    {busy ? "Generating..." : "Generate slots"}
+                    {busy ? t("generating") : t("generateSlots")}
                   </button>
                   <p className="text-gray-500 text-xs flex items-center gap-2">
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Uses your weekly availability (UTC). Set it under Availability if needed.
+                    {t("availabilityHint")}
                   </p>
                 </div>
               </div>
@@ -374,7 +378,7 @@ export default function TeacherSessionsPage() {
         {/* Sessions list */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="p-5 border-b border-gray-200">
-            <h2 className="text-gray-900 font-semibold mb-4">Your sessions</h2>
+            <h2 className="text-gray-900 font-semibold mb-4">{t("yourSessions")}</h2>
             <div className="flex flex-wrap items-center gap-2">
               <input
                 type="date"
@@ -393,10 +397,10 @@ export default function TeacherSessionsPage() {
                 onChange={(e) => setFilters((s) => ({ ...s, status: e.target.value }))}
                 className="w-auto min-w-[120px] px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
               >
-                <option value="">All status</option>
-                <option value="open">Open</option>
-                <option value="booked">Booked</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="">{t("allStatus")}</option>
+                <option value="open">{t("open")}</option>
+                <option value="booked">{t("booked")}</option>
+                <option value="cancelled">{t("cancelled")}</option>
               </select>
             </div>
           </div>
@@ -412,7 +416,7 @@ export default function TeacherSessionsPage() {
                     session={s}
                     busy={busy}
                     onPatch={patchSession}
-                    onCopyLink={(link) => copyMeetingLink(link)}
+                    onCopyLink={(link) => copyMeetingLink(link, language)}
                   />
                 ))}
               </ul>
@@ -426,15 +430,16 @@ export default function TeacherSessionsPage() {
   );
 }
 
-function copyMeetingLink(link?: string) {
+function copyMeetingLink(link: string | undefined, language: SupportedLanguage) {
+  const t = (key: string) => translate(key, language);
   const url = (link || "").trim();
   if (!url) {
-    toast.error("No meeting link to copy");
+    toast.error(t("noMeetingLinkToCopy"));
     return;
   }
   navigator.clipboard.writeText(url).then(
-    () => toast.success("Link copied"),
-    () => toast.error("Could not copy")
+    () => toast.success(t("linkCopied")),
+    () => toast.error(t("couldNotCopy"))
   );
 }
 
@@ -449,6 +454,8 @@ function SessionRow({
   onPatch: (id: string, patch: any) => void;
   onCopyLink: (link: string) => void;
 }) {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [meetingLink, setMeetingLink] = React.useState(s.meetingLink ?? "");
   const [price, setPrice] = React.useState(s.priceCredits);
 
@@ -489,17 +496,19 @@ function SessionRow({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-gray-900 font-medium">{fmtRange(s.startAt, s.endAt)}</span>
               <StatusBadge status={s.status} />
-              <span className="text-gray-500 text-sm">{relativeTime(s.startAt)}</span>
+              <span className="text-gray-500 text-sm">{relativeTime(s.startAt, language, t)}</span>
             </div>
             <div className="mt-1 flex items-center gap-3 text-gray-600 text-sm">
-              <span>{s.priceCredits} credits</span>
+              <span>
+                {s.priceCredits} {t("creditsSuffix")}
+              </span>
               {(s.meetingLink ?? "").trim() && (
                 <button
                   type="button"
                   onClick={() => onCopyLink(meetingLink)}
                   className="text-blue-600 hover:underline"
                 >
-                  Copy link
+                  {t("copyLink")}
                 </button>
               )}
             </div>
@@ -516,16 +525,16 @@ function SessionRow({
                   ? "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-60"
                   : "px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-60"
               }
-              title={s.status === "cancelled" ? "Re-open this slot" : "Cancel this slot (only open slots can be cancelled)"}
+              title={s.status === "cancelled" ? t("toggleToOpenTitle") : t("toggleToCancelledTitle")}
             >
-              {s.status === "cancelled" ? "Re-open" : "Cancel slot"}
+              {s.status === "cancelled" ? t("reopenSlot") : t("cancelSlot")}
             </button>
           )}
         </div>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-3 pt-4 border-t border-gray-200">
         <div className="md:col-span-2">
-          <label className="block text-gray-600 text-xs font-medium mb-1">Meeting link</label>
+          <label className="block text-gray-600 text-xs font-medium mb-1">{t("meetingLink")}</label>
           <div className="flex gap-2">
             <input
               value={meetingLink}
@@ -539,12 +548,12 @@ function SessionRow({
               onClick={() => onCopyLink(meetingLink)}
               className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm hover:bg-gray-50 shrink-0"
             >
-              Copy
+              {t("copy")}
             </button>
           </div>
         </div>
         <div>
-          <label className="block text-gray-600 text-xs font-medium mb-1">Price (credits)</label>
+          <label className="block text-gray-600 text-xs font-medium mb-1">{t("priceCredits")}</label>
           <input
             type="number"
             min={1}
@@ -583,6 +592,8 @@ function EmptyState({
   onOpenManual: () => void;
   onOpenGenerate: () => void;
 }) {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   return (
     <div className="text-center py-12">
       <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -590,14 +601,14 @@ function EmptyState({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
-      <p className="text-gray-600 font-medium">No sessions in this range</p>
-      <p className="text-gray-500 text-sm mt-1">Create a single slot or generate from your weekly availability.</p>
+      <p className="text-gray-600 font-medium">{t("noSessionsTitle")}</p>
+      <p className="text-gray-500 text-sm mt-1">{t("noSessionsDesc")}</p>
       <div className="flex flex-wrap justify-center gap-3 mt-6">
         <button type="button" onClick={onOpenManual} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#CB4913] hover:bg-[#B03D0F] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-          <PlusIcon /> Create single slot
+          <PlusIcon /> {t("emptyCreateSingleSlot")}
         </button>
         <button type="button" onClick={onOpenGenerate} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#0058C9] hover:bg-[#0046A3] text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-          <LayersIcon /> Generate from availability
+          <LayersIcon /> {t("emptyGenerateFromAvailability")}
         </button>
       </div>
     </div>
@@ -605,6 +616,8 @@ function EmptyState({
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const styles: Record<string, string> = {
     open: "bg-green-100 text-green-700",
     booked: "bg-blue-100 text-blue-700",
@@ -612,7 +625,7 @@ function StatusBadge({ status }: { status: string }) {
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-700"}`}>
-      {status}
+      {status === "open" ? t("open") : status === "booked" ? t("booked") : t("cancelled")}
     </span>
   );
 }
@@ -689,18 +702,23 @@ function fmtRange(start: string, end: string) {
   }
 }
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, language: SupportedLanguage, t: (key: string) => string): string {
   try {
     const d = new Date(iso);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const slotDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     const diffDays = Math.round((slotDay.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    if (diffDays === -1) return "Yesterday";
-    if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`;
-    if (diffDays < -1 && diffDays >= -7) return `${-diffDays} days ago`;
+    if (diffDays === 0) return t("today");
+    if (diffDays === 1) return t("tomorrow");
+    if (diffDays === -1) return t("yesterday");
+    if (diffDays > 1 && diffDays <= 7) {
+      return language === "es" ? `En ${diffDays} días` : `In ${diffDays} days`;
+    }
+    if (diffDays < -1 && diffDays >= -7) {
+      const n = -diffDays;
+      return language === "es" ? `Hace ${n} días` : `${n} days ago`;
+    }
     return d.toLocaleDateString();
   } catch {
     return "";

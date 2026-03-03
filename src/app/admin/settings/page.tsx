@@ -2,14 +2,18 @@
 
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 export default function AdminSettingsPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   return (
     <AdminLayout>
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-gray-900 text-3xl font-bold">Settings</h1>
-          <p className="mt-2 text-gray-600">Admin panel and platform configuration</p>
+          <h1 className="text-gray-900 text-3xl font-bold">{t("settingsTitle")}</h1>
+          <p className="mt-2 text-gray-600">{t("settingsDesc")}</p>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
@@ -19,9 +23,9 @@ export default function AdminSettingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <h2 className="text-gray-900 text-xl font-semibold mb-2">Settings module coming soon</h2>
+          <h2 className="text-gray-900 text-xl font-semibold mb-2">{t("settingsComingSoon")}</h2>
           <p className="text-gray-600 text-sm max-w-md mx-auto">
-            Here you will be able to configure site-wide options, feature flags, and admin preferences once the backend settings API is in place.
+            {t("settingsComingSoonDesc")}
           </p>
         </div>
       </div>

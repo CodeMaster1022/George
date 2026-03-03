@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type Teacher = {
   _id: string;
@@ -30,6 +32,8 @@ type Pagination = {
 };
 
 export default function AdminTeachersPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [teachers, setTeachers] = React.useState<Teacher[]>([]);
@@ -107,8 +111,8 @@ export default function AdminTeachersPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Teacher Management</h1>
-            <p className="mt-2 text-gray-600">Manage all teachers and their profiles</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("teacherManagement")}</h1>
+            <p className="mt-2 text-gray-600">{t("manageTeachersDesc")}</p>
           </div>
 
           <button
@@ -120,7 +124,7 @@ export default function AdminTeachersPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -137,26 +141,26 @@ export default function AdminTeachersPage() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Search</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("search")}</label>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by email..."
+                placeholder={t("searchByEmail")}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Status</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="banned">Banned</option>
+                <option value="">{t("allStatus")}</option>
+                <option value="active">{t("active")}</option>
+                <option value="inactive">{t("inactive")}</option>
+                <option value="banned">{t("banned")}</option>
               </select>
             </div>
           </div>
@@ -165,14 +169,14 @@ export default function AdminTeachersPage() {
         {/* Teachers Grid */}
         {loading ? (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="text-gray-500">Loading teachers...</div>
+            <div className="text-gray-500">{t("loadingTeachers")}</div>
           </div>
         ) : teachers.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
             <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <p className="text-gray-500">No teachers found</p>
+            <p className="text-gray-500">{t("noTeachersFound")}</p>
           </div>
         ) : (
           <>
@@ -195,14 +199,14 @@ export default function AdminTeachersPage() {
                       </div>
                     )}
                     <div className="absolute top-3 right-3">
-                      <StatusBadge status={teacher.status} />
+                      <StatusBadge status={teacher.status} t={t} />
                     </div>
                   </div>
 
                   {/* Teacher Info */}
                   <div className="p-6">
                     <h3 className="text-gray-900 text-lg font-semibold truncate">
-                      {teacher.profile?.name || "No name set"}
+                      {teacher.profile?.name || t("noNameSet")}
                     </h3>
                     <p className="mt-1 text-gray-600 text-sm truncate">{teacher.email}</p>
                     
@@ -237,7 +241,7 @@ export default function AdminTeachersPage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      Joined {new Date(teacher.createdAt).toLocaleDateString()}
+                      {t("joinedDate")} {new Date(teacher.createdAt).toLocaleDateString()}
                     </div>
 
                     {teacher.verifiedEmail && (
@@ -245,7 +249,7 @@ export default function AdminTeachersPage() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Email verified
+                        {t("emailVerifiedLabel")}
                       </div>
                     )}
 
@@ -259,14 +263,14 @@ export default function AdminTeachersPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        View Profile
+                        {t("viewProfile")}
                       </Link>
                       <div className="relative dropdown-container">
                         <button
                           type="button"
                           onClick={() => setOpenDropdown(openDropdown === teacher._id ? null : teacher._id)}
                           className="px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
-                          title="More actions"
+                          title={t("moreActions")}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -285,7 +289,7 @@ export default function AdminTeachersPage() {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                Edit Details
+                                {t("editDetails")}
                               </Link>
                               {teacher.status === "active" ? (
                                 <button
@@ -296,7 +300,7 @@ export default function AdminTeachersPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
-                                  Suspend Teacher
+                                  {t("suspendTeacher")}
                                 </button>
                               ) : (
                                 <button
@@ -307,7 +311,7 @@ export default function AdminTeachersPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
-                                  Activate Teacher
+                                  {t("activateTeacher")}
                                 </button>
                               )}
                               {teacher.status !== "banned" && (
@@ -319,7 +323,7 @@ export default function AdminTeachersPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                   </svg>
-                                  Ban Teacher
+                                  {t("banTeacher")}
                                 </button>
                               )}
                             </div>
@@ -337,11 +341,11 @@ export default function AdminTeachersPage() {
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> to{" "}
+                    {t("showing")} <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> {t("to")}{" "}
                     <span className="font-medium">
                       {Math.min(currentPage * pagination.limit, pagination.totalCount)}
                     </span>{" "}
-                    of <span className="font-medium">{pagination.totalCount}</span> teachers
+                    {t("of")} <span className="font-medium">{pagination.totalCount}</span> {t("teachers")}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -353,7 +357,7 @@ export default function AdminTeachersPage() {
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
-                      Previous
+                      {t("previous")}
                     </button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -390,7 +394,7 @@ export default function AdminTeachersPage() {
                       disabled={!pagination.hasNextPage || loading}
                       className="inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Next
+                      {t("next")}
                       <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
@@ -405,25 +409,25 @@ export default function AdminTeachersPage() {
         {/* Stats */}
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Total Teachers</div>
+            <div className="text-gray-600 text-sm">{t("totalTeachers")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">{pagination.totalCount}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Active</div>
+            <div className="text-gray-600 text-sm">{t("active")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
-              {teachers.filter((t) => t.status === "active").length}
+              {teachers.filter((teach) => teach.status === "active").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Verified Email</div>
+            <div className="text-gray-600 text-sm">{t("verifiedEmail")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
-              {teachers.filter((t) => t.verifiedEmail).length}
+              {teachers.filter((teach) => teach.verifiedEmail).length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">With Profile</div>
+            <div className="text-gray-600 text-sm">{t("withProfile")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
-              {teachers.filter((t) => t.profile !== null).length}
+              {teachers.filter((teach) => teach.profile !== null).length}
             </div>
           </div>
         </div>
@@ -432,16 +436,16 @@ export default function AdminTeachersPage() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   const colors: Record<string, string> = {
     active: "bg-green-100 text-green-700",
     inactive: "bg-gray-100 text-gray-700",
     banned: "bg-red-100 text-red-700",
   };
-
+  const label = status === "active" ? t("active") : status === "inactive" ? t("inactive") : status === "banned" ? t("banned") : status;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-700"}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {label}
     </span>
   );
 }

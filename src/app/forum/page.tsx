@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthToken } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "./translate";
 
 type ArticleRow = {
   id: string;
@@ -39,7 +41,7 @@ function getAvatarColor(id: string): string {
   return colors[hash % colors.length];
 }
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, t: (key: string) => string): string {
   const now = new Date();
   const date = new Date(dateStr);
   const diffMs = now.getTime() - date.getTime();
@@ -47,13 +49,15 @@ function formatTimeAgo(dateStr: string): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${diffDays}d ago`;
+  if (diffMins < 60) return `${diffMins}${t("timeAgoM")}`;
+  if (diffHours < 24) return `${diffHours}${t("timeAgoH")}`;
+  return `${diffDays}${t("timeAgoD")}`;
 }
 
 export default function ForumPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [q, setQ] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -86,12 +90,12 @@ export default function ForumPage() {
       <section className="relative z-10 max-w-[1200px] mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Latest Posts</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("latestPosts")}</h1>
           <Link
             href="/forum/new"
             className="px-6 py-2 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
           >
-            New Post
+            {t("newPost")}
           </Link>
         </div>
 
@@ -100,7 +104,7 @@ export default function ForumPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search articles by title..."
+            placeholder={t("searchPlaceholder")}
             className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent"
           />
           <button
@@ -108,13 +112,13 @@ export default function ForumPage() {
             onClick={load}
             className="px-6 py-2.5 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
           >
-            Search
+            {t("search")}
           </button>
           <Link
             href="/forum/me"
             className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
           >
-            My Posts
+            {t("myPosts")}
           </Link>
         </div>
 
@@ -125,7 +129,7 @@ export default function ForumPage() {
         ) : null}
 
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading...</div>
+          <div className="text-center py-12 text-gray-500">{t("loading")}</div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
             {articles.length ? (
@@ -149,17 +153,17 @@ export default function ForumPage() {
                             {a.title}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-2">
-                            <span>Author: {a.author?.email?.split("@")[0] || "Unknown"}</span>
+                            <span>{t("author")}: {a.author?.email?.split("@")[0] || t("unknown")}</span>
                             <span>•</span>
                             <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-medium">
-                              Discussion
+                              {t("discussion")}
                             </span>
                             <span>•</span>
-                            <span>{a.commentCount} replies</span>
+                            <span>{a.commentCount} {t("replies")}</span>
                             <span>•</span>
-                            <span>{a.viewCount} views</span>
+                            <span>{a.viewCount} {t("views")}</span>
                             <span>•</span>
-                            <span>Last reply: {formatTimeAgo(a.createdAt)}</span>
+                            <span>{t("lastReply")}: {formatTimeAgo(a.createdAt, t)}</span>
                           </div>
                         </div>
                         
@@ -175,7 +179,7 @@ export default function ForumPage() {
                 </Link>
               ))
             ) : (
-              <div className="text-center py-12 text-gray-500">No articles found.</div>
+              <div className="text-center py-12 text-gray-500">{t("noArticlesFound")}</div>
             )}
           </div>
         )}

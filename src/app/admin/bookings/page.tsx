@@ -3,6 +3,8 @@
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type Booking = {
   _id: string;
@@ -30,6 +32,8 @@ type Pagination = {
 };
 
 export default function AdminBookingsPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [bookings, setBookings] = React.useState<Booking[]>([]);
@@ -77,8 +81,8 @@ export default function AdminBookingsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Bookings Management</h1>
-            <p className="mt-2 text-gray-600">View and manage all class bookings</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("bookingsManagement")}</h1>
+            <p className="mt-2 text-gray-600">{t("viewManageBookings")}</p>
           </div>
 
           <button
@@ -90,7 +94,7 @@ export default function AdminBookingsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -107,17 +111,17 @@ export default function AdminBookingsPage() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Status</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">All Status</option>
-                <option value="booked">Booked</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="no_show">No Show</option>
+                <option value="">{t("allStatus")}</option>
+                <option value="booked">{t("booked")}</option>
+                <option value="completed">{t("completed")}</option>
+                <option value="cancelled">{t("cancelled")}</option>
+                <option value="no_show">{t("noShow")}</option>
               </select>
             </div>
           </div>
@@ -130,25 +134,25 @@ export default function AdminBookingsPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Booking ID
+                    {t("bookingId")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Student
+                    {t("student")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Teacher
+                    {t("teacher")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date & Time
+                    {t("dateTime")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t("status")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Credits
+                    {t("credits")}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t("actions")}
                   </th>
                 </tr>
               </thead>
@@ -156,13 +160,13 @@ export default function AdminBookingsPage() {
                 {loading ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-gray-500 text-sm">
-                      Loading bookings...
+                      {t("loadingBookings")}
                     </td>
                   </tr>
                 ) : bookings.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-gray-500 text-sm">
-                      No bookings found
+                      {t("noBookingsFound")}
                     </td>
                   </tr>
                 ) : (
@@ -187,7 +191,7 @@ export default function AdminBookingsPage() {
                           </div>
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">
-                              {booking.studentUserId?.email || "Unknown"}
+                              {booking.studentUserId?.email || t("unknown")}
                             </div>
                           </div>
                         </div>
@@ -203,7 +207,7 @@ export default function AdminBookingsPage() {
                           </div>
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">
-                              {booking.teacherUserId?.email || "Unknown"}
+                              {booking.teacherUserId?.email || t("unknown")}
                             </div>
                           </div>
                         </div>
@@ -224,7 +228,7 @@ export default function AdminBookingsPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={booking.status} />
+                        <StatusBadge status={booking.status} t={t} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {booking.priceCredits ?? booking.creditsUsed ?? 0}
@@ -234,14 +238,14 @@ export default function AdminBookingsPage() {
                           type="button"
                           className="text-blue-600 hover:text-blue-900 mr-3"
                         >
-                          View
+                          {t("view")}
                         </button>
                         {booking.status === "booked" && (
                           <button
                             type="button"
                             className="text-red-600 hover:text-red-900"
                           >
-                            Cancel
+                            {t("cancelAction")}
                           </button>
                         )}
                       </td>
@@ -257,11 +261,11 @@ export default function AdminBookingsPage() {
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> to{" "}
+                  {t("showing")} <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> {t("to")}{" "}
                   <span className="font-medium">
                     {Math.min(currentPage * pagination.limit, pagination.totalCount)}
                   </span>{" "}
-                  of <span className="font-medium">{pagination.totalCount}</span> bookings
+                  {t("of")} <span className="font-medium">{pagination.totalCount}</span> {t("bookings")}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -273,7 +277,7 @@ export default function AdminBookingsPage() {
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    Previous
+                    {t("previous")}
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -310,7 +314,7 @@ export default function AdminBookingsPage() {
                     disabled={!pagination.hasNextPage || loading}
                     className="inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Next
+                    {t("next")}
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -324,23 +328,23 @@ export default function AdminBookingsPage() {
         {/* Stats */}
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Total Bookings</div>
+            <div className="text-gray-600 text-sm">{t("totalBookingsLabel")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">{pagination.totalCount}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Booked</div>
+            <div className="text-gray-600 text-sm">{t("booked")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {bookings.filter((b) => b.status === "booked").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Completed</div>
+            <div className="text-gray-600 text-sm">{t("completed")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {bookings.filter((b) => b.status === "completed").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Total Credits</div>
+            <div className="text-gray-600 text-sm">{t("totalCredits")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {bookings.reduce((sum, b) => sum + (b.priceCredits ?? b.creditsUsed ?? 0), 0)}
             </div>
@@ -351,24 +355,17 @@ export default function AdminBookingsPage() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   const colors: Record<string, string> = {
     booked: "bg-blue-100 text-blue-700",
     completed: "bg-green-100 text-green-700",
     cancelled: "bg-red-100 text-red-700",
     no_show: "bg-orange-100 text-orange-700",
   };
-
-  const labels: Record<string, string> = {
-    booked: "Booked",
-    completed: "Completed",
-    cancelled: "Cancelled",
-    no_show: "No Show",
-  };
-
+  const label = status === "booked" ? t("booked") : status === "completed" ? t("completed") : status === "cancelled" ? t("cancelled") : status === "no_show" ? t("noShow") : status;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-700"}`}>
-      {labels[status] || status}
+      {label}
     </span>
   );
 }

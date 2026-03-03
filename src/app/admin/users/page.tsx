@@ -3,6 +3,8 @@
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type User = {
   _id: string;
@@ -23,6 +25,8 @@ type Pagination = {
 };
 
 export default function AdminUsersPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [users, setUsers] = React.useState<User[]>([]);
@@ -73,8 +77,8 @@ export default function AdminUsersPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">User Management</h1>
-            <p className="mt-2 text-gray-600">Manage all users, roles, and permissions</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("userManagement")}</h1>
+            <p className="mt-2 text-gray-600">{t("manageUsersDesc")}</p>
           </div>
 
           <button
@@ -86,7 +90,7 @@ export default function AdminUsersPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -103,39 +107,39 @@ export default function AdminUsersPage() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Search</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("search")}</label>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by email..."
+                placeholder={t("searchByEmail")}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Role</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("role")}</label>
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">All Roles</option>
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Admin</option>
+                <option value="">{t("allRoles")}</option>
+                <option value="student">{t("student")}</option>
+                <option value="teacher">{t("teacher")}</option>
+                <option value="admin">{t("admin")}</option>
               </select>
             </div>
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Status</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("status")}</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="banned">Banned</option>
+                <option value="">{t("allStatus")}</option>
+                <option value="active">{t("active")}</option>
+                <option value="inactive">{t("inactive")}</option>
+                <option value="banned">{t("banned")}</option>
               </select>
             </div>
           </div>
@@ -148,22 +152,22 @@ export default function AdminUsersPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    {t("user")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
+                    {t("role")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t("status")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Credits
+                    {t("credits")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Joined
+                    {t("joined")}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t("actions")}
                   </th>
                 </tr>
               </thead>
@@ -171,13 +175,13 @@ export default function AdminUsersPage() {
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm">
-                      Loading users...
+                      {t("loadingUsers")}
                     </td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm">
-                      No users found
+                      {t("noUsersFound")}
                     </td>
                   </tr>
                 ) : (
@@ -199,10 +203,10 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <RoleBadge role={user.role} />
+                        <RoleBadge role={user.role} t={t} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={user.status} />
+                        <StatusBadge status={user.status} t={t} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.credits ?? 0}
@@ -215,13 +219,13 @@ export default function AdminUsersPage() {
                           type="button"
                           className="text-blue-600 hover:text-blue-900 mr-3"
                         >
-                          Edit
+                          {t("edit")}
                         </button>
                         <button
                           type="button"
                           className="text-red-600 hover:text-red-900"
                         >
-                          Ban
+                          {t("ban")}
                         </button>
                       </td>
                     </tr>
@@ -236,11 +240,11 @@ export default function AdminUsersPage() {
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> to{" "}
+                  {t("showing")} <span className="font-medium">{(currentPage - 1) * pagination.limit + 1}</span> {t("to")}{" "}
                   <span className="font-medium">
                     {Math.min(currentPage * pagination.limit, pagination.totalCount)}
                   </span>{" "}
-                  of <span className="font-medium">{pagination.totalCount}</span> results
+                  {t("of")} <span className="font-medium">{pagination.totalCount}</span> {t("results")}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -252,7 +256,7 @@ export default function AdminUsersPage() {
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    Previous
+                    {t("previous")}
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -289,7 +293,7 @@ export default function AdminUsersPage() {
                     disabled={!pagination.hasNextPage || loading}
                     className="inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Next
+                    {t("next")}
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -303,23 +307,23 @@ export default function AdminUsersPage() {
         {/* Stats */}
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Total Users</div>
-            <div className="text-gray-900 text-2xl font-bold mt-1">{users.length}</div>
+<div className="text-gray-600 text-sm">{t("totalUsers")}</div>
+          <div className="text-gray-900 text-2xl font-bold mt-1">{users.length}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Students</div>
+            <div className="text-gray-600 text-sm">{t("students")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {users.filter((u) => u.role === "student").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Teachers</div>
+            <div className="text-gray-600 text-sm">{t("teachers")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {users.filter((u) => u.role === "teacher").length}
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-gray-600 text-sm">Active</div>
+            <div className="text-gray-600 text-sm">{t("active")}</div>
             <div className="text-gray-900 text-2xl font-bold mt-1">
               {users.filter((u) => u.status === "active").length}
             </div>
@@ -330,30 +334,30 @@ export default function AdminUsersPage() {
   );
 }
 
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({ role, t }: { role: string; t: (key: string) => string }) {
   const colors: Record<string, string> = {
     student: "bg-blue-100 text-blue-700",
     teacher: "bg-green-100 text-green-700",
     admin: "bg-purple-100 text-purple-700",
   };
-
+  const label = role === "student" ? t("student") : role === "teacher" ? t("teacher") : role === "admin" ? t("admin") : role;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[role] || "bg-gray-100 text-gray-700"}`}>
-      {role.charAt(0).toUpperCase() + role.slice(1)}
+      {label}
     </span>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   const colors: Record<string, string> = {
     active: "bg-green-100 text-green-700",
     inactive: "bg-gray-100 text-gray-700",
     banned: "bg-red-100 text-red-700",
   };
-
+  const label = status === "active" ? t("active") : status === "inactive" ? t("inactive") : status === "banned" ? t("banned") : status;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-700"}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {label}
     </span>
   );
 }

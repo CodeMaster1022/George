@@ -1,9 +1,11 @@
-"use client";
+ "use client";
 
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "@/app/ebluelearning/book_by_date/translate";
 
 type Teacher = {
   id: string; // TeacherProfile._id
@@ -76,7 +78,7 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
-function Legend() {
+function Legend({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex items-center gap-5 text-sm font-semibold">
       <div className="inline-flex items-center gap-2 text-[#60a5fa]">
@@ -91,7 +93,7 @@ function Legend() {
             />
           </svg>
         </span>
-        <span>Open slots</span>
+        <span>{t("openSlots")}</span>
       </div>
       <div className="inline-flex items-center gap-2 text-[#86efac]">
         <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 border-[#2D2D2D] bg-white/10">
@@ -105,7 +107,7 @@ function Legend() {
             />
           </svg>
         </span>
-        <span>Booked slots</span>
+        <span>{t("bookedSlots")}</span>
       </div>
     </div>
   );
@@ -165,6 +167,8 @@ function safeJoinHref(raw?: string | null) {
 
 export default function BookByDateClient() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
 
   const [month, setMonth] = React.useState(() => startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
@@ -410,14 +414,14 @@ export default function BookByDateClient() {
         <div className="mars-content border-[5px] border-[#2D2D2D] rounded-[26px] overflow-hidden">
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
             <div className="text-center text-[#ffb4b4] text-xs md:text-sm font-semibold">
-              In order to assure the proper functioning of the booking system, please make sure the clock on your device is correct.
+              {t("bookingNote")}
             </div>
 
             <div className="mt-8 grid gap-8 items-start lg:grid-cols-[360px_1fr_320px]">
               {/* Select Date */}
               <div className="bg-white rounded-[18px] border-[5px] border-[#2D2D2D] overflow-hidden">
                 <div className="p-5">
-                  <div className="text-[#212429] font-extrabold">Select Date</div>
+                  <div className="text-[#212429] font-extrabold">{t("selectDate")}</div>
 
                   <div className="mt-4 flex items-center justify-between gap-2">
                     <div className="text-[#212429]/70 text-sm font-semibold">
@@ -428,7 +432,7 @@ export default function BookByDateClient() {
                         type="button"
                         className="w-9 h-9 rounded-lg border-2 border-[#2D2D2D] bg-white hover:bg-[#0058C9]/10"
                         onClick={() => setMonth((m) => addMonths(m, -1))}
-                        aria-label="Previous month"
+                        aria-label={t("previousMonth")}
                       >
                         ‹
                       </button>
@@ -436,7 +440,7 @@ export default function BookByDateClient() {
                         type="button"
                         className="w-9 h-9 rounded-lg border-2 border-[#2D2D2D] bg-white hover:bg-[#0058C9]/10"
                         onClick={() => setMonth((m) => addMonths(m, 1))}
-                        aria-label="Next month"
+                        aria-label={t("nextMonth")}
                       >
                         ›
                       </button>
@@ -444,7 +448,7 @@ export default function BookByDateClient() {
                   </div>
 
                   <div className="mt-4 grid grid-cols-7 text-[11px] text-[#212429]/55 font-semibold">
-                    {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((w) => (
+                    {[t("sunShort"), t("monShort"), t("tueShort"), t("wedShort"), t("thuShort"), t("friShort"), t("satShort")].map((w) => (
                       <div key={w} className="text-center py-1">
                         {w}
                       </div>
@@ -496,12 +500,12 @@ export default function BookByDateClient() {
                       <div className="text-[#212429]/70 text-xs font-semibold">
                         {selectedDate
                           ? selectedDate.toLocaleString(undefined, { weekday: "short" }).toUpperCase()
-                          : "—"}
+                          : t("weekdayShortUnknown")}
                       </div>
                       <div className="text-[#212429]/50 text-xs mt-1">
                         {selectedDate
-                          ? "Now select a time for your class."
-                          : "Select a date to continue."}
+                          ? t("selectTimeForClass")
+                          : t("selectDateToContinue")}
                       </div>
                     </div>
                   </div>
@@ -511,7 +515,7 @@ export default function BookByDateClient() {
                       {sessionsError}
                     </div>
                   ) : sessionsLoading ? (
-                    <div className="mt-4 text-[#212429]/60 text-sm">Loading open sessions…</div>
+                    <div className="mt-4 text-[#212429]/60 text-sm">{t("loadingSessions")}</div>
                   ) : null}
                 </div>
               </div>
@@ -520,7 +524,7 @@ export default function BookByDateClient() {
               <div>
                 <div className="border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden bg-white/10">
                   <div className="p-5">
-                      <div className="text-white font-extrabold">Select Time</div>
+                      <div className="text-white font-extrabold">{t("selectTimeHeader")}</div>
                       <select
                         value={selectedTimeKey}
                         onChange={(e) => setSelectedTimeKey(e.target.value)}
@@ -531,7 +535,7 @@ export default function BookByDateClient() {
                         ].join(" ")}
                       >
                         <option value="">
-                          {!canShowTime ? "Select a date first" : sessionsLoading ? "Loading times…" : "Select Time"}
+                          {!canShowTime ? t("selectTimeFirst") : sessionsLoading ? t("loadingTimes") : t("selectTime")}
                         </option>
                         {timesForSelectedDay.map((t) => (
                           <option key={t.key} value={t.key}>
@@ -542,26 +546,26 @@ export default function BookByDateClient() {
 
                     {selectedDate && !sessionsLoading && !timesForSelectedDay.length ? (
                       <div className="mt-3 border-2 border-[#2D2D2D] bg-white/15 text-white rounded-xl px-4 py-3 text-sm">
-                        No open slots on this date (next 30 days). Try another day.
+                        {t("noOpenSlots")}
                       </div>
                     ) : null}
 
                     <div className="mt-6">
-                      <div className="text-white font-extrabold">Select Your Teacher</div>
+                      <div className="text-white font-extrabold">{t("selectYourTeacher")}</div>
                       <div className="mt-3">
-                        <Legend />
+                        <Legend t={t} />
                       </div>
                     </div>
 
                     <div className="mt-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="text-white/80 text-sm font-semibold">
-                        {canShowTeachers ? "Available teachers" : "Select a time to see available teachers"}
+                        {canShowTeachers ? t("availableTeachers") : t("selectTimeToSeeTeachers")}
                       </div>
                       <div className="w-full md:w-[260px] relative">
                         <input
                           value={q}
                           onChange={(e) => setQ(e.target.value)}
-                          placeholder="Search teacher by name"
+                          placeholder={t("searchTeacherPlaceholder")}
                           className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                           disabled={!canShowTeachers}
                         />
@@ -577,7 +581,7 @@ export default function BookByDateClient() {
                     <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-2 min-h-[240px]">
                       {!canShowTeachers ? (
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                          Select a time to see available teachers.
+                          {t("selectTimeToSeeTeachersBody")}
                         </div>
                       ) : teachersError ? (
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
@@ -585,7 +589,7 @@ export default function BookByDateClient() {
                         </div>
                       ) : teachersLoading ? (
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                          Loading teachers…
+                          {t("loadingTeachers")}
                         </div>
                       ) : filteredTeachers.length ? (
                         filteredTeachers.map((t) => {
@@ -643,7 +647,7 @@ export default function BookByDateClient() {
                         })
                       ) : (
                         <div className="sm:col-span-2 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                          No teachers available for this time.
+                          {t("noTeachersForTime")}
                         </div>
                       )}
                     </div>
@@ -655,15 +659,15 @@ export default function BookByDateClient() {
               <div className="lg:sticky lg:top-[130px]">
                 <div className="bg-white rounded-[18px] border-[5px] border-[#2D2D2D] overflow-hidden">
                   <div className="bg-[#B91C1C] text-white font-extrabold text-center py-3 tracking-[0.22em]">
-                    CART
+                    {t("cart")}
                   </div>
                   <div className="p-4">
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="border border-[#E5E7EB] rounded-md px-3 py-2 text-center">
-                        Purchasing: <span className="font-extrabold text-[#0058C9]">{purchasing}</span>
+                        {t("purchasing")} <span className="font-extrabold text-[#0058C9]">{purchasing}</span>
                       </div>
                       <div className="border border-[#E5E7EB] rounded-md px-3 py-2 text-center">
-                        Your credits: <span className="font-extrabold text-[#0058C9]">{credits}</span>
+                        {t("yourCredits")} <span className="font-extrabold text-[#0058C9]">{credits}</span>
                       </div>
                     </div>
 
@@ -723,7 +727,7 @@ export default function BookByDateClient() {
                             rel="noreferrer noopener"
                             className="mt-4 w-full inline-flex items-center justify-center text-white px-6 py-3 rounded-full bg-[#0058C9] hover:bg-[#0b67de] border-2 border-[#2D2D2D] text-sm font-extrabold"
                           >
-                            Join class
+                            {t("joinClass")}
                           </a>
                         ) : null}
 
@@ -733,12 +737,12 @@ export default function BookByDateClient() {
                           disabled={bookingBusy}
                           onClick={bookSelectedSession}
                         >
-                          {bookingBusy ? "Booking…" : "Confirm booking"}
+                          {bookingBusy ? t("bookingBusy") : t("confirmBooking")}
                         </button>
                       </div>
                     ) : (
                       <div className="mt-4 text-[#212429]/60 text-sm min-h-[132px] flex items-center">
-                        Select a date, then a time, then a teacher to add to cart.
+                        {t("cartEmptyHint")}
                       </div>
                     )}
 
@@ -751,7 +755,7 @@ export default function BookByDateClient() {
                       disabled={sessionsLoading || bookingBusy}
                       className="mt-4 w-full px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white hover:bg-[#0058C9]/10 text-[#212429] text-sm font-extrabold disabled:opacity-70"
                     >
-                      Refresh availability
+                      {t("refreshAvailability")}
                     </button>
                   </div>
                 </div>

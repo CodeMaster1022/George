@@ -4,6 +4,8 @@ import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../../translate";
 
 type User = {
   _id: string;
@@ -28,6 +30,8 @@ export default function EditUserPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params?.id as string;
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
 
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -88,7 +92,7 @@ export default function EditUserPage() {
       return;
     }
 
-    setSuccess("User updated successfully!");
+    setSuccess(t("userUpdatedSuccess"));
     setTimeout(() => {
       router.push("/admin/users");
     }, 1500);
@@ -101,12 +105,12 @@ export default function EditUserPage() {
     const r = await apiJson<{ ok: boolean; user: { status: string } }>(`/admin/users/${userId}/ban`, { method: "POST" });
     setActionLoading(null);
     if (!r.ok) {
-      setError(r.error ?? "Failed to ban user");
+      setError(r.error ?? t("failedToBan"));
       return;
     }
     setFormData((prev) => ({ ...prev, status: "banned" }));
     if (user) setUser({ ...user, status: "banned" });
-    setSuccess("User has been banned.");
+    setSuccess(t("userBannedSuccess"));
   }
 
   async function handleUnban() {
@@ -116,12 +120,12 @@ export default function EditUserPage() {
     const r = await apiJson<{ ok: boolean; user: { status: string } }>(`/admin/users/${userId}/unban`, { method: "POST" });
     setActionLoading(null);
     if (!r.ok) {
-      setError(r.error ?? "Failed to unban user");
+      setError(r.error ?? t("failedToUnban"));
       return;
     }
     setFormData((prev) => ({ ...prev, status: "active" }));
     if (user) setUser({ ...user, status: "active" });
-    setSuccess("User has been unbanned.");
+    setSuccess(t("userUnbannedSuccess"));
   }
 
   async function handleAwardCredits(e: React.FormEvent) {
@@ -135,14 +139,14 @@ export default function EditUserPage() {
     });
     setActionLoading(null);
     if (!r.ok) {
-      setError(r.error ?? "Failed to award credits");
+      setError(r.error ?? t("failedToAwardCredits"));
       return;
     }
     setShowCreditsModal(false);
     setCreditsAmount(10);
     setCreditsReason("");
     if (profile) setProfile({ ...profile, credits: r.data.credits });
-    setSuccess(`Credits awarded. New balance: ${r.data.credits}`);
+    setSuccess(`${t("creditsAwardedSuccess")} ${r.data.credits}`);
   }
 
   if (loading) {
@@ -150,7 +154,7 @@ export default function EditUserPage() {
       <AdminLayout>
         <div className="p-8">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="text-gray-500">Loading user...</div>
+            <div className="text-gray-500">{t("loadingUser")}</div>
           </div>
         </div>
       </AdminLayout>
@@ -162,7 +166,7 @@ export default function EditUserPage() {
       <AdminLayout>
         <div className="p-8">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="text-red-600">User not found</div>
+            <div className="text-red-600">{t("userNotFound")}</div>
           </div>
         </div>
       </AdminLayout>
@@ -184,8 +188,8 @@ export default function EditUserPage() {
             </svg>
           </button>
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Edit User</h1>
-            <p className="mt-2 text-gray-600">Update user information and permissions</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("editUser")}</h1>
+            <p className="mt-2 text-gray-600">{t("updateUserDesc")}</p>
           </div>
         </div>
 
@@ -211,16 +215,16 @@ export default function EditUserPage() {
           {/* User Info Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h2 className="text-gray-900 text-lg font-semibold mb-4">User Information</h2>
+              <h2 className="text-gray-900 text-lg font-semibold mb-4">{t("userInformation")}</h2>
               
               <div className="space-y-4">
                 <div>
-                  <div className="text-gray-600 text-sm">User ID</div>
+                  <div className="text-gray-600 text-sm">{t("userId")}</div>
                   <div className="text-gray-900 text-sm font-mono mt-1">{user._id}</div>
                 </div>
                 
                 <div>
-                  <div className="text-gray-600 text-sm">Created</div>
+                  <div className="text-gray-600 text-sm">{t("created")}</div>
                   <div className="text-gray-900 text-sm mt-1">
                     {new Date(user.createdAt).toLocaleString()}
                   </div>
@@ -228,7 +232,7 @@ export default function EditUserPage() {
 
                 {user.lastLoginAt && (
                   <div>
-                    <div className="text-gray-600 text-sm">Last Login</div>
+                    <div className="text-gray-600 text-sm">{t("lastLogin")}</div>
                     <div className="text-gray-900 text-sm mt-1">
                       {new Date(user.lastLoginAt).toLocaleString()}
                     </div>
@@ -236,21 +240,21 @@ export default function EditUserPage() {
                 )}
 
                 <div>
-                  <div className="text-gray-600 text-sm">Email Verified</div>
+                  <div className="text-gray-600 text-sm">{t("emailVerified")}</div>
                   <div className="mt-1">
                     {user.verifiedEmail ? (
                       <span className="inline-flex items-center gap-1 text-green-600 text-sm">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Verified
+                        {t("verified")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-orange-600 text-sm">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Not Verified
+                        {t("notVerified")}
                       </span>
                     )}
                   </div>
@@ -259,7 +263,7 @@ export default function EditUserPage() {
 
               {/* Quick actions: Ban / Unban / Award credits */}
               <div className="mt-6 pt-4 border-t border-gray-200">
-                <h3 className="text-gray-700 text-sm font-medium mb-3">Actions</h3>
+                <h3 className="text-gray-700 text-sm font-medium mb-3">{t("actionsLabel")}</h3>
                 <div className="space-y-2">
                   {user.status === "banned" ? (
                     <button
@@ -268,7 +272,7 @@ export default function EditUserPage() {
                       disabled={!!actionLoading}
                       className="w-full px-3 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 disabled:opacity-60 transition-colors"
                     >
-                      {actionLoading === "unban" ? "..." : "Unban user"}
+                      {actionLoading === "unban" ? "..." : t("unbanUser")}
                     </button>
                   ) : (
                     <button
@@ -277,7 +281,7 @@ export default function EditUserPage() {
                       disabled={!!actionLoading}
                       className="w-full px-3 py-2 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 disabled:opacity-60 transition-colors"
                     >
-                      {actionLoading === "ban" ? "..." : "Ban user"}
+                      {actionLoading === "ban" ? "..." : t("banUser")}
                     </button>
                   )}
                   {user.role === "student" && (
@@ -287,7 +291,7 @@ export default function EditUserPage() {
                       disabled={!!actionLoading}
                       className="w-full px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 disabled:opacity-60 transition-colors"
                     >
-                      Award credits
+                      {t("awardCredits")}
                     </button>
                   )}
                 </div>
@@ -297,7 +301,7 @@ export default function EditUserPage() {
             {/* Profile Info */}
             {profile && (
               <div className="mt-6 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h2 className="text-gray-900 text-lg font-semibold mb-4">Profile</h2>
+                <h2 className="text-gray-900 text-lg font-semibold mb-4">{t("profile")}</h2>
                 
                 {profile.photoUrl && (
                   <div className="mb-4">
@@ -312,25 +316,25 @@ export default function EditUserPage() {
                 <div className="space-y-3 text-sm">
                   {profile.name && (
                     <div>
-                      <span className="text-gray-600">Name:</span>{" "}
+                      <span className="text-gray-600">{t("name")}:</span>{" "}
                       <span className="text-gray-900">{profile.name}</span>
                     </div>
                   )}
                   {profile.country && (
                     <div>
-                      <span className="text-gray-600">Country:</span>{" "}
+                      <span className="text-gray-600">{t("country")}:</span>{" "}
                       <span className="text-gray-900">{profile.country}</span>
                     </div>
                   )}
                   {profile.timezone && (
                     <div>
-                      <span className="text-gray-600">Timezone:</span>{" "}
+                      <span className="text-gray-600">{t("timezone")}:</span>{" "}
                       <span className="text-gray-900">{profile.timezone}</span>
                     </div>
                   )}
                   {profile.credits !== undefined && (
                     <div>
-                      <span className="text-gray-600">Credits:</span>{" "}
+                      <span className="text-gray-600">{t("credits")}:</span>{" "}
                       <span className="text-gray-900 font-semibold">{profile.credits}</span>
                     </div>
                   )}
@@ -342,12 +346,12 @@ export default function EditUserPage() {
           {/* Edit Form */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h2 className="text-gray-900 text-lg font-semibold mb-6">Edit User Details</h2>
+              <h2 className="text-gray-900 text-lg font-semibold mb-6">{t("editUserDetails")}</h2>
               
               <div className="space-y-6">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Email Address
+                    {t("emailAddress")}
                   </label>
                   <input
                     type="email"
@@ -360,7 +364,7 @@ export default function EditUserPage() {
 
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Role
+                    {t("role")}
                   </label>
                   <select
                     value={formData.role}
@@ -368,18 +372,18 @@ export default function EditUserPage() {
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     required
                   >
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Admin</option>
+                    <option value="student">{t("student")}</option>
+                    <option value="teacher">{t("teacher")}</option>
+                    <option value="admin">{t("admin")}</option>
                   </select>
                   <p className="mt-2 text-gray-500 text-xs">
-                    Changing role will affect user permissions and access
+                    {t("changingRoleHint")}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Status
+                    {t("status")}
                   </label>
                   <select
                     value={formData.status}
@@ -387,12 +391,12 @@ export default function EditUserPage() {
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     required
                   >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="banned">Banned</option>
+                    <option value="active">{t("active")}</option>
+                    <option value="inactive">{t("inactive")}</option>
+                    <option value="banned">{t("banned")}</option>
                   </select>
                   <p className="mt-2 text-gray-500 text-xs">
-                    Banned users cannot log in to the platform
+                    {t("bannedUsersHint")}
                   </p>
                 </div>
 
@@ -408,14 +412,14 @@ export default function EditUserPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Saving...
+                        {t("saving")}
                       </>
                     ) : (
                       <>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        Save Changes
+                        {t("saveChanges")}
                       </>
                     )}
                   </button>
@@ -424,7 +428,7 @@ export default function EditUserPage() {
                     onClick={() => router.back()}
                     className="px-6 py-3 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
                   >
-                    Cancel
+                    {t("cancel")}
                   </button>
                 </div>
               </div>
@@ -436,10 +440,10 @@ export default function EditUserPage() {
         {showCreditsModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-              <h3 className="text-gray-900 text-lg font-semibold mb-4">Award credits</h3>
+              <h3 className="text-gray-900 text-lg font-semibold mb-4">{t("awardCreditsTitle")}</h3>
               <form onSubmit={handleAwardCredits} className="space-y-4">
                 <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Amount (1–1000)</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("amountLabel")}</label>
                   <input
                     type="number"
                     min={1}
@@ -450,12 +454,12 @@ export default function EditUserPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Reason (optional)</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("reasonOptional")}</label>
                   <input
                     type="text"
                     value={creditsReason}
                     onChange={(e) => setCreditsReason(e.target.value)}
-                    placeholder="e.g. Forum contribution"
+                    placeholder={t("reasonPlaceholder")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray-900 text-sm focus:outline-none focus:border-blue-500"
                   />
                 </div>
@@ -465,14 +469,14 @@ export default function EditUserPage() {
                     disabled={actionLoading === "credits"}
                     className="flex-1 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-60"
                   >
-                    {actionLoading === "credits" ? "Sending..." : "Award"}
+                    {actionLoading === "credits" ? t("sending") : t("award")}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setShowCreditsModal(false); setCreditsReason(""); }}
                     className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium"
                   >
-                    Cancel
+                    {t("cancel")}
                   </button>
                 </div>
               </form>

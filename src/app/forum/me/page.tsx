@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthToken, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type Summary = {
   baseQuota: number;
@@ -50,6 +52,8 @@ function formatDateTime(dateStr: string): string {
 
 export default function ForumMePage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const me = getAuthUser<any>();
   const [summary, setSummary] = React.useState<Summary | null>(null);
   const [myArticles, setMyArticles] = React.useState<MyArticle[]>([]);
@@ -94,26 +98,26 @@ export default function ForumMePage() {
       <section className="relative z-10 max-w-[1200px] mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">My Posts</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("myPosts")}</h1>
           <div className="flex items-center gap-3">
             <Link
               href="/forum"
               className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
             >
-              Forum
+              {t("forum")}
             </Link>
             <Link
               href="/forum/new"
               className="px-6 py-2 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
             >
-              New Post
+              {t("newPost")}
             </Link>
             {me?.role === "admin" ? (
               <Link
                 href="/admin/forum"
                 className="px-6 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
               >
-                Admin
+                {t("admin")}
               </Link>
             ) : null}
           </div>
@@ -128,7 +132,7 @@ export default function ForumMePage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Forum
+            {t("backToForum")}
           </Link>
         </div>
 
@@ -139,21 +143,21 @@ export default function ForumMePage() {
         ) : null}
 
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading...</div>
+          <div className="text-center py-12 text-gray-500">{t("loading")}</div>
         ) : (
           <>
             {summary ? (
               <div className="mb-8 grid gap-4 sm:grid-cols-3">
                 <div className="bg-white rounded-lg border border-gray-200 p-5">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Remaining</div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t("remaining")}</div>
                   <div className="text-2xl font-bold text-gray-900 mt-1">{summary.remaining}</div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-5">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Forum credits</div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t("forumCredits")}</div>
                   <div className="text-2xl font-bold text-gray-900 mt-1">{summary.creditsBalance}</div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-5">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Used</div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t("used")}</div>
                   <div className="text-2xl font-bold text-gray-900 mt-1">{summary.used}</div>
                 </div>
               </div>
@@ -161,7 +165,7 @@ export default function ForumMePage() {
 
             <div className="grid gap-6 lg:grid-cols-2 mb-8">
               <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">My articles</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">{t("myArticles")}</h2>
                 <div className="space-y-2">
                   {myArticles.length ? (
                     myArticles.map((a) => (
@@ -176,18 +180,18 @@ export default function ForumMePage() {
                           <span>{formatDateTime(a.createdAt)}</span>
                         </div>
                         {a.status === "rejected" && a.rejectReason ? (
-                          <div className="mt-2 text-sm text-red-700">Reason: {a.rejectReason}</div>
+                          <div className="mt-2 text-sm text-red-700">{t("reason")}: {a.rejectReason}</div>
                         ) : null}
                       </Link>
                     ))
                   ) : (
-                    <div className="py-6 text-center text-gray-500 text-sm">No submissions yet.</div>
+                    <div className="py-6 text-center text-gray-500 text-sm">{t("noSubmissionsYet")}</div>
                   )}
                 </div>
               </div>
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Followed articles</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">{t("followedArticles")}</h2>
                 <div className="space-y-2">
                   {follows.length ? (
                     follows.map((f) => (
@@ -196,12 +200,12 @@ export default function ForumMePage() {
                         href={`/forum/${f.articleId}`}
                         className="block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                       >
-                        <div className="font-semibold text-gray-900">{f.article?.title || "Article"}</div>
-                        <div className="mt-1 text-xs text-gray-500">Followed: {formatDateTime(f.followedAt)}</div>
+                        <div className="font-semibold text-gray-900">{f.article?.title || t("article")}</div>
+                        <div className="mt-1 text-xs text-gray-500">{t("followed")}: {formatDateTime(f.followedAt)}</div>
                       </Link>
                     ))
                   ) : (
-                    <div className="py-6 text-center text-gray-500 text-sm">You are not following any articles yet.</div>
+                    <div className="py-6 text-center text-gray-500 text-sm">{t("notFollowingAny")}</div>
                   )}
                 </div>
               </div>
@@ -209,9 +213,9 @@ export default function ForumMePage() {
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between gap-4 mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Notifications</h2>
+                <h2 className="text-lg font-bold text-gray-900">{t("notifications")}</h2>
                 <span className="text-sm text-gray-500">
-                  {notifications.filter((n) => !n.readAt).length} unread
+                  {notifications.filter((n) => !n.readAt).length} {t("unread")}
                 </span>
               </div>
               <div className="space-y-2">
@@ -232,7 +236,7 @@ export default function ForumMePage() {
                           href={`/forum/${n.articleId}`}
                           className="px-4 py-2 rounded-lg bg-[#0058C9] hover:bg-[#004bb0] text-white text-sm font-medium transition-colors"
                         >
-                          Open
+                          {t("open")}
                         </Link>
                         {!n.readAt ? (
                           <button
@@ -240,14 +244,14 @@ export default function ForumMePage() {
                             onClick={() => markRead(n.id)}
                             className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
                           >
-                            Mark read
+                            {t("markRead")}
                           </button>
                         ) : null}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-6 text-center text-gray-500 text-sm">No notifications yet.</div>
+                  <div className="py-6 text-center text-gray-500 text-sm">{t("noNotificationsYet")}</div>
                 )}
               </div>
             </div>

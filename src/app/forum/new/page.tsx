@@ -6,9 +6,13 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { apiJson, getAuthToken } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 export default function NewArticlePage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [title, setTitle] = React.useState("");
   const [body, setBody] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
@@ -81,7 +85,7 @@ export default function NewArticlePage() {
     setSubmitting(false);
 
     if (!res.ok) {
-      setError(res.error || "Failed to create article");
+      setError(res.error || t("failedToCreateArticle"));
       return;
     }
 
@@ -104,9 +108,9 @@ export default function NewArticlePage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Back
+              {t("back")}
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">New Post</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t("newPost")}</h1>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -128,7 +132,7 @@ export default function NewArticlePage() {
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              Preview
+              {t("preview")}
             </button>
             <button
               type="submit"
@@ -144,7 +148,7 @@ export default function NewArticlePage() {
                   d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                 />
               </svg>
-              {submitting ? "Publishing..." : "Publish"}
+              {submitting ? t("publishing") : t("publish")}
             </button>
           </div>
         </div>
@@ -160,24 +164,24 @@ export default function NewArticlePage() {
           {/* Title */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Post Title <span className="text-red-500">*</span>
+              {t("postTitle")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter post title..."
+              placeholder={t("postTitlePlaceholder")}
               maxLength={200}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent"
             />
-            <div className="mt-1 text-xs text-gray-500">{title.length}/200 characters</div>
+            <div className="mt-1 text-xs text-gray-500">{title.length}/200 {t("characters")}</div>
           </div>
 
           {/* Body */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-semibold text-gray-900">
-                Post Content <span className="text-red-500">*</span> (Supports Markdown)
+                {t("postContent")} <span className="text-red-500">*</span> ({t("postContentSupports")})
               </label>
               <div className="flex items-center gap-2">
                 <button
@@ -189,7 +193,7 @@ export default function NewArticlePage() {
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  Edit
+                  {t("edit")}
                 </button>
                 <button
                   type="button"
@@ -200,7 +204,7 @@ export default function NewArticlePage() {
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  Preview
+                  {t("preview")}
                 </button>
               </div>
             </div>
@@ -285,7 +289,7 @@ export default function NewArticlePage() {
                   ref={textareaRef}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="Enter post content, supports Markdown syntax..."
+                  placeholder={t("contentPlaceholder")}
                   maxLength={20000}
                   rows={15}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0058C9] focus:border-transparent resize-none font-mono text-sm"
@@ -298,11 +302,11 @@ export default function NewArticlePage() {
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
                   </div>
                 ) : (
-                  <div className="text-gray-400 italic">Preview will appear here...</div>
+                  <div className="text-gray-400 italic">{t("previewPlaceholder")}</div>
                 )}
               </div>
             )}
-            <div className="mt-1 text-xs text-gray-500">{body.length}/20000 characters</div>
+            <div className="mt-1 text-xs text-gray-500">{body.length}/20000 {t("characters")}</div>
           </div>
 
           {/* Info */}
@@ -316,10 +320,9 @@ export default function NewArticlePage() {
                 />
               </svg>
               <div>
-                <div className="font-semibold mb-1">Note:</div>
+                <div className="font-semibold mb-1">{t("note")}:</div>
                 <div>
-                  Your post will be reviewed by moderators before being published. You&apos;ll be notified once
-                  it&apos;s approved or if any changes are needed.
+                  {t("moderationNote")}
                 </div>
               </div>
             </div>

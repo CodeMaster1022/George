@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson } from "@/utils/backend";
 import CloudinaryImageUpload from "@/components/CloudinaryImageUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type TeacherProfile = {
   _id: string;
@@ -28,6 +30,8 @@ type TeacherProfile = {
 
 export default function TeacherProfileEditPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -118,7 +122,7 @@ export default function TeacherProfileEditPage() {
     return (
       <main className="min-h-screen bg-gray-50">
         <section className="max-w-5xl mx-auto px-4 py-8">
-          <div className="text-gray-600 text-center">Loading...</div>
+          <div className="text-gray-600 text-center">{t("loading")}</div>
         </section>
       </main>
     );
@@ -130,8 +134,8 @@ export default function TeacherProfileEditPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-gray-900 text-2xl font-bold">Edit Profile</h1>
-            <p className="mt-1 text-gray-600 text-sm">Update your professional information</p>
+            <h1 className="text-gray-900 text-2xl font-bold">{t("editProfileTitle")}</h1>
+            <p className="mt-1 text-gray-600 text-sm">{t("editProfileSubtitle")}</p>
           </div>
 
           <div className="flex gap-3">
@@ -142,7 +146,7 @@ export default function TeacherProfileEditPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              Cancel
+              {t("cancel")}
             </Link>
             <button
               type="button"
@@ -156,14 +160,14 @@ export default function TeacherProfileEditPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Saving...</span>
+                  <span>{t("saving")}</span>
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Save Changes</span>
+                  <span>{t("saveChanges")}</span>
                 </>
               )}
             </button>
@@ -188,15 +192,15 @@ export default function TeacherProfileEditPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Profile Photo</h2>
-                <p className="text-gray-500 text-sm">Upload a professional photo</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("profilePhoto")}</h2>
+                <p className="text-gray-500 text-sm">{t("profilePhotoDesc")}</p>
               </div>
             </div>
             <div className="ml-7">
               <CloudinaryImageUpload
                 currentImageUrl={f.photoUrl}
                 onImageUploaded={(url) => setF((s) => ({ ...s, photoUrl: url }))}
-                buttonText="Upload Photo"
+                buttonText={t("uploadPhoto")}
                 showPreview={true}
               />
             </div>
@@ -209,16 +213,16 @@ export default function TeacherProfileEditPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Basic Information</h2>
-                <p className="text-gray-500 text-sm">Your name and professional details</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("basicInfo")}</h2>
+                <p className="text-gray-500 text-sm">{t("basicInfoDesc")}</p>
               </div>
             </div>
             <div className="ml-7 grid gap-4 md:grid-cols-2">
-              <Field label="Full Name" icon="user">
+              <Field label={t("fullName")} icon="user">
                 <Input value={f.name} onChange={(v) => setF((s) => ({ ...s, name: v }))} placeholder="Your full name" />
               </Field>
 
-              <Field label="Country" icon="globe">
+              <Field label={t("country")} icon="globe">
                 <Select value={f.country} onChange={(v) => setF((s) => ({ ...s, country: v }))}>
                   <option value="">Select country...</option>
                   <option value="United States">United States</option>
@@ -245,7 +249,7 @@ export default function TeacherProfileEditPage() {
                 </Select>
               </Field>
 
-              <Field label="Timezone" icon="clock">
+              <Field label={t("timezone")} icon="clock">
                 <Select value={f.timezone} onChange={(v) => setF((s) => ({ ...s, timezone: v }))}>
                   <option value="">Select timezone...</option>
                   <optgroup label="US & Canada">
@@ -289,12 +293,12 @@ export default function TeacherProfileEditPage() {
                 </Select>
               </Field>
 
-              <Field label="Phone" icon="phone">
+              <Field label={t("phone")} icon="phone">
                 <Input value={f.phone} onChange={(v) => setF((s) => ({ ...s, phone: v }))} placeholder="+1 (555) 000-0000" />
               </Field>
 
               <div className="md:col-span-2">
-                <Field label="City" icon="location">
+                <Field label={t("city")} icon="location">
                   <Input
                     value={f.address}
                     onChange={(v) => setF((s) => ({ ...s, address: v }))}
@@ -312,8 +316,8 @@ export default function TeacherProfileEditPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">About You</h2>
-                <p className="text-gray-500 text-sm">Tell students about your teaching experience and style</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("aboutYou")}</h2>
+                <p className="text-gray-500 text-sm">{t("aboutYouDesc")}</p>
               </div>
             </div>
             <div className="ml-7">
@@ -333,12 +337,12 @@ export default function TeacherProfileEditPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Professional Links</h2>
-                <p className="text-gray-500 text-sm">Add your resume and portfolio</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("professionalLinks")}</h2>
+                <p className="text-gray-500 text-sm">{t("professionalLinksDesc")}</p>
               </div>
             </div>
             <div className="ml-7">
-              <Field label="Resume URL" icon="document">
+              <Field label={t("resumeUrlLabel")} icon="document">
                 <Input
                   value={f.resumeUrl}
                   onChange={(v) => setF((s) => ({ ...s, resumeUrl: v }))}
@@ -355,8 +359,8 @@ export default function TeacherProfileEditPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <div>
-                <h2 className="text-gray-900 text-lg font-semibold">Social Media</h2>
-                <p className="text-gray-500 text-sm">Connect your social profiles</p>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("socialMediaTitle")}</h2>
+                <p className="text-gray-500 text-sm">{t("socialMediaDesc")}</p>
               </div>
             </div>
             <div className="ml-7 grid gap-4 md:grid-cols-2">

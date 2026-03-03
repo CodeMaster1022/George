@@ -3,6 +3,8 @@
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type FinanceSummary = {
   totalPurchasedCredits: number;
@@ -29,6 +31,8 @@ type FinanceSummary = {
 };
 
 export default function AdminFinancePage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [summary, setSummary] = React.useState<FinanceSummary | null>(null);
@@ -39,7 +43,7 @@ export default function AdminFinancePage() {
     const r = await apiJson<FinanceSummary>("/admin/finance/summary");
     setLoading(false);
     if (!r.ok) {
-      setError(r.error ?? "Failed to load finance summary");
+      setError(r.error ?? t("failedToLoadFinance"));
       return;
     }
     setSummary(r.data ?? null);
@@ -54,8 +58,8 @@ export default function AdminFinancePage() {
       <div className="p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-gray-900 text-3xl font-bold">Finance</h1>
-            <p className="mt-2 text-gray-600">Revenue, payouts, and financial overview</p>
+            <h1 className="text-gray-900 text-3xl font-bold">{t("financeTitle")}</h1>
+            <p className="mt-2 text-gray-600">{t("financeDesc")}</p>
           </div>
           <button
             type="button"
@@ -66,7 +70,7 @@ export default function AdminFinancePage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh
+            {t("refresh")}
           </button>
         </div>
 
@@ -80,7 +84,7 @@ export default function AdminFinancePage() {
         )}
 
         {loading && !summary && (
-          <div className="flex items-center justify-center py-16 text-gray-500">Loading finance data…</div>
+          <div className="flex items-center justify-center py-16 text-gray-500">{t("loadingFinanceData")}</div>
         )}
 
         {summary && !loading && (
@@ -88,31 +92,31 @@ export default function AdminFinancePage() {
             {/* Summary cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Est. revenue (USD)</p>
+                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">{t("estRevenueUsd")}</p>
                 <p className="mt-1 text-2xl font-bold text-gray-900">${summary.estimatedRevenueUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                <p className="mt-0.5 text-xs text-gray-400">From credit purchases (package pricing)</p>
+                <p className="mt-0.5 text-xs text-gray-400">{t("fromCreditPurchases")}</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Credits purchased</p>
+                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">{t("creditsPurchased")}</p>
                 <p className="mt-1 text-2xl font-bold text-gray-900">{summary.totalPurchasedCredits.toLocaleString()}</p>
-                <p className="mt-0.5 text-xs text-gray-400">{summary.purchaseCount} transaction(s)</p>
+                <p className="mt-0.5 text-xs text-gray-400">{summary.purchaseCount} {t("transactionsCount")}</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Credits spent</p>
+                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">{t("creditsSpent")}</p>
                 <p className="mt-1 text-2xl font-bold text-emerald-600">{summary.totalSpentCredits.toLocaleString()}</p>
-                <p className="mt-0.5 text-xs text-gray-400">On completed/cancelled classes</p>
+                <p className="mt-0.5 text-xs text-gray-400">{t("onCompletedCancelled")}</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Credits refunded</p>
+                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">{t("creditsRefunded")}</p>
                 <p className="mt-1 text-2xl font-bold text-amber-600">{summary.totalRefundedCredits.toLocaleString()}</p>
-                <p className="mt-0.5 text-xs text-gray-400">Cancellations</p>
+                <p className="mt-0.5 text-xs text-gray-400">{t("cancellations")}</p>
               </div>
             </div>
 
             {/* Purchases chart (last 30 days) */}
             {summary.chartData.some((d) => d.credits > 0) && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-8">
-                <h2 className="text-gray-900 text-lg font-semibold mb-4">Credits purchased (last 30 days)</h2>
+                <h2 className="text-gray-900 text-lg font-semibold mb-4">{t("creditsPurchasedLast30")}</h2>
                 <div className="flex flex-wrap gap-2 items-end justify-between" style={{ minHeight: 120 }}>
                   {summary.chartData.map((d) => {
                     const maxCredits = Math.max(1, ...summary.chartData.map((x) => x.credits));
@@ -134,21 +138,21 @@ export default function AdminFinancePage() {
 
             {/* Teacher earnings */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
-              <h2 className="text-gray-900 text-lg font-semibold px-6 py-4 border-b border-gray-100">Teacher earnings (credits)</h2>
+              <h2 className="text-gray-900 text-lg font-semibold px-6 py-4 border-b border-gray-100">{t("teacherEarningsCredits")}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 text-left text-gray-600 font-medium">
-                      <th className="px-6 py-3">Teacher</th>
-                      <th className="px-6 py-3">Credits earned</th>
-                      <th className="px-6 py-3">Completed classes</th>
+                      <th className="px-6 py-3">{t("teacher")}</th>
+                      <th className="px-6 py-3">{t("creditsEarned")}</th>
+                      <th className="px-6 py-3">{t("completedClasses")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {summary.teacherEarnings.length === 0 ? (
                       <tr>
                         <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                          No completed bookings yet.
+                          {t("noCompletedBookings")}
                         </td>
                       </tr>
                     ) : (
@@ -167,23 +171,23 @@ export default function AdminFinancePage() {
 
             {/* Recent credit transactions */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <h2 className="text-gray-900 text-lg font-semibold px-6 py-4 border-b border-gray-100">Recent credit transactions</h2>
+              <h2 className="text-gray-900 text-lg font-semibold px-6 py-4 border-b border-gray-100">{t("recentCreditTransactions")}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 text-left text-gray-600 font-medium">
-                      <th className="px-6 py-3">Date</th>
-                      <th className="px-6 py-3">Type</th>
-                      <th className="px-6 py-3">Amount</th>
-                      <th className="px-6 py-3">Method</th>
-                      <th className="px-6 py-3">User</th>
+                      <th className="px-6 py-3">{t("date")}</th>
+                      <th className="px-6 py-3">{t("type")}</th>
+                      <th className="px-6 py-3">{t("amount")}</th>
+                      <th className="px-6 py-3">{t("method")}</th>
+                      <th className="px-6 py-3">{t("userLabel")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {summary.recentTransactions.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                          No transactions in the last 30 days.
+                          {t("noTransactions30Days")}
                         </td>
                       </tr>
                     ) : (

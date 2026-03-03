@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthToken, getAuthUser } from "@/utils/backend";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type PendingArticle = {
   id: string;
@@ -33,6 +35,8 @@ type PendingAttachment = {
 
 export default function ForumAdminPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const me = getAuthUser<any>();
 
   const [loading, setLoading] = React.useState(true);
@@ -86,7 +90,7 @@ export default function ForumAdminPage() {
 
   async function rejectArticle(id: string) {
     const reason = (rejectReason[id] || "").trim();
-    if (!reason) return setError("Please provide a rejection reason.");
+    if (!reason) return setError(t("provideRejectionReason"));
     const r = await apiJson(`/admin/forum/articles/${encodeURIComponent(id)}/reject`, {
       method: "POST",
       body: JSON.stringify({ reason }),
@@ -104,7 +108,7 @@ export default function ForumAdminPage() {
 
   async function rejectAttachment(id: string) {
     const reason = (rejectAttachmentReason[id] || "").trim();
-    if (!reason) return setError("Please provide an attachment rejection reason.");
+    if (!reason) return setError(t("provideAttachmentRejectionReason"));
     const r = await apiJson(`/admin/forum/attachments/${encodeURIComponent(id)}/reject`, {
       method: "POST",
       body: JSON.stringify({ reason }),
@@ -149,22 +153,22 @@ export default function ForumAdminPage() {
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <h1 className="text-white text-2xl md:text-4xl font-extrabold">Forum admin</h1>
-                <p className="text-white/80 mt-2 text-sm md:text-base">Approve posts and moderate uploads.</p>
+                <h1 className="text-white text-2xl md:text-4xl font-extrabold">{t("forumAdmin")}</h1>
+                <p className="text-white/80 mt-2 text-sm md:text-base">{t("forumAdminDesc")}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="/forum"
                   className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase"
                 >
-                  Forum
+                  {t("forum")}
                 </Link>
                 <button
                   type="button"
                   onClick={load}
                   className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#004bb0] text-white text-xs font-extrabold uppercase"
                 >
-                  Refresh
+                  {t("refresh")}
                 </button>
               </div>
             </div>
@@ -176,12 +180,12 @@ export default function ForumAdminPage() {
             ) : null}
 
             {loading ? (
-              <div className="mt-8 text-white/80 text-sm">Loading...</div>
+              <div className="mt-8 text-white/80 text-sm">{t("loading")}</div>
             ) : (
               <div className="mt-8 grid gap-6">
                 <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
                   <div className="p-5 md:p-6">
-                    <div className="text-white font-extrabold">Pending articles ({pendingArticles.length})</div>
+                    <div className="text-white font-extrabold">{t("pendingArticles")} ({pendingArticles.length})</div>
                     <div className="mt-4 grid gap-3">
                       {pendingArticles.length ? (
                         pendingArticles.map((a) => (
@@ -202,14 +206,14 @@ export default function ForumAdminPage() {
                                   href={`/forum/${a.id}`}
                                   className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase text-center"
                                 >
-                                  Review
+                                  {t("review")}
                                 </Link>
                                 <button
                                   type="button"
                                   onClick={() => approveArticle(a.id)}
                                   className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#22c55e]/30 hover:bg-[#22c55e]/40 text-white text-xs font-extrabold uppercase"
                                 >
-                                  Approve
+                                  {t("approve")}
                                 </button>
                               </div>
                             </div>
@@ -217,7 +221,7 @@ export default function ForumAdminPage() {
                               <input
                                 value={rejectReason[a.id] || ""}
                                 onChange={(e) => setRejectReason((prev) => ({ ...prev, [a.id]: e.target.value }))}
-                                placeholder="Rejection reason..."
+                                placeholder={t("rejectionReasonPlaceholder")}
                                 className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                               />
                               <button
@@ -225,13 +229,13 @@ export default function ForumAdminPage() {
                                 onClick={() => rejectArticle(a.id)}
                                 className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#B4005A]/40 hover:bg-[#B4005A]/55 text-white text-xs font-extrabold uppercase"
                               >
-                                Reject
+                                {t("reject")}
                               </button>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div className="text-white/80 text-sm">No pending articles.</div>
+                        <div className="text-white/80 text-sm">{t("noPendingArticles")}</div>
                       )}
                     </div>
                   </div>
@@ -239,7 +243,7 @@ export default function ForumAdminPage() {
 
                 <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
                   <div className="p-5 md:p-6">
-                    <div className="text-white font-extrabold">Pending attachments ({pendingAttachments.length})</div>
+                    <div className="text-white font-extrabold">{t("pendingAttachments")} ({pendingAttachments.length})</div>
                     <div className="mt-4 grid gap-3">
                       {pendingAttachments.length ? (
                         pendingAttachments.map((a) => (
@@ -262,7 +266,7 @@ export default function ForumAdminPage() {
                                     href={`/forum/${a.parentId}`}
                                     className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase text-center"
                                   >
-                                    Open
+                                    {t("open")}
                                   </Link>
                                 ) : null}
                                 <button
@@ -270,7 +274,7 @@ export default function ForumAdminPage() {
                                   onClick={() => approveAttachment(a.id)}
                                   className="px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#22c55e]/30 hover:bg-[#22c55e]/40 text-white text-xs font-extrabold uppercase"
                                 >
-                                  Approve
+                                  {t("approve")}
                                 </button>
                               </div>
                             </div>
@@ -278,7 +282,7 @@ export default function ForumAdminPage() {
                               <input
                                 value={rejectAttachmentReason[a.id] || ""}
                                 onChange={(e) => setRejectAttachmentReason((prev) => ({ ...prev, [a.id]: e.target.value }))}
-                                placeholder="Rejection reason..."
+                                placeholder={t("rejectionReasonPlaceholder")}
                                 className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                               />
                               <button
@@ -286,13 +290,13 @@ export default function ForumAdminPage() {
                                 onClick={() => rejectAttachment(a.id)}
                                 className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#B4005A]/40 hover:bg-[#B4005A]/55 text-white text-xs font-extrabold uppercase"
                               >
-                                Reject
+                                {t("reject")}
                               </button>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div className="text-white/80 text-sm">No pending attachments.</div>
+                        <div className="text-white/80 text-sm">{t("noPendingAttachments")}</div>
                       )}
                     </div>
                   </div>
@@ -301,12 +305,12 @@ export default function ForumAdminPage() {
                 <div className="grid gap-6 lg:grid-cols-3">
                   <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
                     <div className="p-5 md:p-6">
-                      <div className="text-white font-extrabold">Award forum credits</div>
+                      <div className="text-white font-extrabold">{t("awardForumCredits")}</div>
                       <form onSubmit={awardCredits} className="mt-4 grid gap-3">
                         <input
                           value={awardUserId}
                           onChange={(e) => setAwardUserId(e.target.value)}
-                          placeholder="User ObjectId"
+                          placeholder={t("userObjectIdPlaceholder")}
                           className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                           required
                         />
@@ -322,14 +326,14 @@ export default function ForumAdminPage() {
                         <input
                           value={awardReason}
                           onChange={(e) => setAwardReason(e.target.value)}
-                          placeholder="Reason (optional)"
+                          placeholder={t("reasonOptional")}
                           className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                         />
                         <button
                           type="submit"
                           className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#004bb0] text-white text-xs font-extrabold uppercase"
                         >
-                          Award
+                          {t("award")}
                         </button>
                       </form>
                     </div>
@@ -337,12 +341,12 @@ export default function ForumAdminPage() {
 
                   <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
                     <div className="p-5 md:p-6">
-                      <div className="text-white font-extrabold">Ban user</div>
+                      <div className="text-white font-extrabold">{t("banUser")}</div>
                       <form onSubmit={banUser} className="mt-4 grid gap-3">
                         <input
                           value={banUserId}
                           onChange={(e) => setBanUserId(e.target.value)}
-                          placeholder="User ObjectId"
+                          placeholder={t("userObjectIdPlaceholder")}
                           className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                           required
                         />
@@ -350,7 +354,7 @@ export default function ForumAdminPage() {
                           type="submit"
                           className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#B4005A]/40 hover:bg-[#B4005A]/55 text-white text-xs font-extrabold uppercase"
                         >
-                          Ban (disable)
+                          {t("banDisable")}
                         </button>
                       </form>
                     </div>
@@ -358,12 +362,12 @@ export default function ForumAdminPage() {
 
                   <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-white/10 overflow-hidden">
                     <div className="p-5 md:p-6">
-                      <div className="text-white font-extrabold">Unban user</div>
+                      <div className="text-white font-extrabold">{t("unbanUser")}</div>
                       <form onSubmit={unbanUser} className="mt-4 grid gap-3">
                         <input
                           value={unbanUserId}
                           onChange={(e) => setUnbanUserId(e.target.value)}
-                          placeholder="User ObjectId"
+                          placeholder={t("userObjectIdPlaceholder")}
                           className="w-full px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                           required
                         />
@@ -371,7 +375,7 @@ export default function ForumAdminPage() {
                           type="submit"
                           className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#22c55e]/30 hover:bg-[#22c55e]/40 text-white text-xs font-extrabold uppercase"
                         >
-                          Unban (activate)
+                          {t("unbanActivate")}
                         </button>
                       </form>
                     </div>

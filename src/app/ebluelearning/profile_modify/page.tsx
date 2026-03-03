@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiJson } from "@/utils/backend";
 import CloudinaryImageUpload from "@/components/CloudinaryImageUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "../translate";
 
 type StudentProfile = {
   _id: string;
@@ -25,6 +27,8 @@ type StudentProfile = {
 
 export default function ProfileModifyPage() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -112,7 +116,7 @@ export default function ProfileModifyPage() {
     return (
       <main className="min-h-screen">
         <section className="relative z-10 max-w-[1200px] mx-auto p-left p-right py-8">
-          <div className="text-white text-center">Loading...</div>
+          <div className="text-white text-center">{t("loading")}</div>
         </section>
       </main>
     );
@@ -125,9 +129,9 @@ export default function ProfileModifyPage() {
           <div className="space1 bg-[url('/img/mars-bg.png')] bg-cover bg-center">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-white text-2xl md:text-5xl font-extrabold leading-none">Edit Profile</h1>
+                <h1 className="text-white text-2xl md:text-5xl font-extrabold leading-none">{t("editProfileTitle")}</h1>
                 <div className="mt-3 text-white/85 text-sm md:text-base font-semibold">
-                  Update your profile information
+                  {t("updateProfileInfo")}
                 </div>
               </div>
 
@@ -143,14 +147,14 @@ export default function ProfileModifyPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Saving...</span>
+                    <span>{t("saving")}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Save Changes</span>
+                    <span>{t("saveChanges")}</span>
                   </>
                 )}
               </button>
@@ -165,24 +169,24 @@ export default function ProfileModifyPage() {
             <div className="grid gap-6 md:grid-cols-2">
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-6 grid gap-5">
-                  <Field label="Profile Photo">
+                  <Field label={t("profilePhoto")}>
                     <CloudinaryImageUpload
                       currentImageUrl={f.photoUrl}
                       onImageUploaded={(url) => setF((s) => ({ ...s, photoUrl: url }))}
-                      buttonText="Upload Photo"
+                      buttonText={t("uploadPhoto")}
                       showPreview={true}
                     />
                   </Field>
 
-                  <Field label="Nickname">
+                  <Field label={t("nickname")}>
                     <Input
                       value={f.nickname}
                       onChange={(v) => setF((s) => ({ ...s, nickname: v }))}
-                      placeholder="Your nickname"
+                      placeholder={t("yourNickname")}
                     />
                   </Field>
 
-                  <Field label="Birthdate">
+                  <Field label={t("birthdate")}>
                     <Input
                       type="date"
                       value={f.birthdate}
@@ -190,30 +194,30 @@ export default function ProfileModifyPage() {
                     />
                   </Field>
 
-                  <Field label="Spanish Level">
+                  <Field label={t("spanishLevel")}>
                     <Select
                       value={f.spanishLevel}
                       onChange={(v) => setF((s) => ({ ...s, spanishLevel: v }))}
                     >
-                      <option value="">Select level...</option>
-                      <option value="Absolute beginner">Absolute beginner</option>
-                      <option value="Beginner">Beginner</option>
-                      <option value="Elementary">Elementary</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Upper Intermediate">Upper Intermediate</option>
-                      <option value="Advanced">Advanced</option>
-                      <option value="Native/Fluent">Native/Fluent</option>
+                      <option value="">{t("selectLevel")}</option>
+                      <option value="Absolute beginner">{t("absoluteBeginner")}</option>
+                      <option value="Beginner">{t("beginner")}</option>
+                      <option value="Elementary">{t("elementary")}</option>
+                      <option value="Intermediate">{t("intermediate")}</option>
+                      <option value="Upper Intermediate">{t("upperIntermediate")}</option>
+                      <option value="Advanced">{t("advanced")}</option>
+                      <option value="Native/Fluent">{t("nativeFluent")}</option>
                     </Select>
                   </Field>
 
-                  <Field label="Can Read?">
+                  <Field label={t("canRead")}>
                     <Select
                       value={f.canRead}
                       onChange={(v) => setF((s) => ({ ...s, canRead: v }))}
                     >
-                      <option value="">Select...</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
+                      <option value="">{t("select")}</option>
+                      <option value="Yes">{t("yes")}</option>
+                      <option value="No">{t("no")}</option>
                     </Select>
                   </Field>
                 </div>
@@ -221,38 +225,38 @@ export default function ProfileModifyPage() {
 
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-6 grid gap-5">
-                  <Field label="Homeschool Funding">
+                  <Field label={t("homeschoolFunding")}>
                     <Select
                       value={f.homeschoolFunding}
                       onChange={(v) => setF((s) => ({ ...s, homeschoolFunding: v }))}
                     >
-                      <option value="">Select...</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
+                      <option value="">{t("select")}</option>
+                      <option value="Yes">{t("yes")}</option>
+                      <option value="No">{t("no")}</option>
                     </Select>
                   </Field>
 
-                  <Field label="Learning Objectives">
+                  <Field label={t("learningObjectives")}>
                     <Textarea
                       value={f.questionnaire}
                       onChange={(v) => setF((s) => ({ ...s, questionnaire: v }))}
-                      placeholder="What are your learning goals?"
+                      placeholder={t("learningObjectivesPlaceholder")}
                     />
                   </Field>
 
-                  <Field label="Parent Name">
+                  <Field label={t("parentName")}>
                     <Input
                       value={f.parentName}
                       onChange={(v) => setF((s) => ({ ...s, parentName: v }))}
-                      placeholder="Parent/Guardian name"
+                      placeholder={t("parentGuardianName")}
                     />
                   </Field>
 
-                  <Field label="Parent Phone">
+                  <Field label={t("telephoneNumber")}>
                     <Input
                       value={f.parentPhone}
                       onChange={(v) => setF((s) => ({ ...s, parentPhone: v }))}
-                      placeholder="+1..."
+                      placeholder={t("parentPhonePlaceholder")}
                     />
                   </Field>
                 </div>
@@ -267,7 +271,7 @@ export default function ProfileModifyPage() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Cancel
+                {t("cancel")}
               </Link>
             </div>
           </div>

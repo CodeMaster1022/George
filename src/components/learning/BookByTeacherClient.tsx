@@ -1,10 +1,12 @@
-"use client";
+\"use client\";
 
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
-import { useRouter } from "next/navigation";
-import { apiJson, getAuthUser } from "@/utils/backend";
-import useToastr from "@/hooks/useToastr";
+import React from \"react\";
+import { useRouter } from \"next/navigation\";
+import { apiJson, getAuthUser } from \"@/utils/backend\";
+import useToastr from \"@/hooks/useToastr\";
+import { useLanguage } from \"@/contexts/LanguageContext\";
+import { translate, type SupportedLanguage } from \"@/app/ebluelearning/book_by_teacher/translate\";
 
 type Teacher = {
   id: string; // TeacherProfile._id
@@ -126,6 +128,8 @@ type Session = {
 
 export default function BookByTeacherClient() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [q, setQ] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
@@ -307,9 +311,9 @@ export default function BookByTeacherClient() {
     const data: any = (r as any).data || {};
     const meet = data?.session?.meetingLink || "";
 
-    setBookingInfo("Booked successfully.");
+    setBookingInfo(t("bookingInfoShort"));
     if (meet) setBookedMeetLink(String(meet));
-    showToast("Meeting booked successfully. Your class is confirmed.", "success");
+    showToast(t("bookingToast"), "success");
     await loadCredits();
     if (selectedId) await loadSessions(selectedId);
   }
@@ -320,14 +324,14 @@ export default function BookByTeacherClient() {
         <div className="overflow-hidden">
           <div className="bg-cover bg-center">
             <div className="text-center text-[#ffb4b4] text-xs md:text-sm font-semibold">
-              In order to assure the proper functioning of the booking system, please make sure the clock on your device is correct.
+              {t("bookingNote")}
             </div>
 
             <div className="mt-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
-                <h1 className="text-white text-2xl md:text-4xl font-extrabold">Book by Teacher</h1>
+                <h1 className="text-white text-2xl md:text-4xl font-extrabold">{t("bookByTeacherTitle")}</h1>
                 <div className="mt-2 text-white/75 text-sm">
-                  Choose a teacher, then pick an open time slot (next 30 days).
+                  {t("bookByTeacherSubtitle")}
                 </div>
               </div>
 
@@ -335,8 +339,11 @@ export default function BookByTeacherClient() {
                 <div className="relative">
                   <input
                     value={q}
-                    onChange={(e) => { setQ(e.target.value); setPage(1); }}
-                    placeholder="Search teacher by name"
+                    onChange={(e) => {
+                      setQ(e.target.value);
+                      setPage(1);
+                    }}
+                    placeholder={t("searchTeacherPlaceholder")}
                     className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] text-sm focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                   />
                   <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#212429]/50">
@@ -358,7 +365,7 @@ export default function BookByTeacherClient() {
                   </div>
                 ) : teachersLoading ? (
                   <div className="sm:col-span-2 lg:col-span-3 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                    Loading teachers...
+                    {t("loadingTeachers")}
                   </div>
                 ) : pageTeachers.length ? (
                   pageTeachers.map((t) => {
@@ -416,7 +423,7 @@ export default function BookByTeacherClient() {
                   })
                 ) : (
                   <div className="sm:col-span-2 lg:col-span-3 border-[5px] border-[#2D2D2D] rounded-[22px] bg-white/10 p-8 text-center text-white/80">
-                    No teachers match your search.
+                    {t("noTeachersMatch")}
                   </div>
                 )}
               </div>
@@ -426,15 +433,15 @@ export default function BookByTeacherClient() {
                 <div className="border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden bg-white/10">
                   <div className="p-5">
                     <div className="text-center text-white font-extrabold tracking-[0.22em] text-sm">
-                      BOOK
+                      {t("bookHeading")}
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
                       <div className="border-2 border-[#2D2D2D] rounded-lg bg-white/10 px-3 py-2 text-center text-white/85">
-                        Purchasing: <span className="font-extrabold">{purchasing}</span>
+                        {t("purchasing")} <span className="font-extrabold">{purchasing}</span>
                       </div>
                       <div className="border-2 border-[#2D2D2D] rounded-lg bg-white/10 px-3 py-2 text-center text-white/85">
-                        Your credits: <span className="font-extrabold">{credits}</span>
+                        {t("yourCredits")} <span className="font-extrabold">{credits}</span>
                       </div>
                     </div>
 
@@ -442,28 +449,35 @@ export default function BookByTeacherClient() {
                       {selected ? (
                         <div>
                           <div className="text-white font-extrabold">
-                            Selected: {selected.name}
+                            {t("selectedPrefix")} {selected.name}
                           </div>
                           <div className="text-white/70 text-xs mt-1">{selected.country}</div>
 
                           <div className="mt-4">
                             <div className="text-white/80 text-xs">
-                              Open slots (30 days): <span className="font-extrabold text-white">{sessions.length}</span>
+                              {t("openSlots30Label")}{" "}
+                              <span className="font-extrabold text-white">{sessions.length}</span>
                             </div>
                             <div className="mt-2 text-white/70 text-xs">
-                              Choose a date/time in the calendar below.
+                              {t("chooseDateTimeHint")}
                             </div>
-                          {!sessionsLoading && !sessionsError && selectedId && sessions.length === 0 ? (
+                          {!sessionsLoading &&
+                          !sessionsError &&
+                          selectedId &&
+                          sessions.length === 0 ? (
                             <div className="mt-3 text-white/80 text-sm">
-                              No open slots found for this teacher (next 30 days). The teacher must create/generate sessions in the
-                              teacher dashboard.
+                              {t("noSlotsForTeacherHint")}
                             </div>
                           ) : null}
                             {selectedSession ? (
                               <div className="mt-3 px-3 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#000237]/55 text-white text-xs">
-                                <div className="font-extrabold">Selected time</div>
-                                <div className="mt-1 text-white/85">{fmt(selectedSession.startAt)} → {fmt(selectedSession.endAt)}</div>
-                                <div className="mt-1 text-white/85">Price: {selectedSession.priceCredits} credits</div>
+                                <div className="font-extrabold">{t("selectedTimeHeading")}</div>
+                                <div className="mt-1 text-white/85">
+                                  {fmt(selectedSession.startAt)} → {fmt(selectedSession.endAt)}
+                                </div>
+                                <div className="mt-1 text-white/85">
+                                  {t("priceLabel")} {selectedSession.priceCredits} {t("creditsWord")}
+                                </div>
                               </div>
                             ) : null}
                             {sessionsError ? <div className="mt-3 text-white/80 text-sm">{sessionsError}</div> : null}
@@ -481,7 +495,7 @@ export default function BookByTeacherClient() {
                               {bookedMeetLink ? (
                                 <div className="mt-3">
                                   <div className="text-white/90 text-xs font-extrabold uppercase tracking-[0.12em]">
-                                    Meeting link
+                                    {t("meetingLinkLabel")}
                                   </div>
                                   <a
                                     href={safeJoinHref(bookedMeetLink) || "#"}
@@ -502,7 +516,7 @@ export default function BookByTeacherClient() {
                                       }
                                     }}
                                   >
-                                    Copy link
+                                    {t("copyLink")}
                                   </button>
                                 </div>
                               ) : null}
@@ -521,7 +535,7 @@ export default function BookByTeacherClient() {
                             ].join(" ")}
                             onClick={bookSelectedSession}
                           >
-                            {bookingBusy ? "Booking..." : "Book selected time"}
+                            {bookingBusy ? t("bookingBusy") : t("bookSelectedTime")}
                           </button>
                           <button
                             type="button"
@@ -533,12 +547,12 @@ export default function BookByTeacherClient() {
                               setBookingInfo(null);
                             }}
                           >
-                            Clear selection
+                            {t("clearSelection")}
                           </button>
                         </div>
                       ) : (
                         <div className="text-white/80 text-sm">
-                          Select a teacher to book a class.
+                          {t("selectTeacherHint")}
                         </div>
                       )}
                     </div>
@@ -554,14 +568,15 @@ export default function BookByTeacherClient() {
               <div className="p-6 md:p-8">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div>
-                    <div className="text-white font-extrabold text-xl">Calendar</div>
+                    <div className="text-white font-extrabold text-xl">{t("calendarTitle")}</div>
                     <div className="text-white/70 text-sm mt-1">
                       {selected ? (
                         <>
-                          Showing open slots for <span className="text-white font-semibold">{selected.name}</span>.
+                          {t("showingSlotsFor")}{" "}
+                          <span className="text-white font-semibold">{selected.name}</span>.
                         </>
                       ) : (
-                        "Select a teacher above to see their availability."
+                        t("selectTeacherForAvailability")
                       )}
                     </div>
                   </div>
@@ -572,7 +587,7 @@ export default function BookByTeacherClient() {
                       className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold uppercase disabled:opacity-60"
                       disabled={sessionsLoading}
                     >
-                      Refresh
+                      {t("refresh")}
                     </button>
                   ) : null}
                 </div>
@@ -582,6 +597,7 @@ export default function BookByTeacherClient() {
                     <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-[#000237]/35 overflow-hidden">
                       <div className="p-5">
                         <MonthCalendar
+                          t={t}
                           sessionsByDay={sessionsByDay}
                           selectedDay={selectedDay}
                           onSelectDay={(d) => {
@@ -596,14 +612,14 @@ export default function BookByTeacherClient() {
 
                     <div className="rounded-[18px] border-[5px] border-[#2D2D2D] bg-[#000237]/35 overflow-hidden">
                       <div className="p-5">
-                        <div className="text-white font-extrabold">Times</div>
+                        <div className="text-white font-extrabold">{t("timesHeading")}</div>
                         <div className="text-white/70 text-xs mt-1">
-                          {selectedDay ? `Selected day: ${selectedDay}` : "Pick a day on the calendar."}
+                          {selectedDay ? `${t("selectedDayLabel")} ${selectedDay}` : t("pickDayHint")}
                         </div>
 
                         <div className="mt-4 grid gap-2 max-h-[360px] overflow-auto pr-1">
                           {sessionsLoading ? (
-                            <div className="text-white/80 text-sm">Loading…</div>
+                            <div className="text-white/80 text-sm">{t("loadingTimes")}</div>
                           ) : selectedDay && daySessions.length ? (
                             daySessions.map((s) => {
                               const active = selectedSessionId === s._id;
@@ -621,15 +637,19 @@ export default function BookByTeacherClient() {
                                     active ? "bg-[#0058C9]/50" : "bg-white/10 hover:bg-white/15",
                                   ].join(" ")}
                                 >
-                                  <div className="font-extrabold">{fmtTime(s.startAt)} → {fmtTime(s.endAt)}</div>
-                                  <div className="text-white/75 mt-1">Price: {s.priceCredits} credits</div>
+                                  <div className="font-extrabold">
+                                    {fmtTime(s.startAt)} → {fmtTime(s.endAt)}
+                                  </div>
+                                  <div className="text-white/75 mt-1">
+                                    {t("priceLabel")} {s.priceCredits} {t("creditsWord")}
+                                  </div>
                                 </button>
                               );
                             })
                           ) : selectedDay ? (
-                            <div className="text-white/80 text-sm">No open times on this day.</div>
+                            <div className="text-white/80 text-sm">{t("noOpenTimes")}</div>
                           ) : (
-                            <div className="text-white/80 text-sm">Select a day to see times.</div>
+                            <div className="text-white/80 text-sm">{t("selectDayToSeeTimes")}</div>
                           )}
                         </div>
                       </div>
@@ -697,10 +717,12 @@ function dayKey(iso: string) {
 }
 
 function MonthCalendar({
+  t,
   sessionsByDay,
   selectedDay,
   onSelectDay,
 }: {
+  t: (key: string) => string;
   sessionsByDay: Map<string, Session[]>;
   selectedDay: string;
   onSelectDay: (day: string) => void;
@@ -732,7 +754,7 @@ function MonthCalendar({
           type="button"
           onClick={() => shiftMonths(-1)}
           className="w-9 h-9 rounded-lg border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white font-extrabold"
-          aria-label="Previous month"
+          aria-label={t("previousMonth")}
         >
           ‹
         </button>
@@ -743,14 +765,14 @@ function MonthCalendar({
           type="button"
           onClick={() => shiftMonths(1)}
           className="w-9 h-9 rounded-lg border-2 border-[#2D2D2D] bg-white/10 hover:bg-white/15 text-white font-extrabold"
-          aria-label="Next month"
+          aria-label={t("nextMonth")}
         >
           ›
         </button>
       </div>
 
       <div className="mt-4 grid grid-cols-7 gap-2 text-xs text-white/80">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+        {[t("sunShort"), t("monShort"), t("tueShort"), t("wedShort"), t("thuShort"), t("friShort"), t("satShort")].map((d) => (
           <div key={d} className="text-center font-semibold">
             {d}
           </div>
@@ -774,12 +796,12 @@ function MonthCalendar({
                 active ? "bg-[#0058C9]/55" : "bg-white/10 hover:bg-white/15",
                 disabled ? "opacity-40 cursor-not-allowed hover:bg-white/10" : "",
               ].join(" ")}
-              title={disabled ? "No open slots" : `${count} open slot(s)`}
+              title={disabled ? t("noOpenSlots") : `${count} ${t("openSlotsTitle")}`}
             >
               <div className="text-sm font-extrabold">{c.day}</div>
               {count ? (
                 <div className="absolute bottom-1 left-1 right-1 text-[10px] text-white/80">
-                  {count} slot{count === 1 ? "" : "s"}
+                  {count} {t("slotsLabel")}
                 </div>
               ) : null}
             </button>

@@ -3,6 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "@/app/teacher/register/translate";
 
 function isEmailValid(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
@@ -10,6 +12,8 @@ function isEmailValid(v: string) {
 
 export default function TeacherRegisterClient() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [step, setStep] = React.useState<"account" | "verify">("account");
   const [submitting, setSubmitting] = React.useState(false);
   const [sending, setSending] = React.useState(false);
@@ -29,7 +33,7 @@ export default function TeacherRegisterClient() {
       body: JSON.stringify({ role: "teacher", email: email.trim(), password }),
     });
     const json = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(json?.error || "Registration failed.");
+    if (!res.ok) throw new Error(json?.error || t("registrationFailed"));
   }
 
   async function verifyEmailCode() {
@@ -40,10 +44,10 @@ export default function TeacherRegisterClient() {
       body: JSON.stringify({ email: email.trim(), code: code.trim() }),
     });
     const json = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(json?.error || "Verification failed.");
+    if (!res.ok) throw new Error(json?.error || t("verificationFailed"));
 
     if (json?.user?.role && json.user.role !== "teacher") {
-      throw new Error("This email is not registered as a teacher account.");
+      throw new Error(t("notTeacherAccount"));
     }
 
     try {
@@ -62,7 +66,7 @@ export default function TeacherRegisterClient() {
       body: JSON.stringify({ email: email.trim() }),
     });
     const json = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(json?.error || "Could not resend code.");
+    if (!res.ok) throw new Error(json?.error || t("couldNotResendCode"));
   }
 
   return (
@@ -71,13 +75,13 @@ export default function TeacherRegisterClient() {
         <div className="p-6 md:p-10 bg-[#000237]/50 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-white text-2xl md:text-4xl font-extrabold">Teacher Register</h1>
-              <p className="text-white/80 mt-2 text-sm md:text-base">Create a teacher account and verify your email.</p>
+              <h1 className="text-white text-2xl md:text-4xl font-extrabold">{t("teacherRegister")}</h1>
+              <p className="text-white/80 mt-2 text-sm md:text-base">{t("teacherRegisterDesc")}</p>
             </div>
             <div className="text-white/80 text-sm">
-              Already have a teacher account?{" "}
+              {t("alreadyHaveTeacherAccount")}{" "}
               <a href="/teacher/login" className="underline text-white">
-                Login
+                {t("login")}
               </a>
             </div>
           </div>
@@ -89,7 +93,7 @@ export default function TeacherRegisterClient() {
                 step === "account" ? "bg-[#CB4913] text-white" : "bg-white/10 text-white/80",
               ].join(" ")}
             >
-              Account
+              {t("account")}
             </div>
             <div
               className={[
@@ -97,7 +101,7 @@ export default function TeacherRegisterClient() {
                 step === "verify" ? "bg-[#CB4913] text-white" : "bg-white/10 text-white/80",
               ].join(" ")}
             >
-              Verify email
+              {t("verifyEmail")}
             </div>
           </div>
 
@@ -113,22 +117,22 @@ export default function TeacherRegisterClient() {
                 <div className="grid gap-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="block text-white/90 text-sm mb-1">Email</label>
+                      <label className="block text-white/90 text-sm mb-1">{t("email")}</label>
                       <input
                         type="email"
-                        placeholder="you@example.com"
+                        placeholder={t("emailPlaceholder")}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
                         required
                       />
-                      <div className="text-white/70 text-xs mt-1">We’ll send a verification code.</div>
+                      <div className="text-white/70 text-xs mt-1">{t("weSendVerificationCode")}</div>
                     </div>
                     <div>
-                      <label className="block text-white/90 text-sm mb-1">Password</label>
+                      <label className="block text-white/90 text-sm mb-1">{t("password")}</label>
                       <input
                         type="password"
-                        placeholder="At least 6 characters"
+                        placeholder={t("passwordPlaceholder")}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
@@ -149,7 +153,7 @@ export default function TeacherRegisterClient() {
                         setCode("");
                         setStep("verify");
                       } catch (e: any) {
-                        setError(e?.message || "Registration failed.");
+                        setError(e?.message || t("registrationFailed"));
                       } finally {
                         setSubmitting(false);
                       }
@@ -159,7 +163,7 @@ export default function TeacherRegisterClient() {
                       !accountValid || submitting ? "opacity-60 cursor-not-allowed" : "",
                     ].join(" ")}
                   >
-                    {submitting ? "Creating account..." : "Continue"}
+                    {submitting ? t("creatingAccount") : t("continue")}
                   </button>
                 </div>
               ) : null}
@@ -168,9 +172,9 @@ export default function TeacherRegisterClient() {
                 <div className="grid gap-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-white text-xl md:text-2xl font-extrabold">Verify your email</h2>
+                      <h2 className="text-white text-xl md:text-2xl font-extrabold">{t("verifyYourEmail")}</h2>
                       <p className="text-white/80 text-sm mt-2">
-                        We sent a 6-digit code to <span className="text-white font-semibold">{email}</span>.
+                        {t("weSentCodeTo")} <span className="text-white font-semibold">{email}</span>.
                       </p>
                     </div>
                     <button
@@ -182,21 +186,21 @@ export default function TeacherRegisterClient() {
                         try {
                           await resendCode();
                         } catch (e: any) {
-                          setError(e?.message || "Could not resend code.");
+                          setError(e?.message || t("couldNotResendCode"));
                         } finally {
                           setSending(false);
                         }
                       }}
                     >
-                      {sending ? "Sending..." : "Resend code"}
+                      {sending ? t("sending") : t("resendCode")}
                     </button>
                   </div>
 
                   <div>
-                    <label className="block text-white/90 text-sm mb-1">Verification code</label>
+                    <label className="block text-white/90 text-sm mb-1">{t("verificationCode")}</label>
                     <input
                       inputMode="numeric"
-                      placeholder="123456"
+                      placeholder={t("verificationCodePlaceholder")}
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
                       className="w-full px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/90 text-[#212429] placeholder:text-[#212429]/50 focus:outline-none focus:ring-2 focus:ring-[#0058C9]"
@@ -209,7 +213,7 @@ export default function TeacherRegisterClient() {
                       onClick={() => setStep("account")}
                       className="w-full text-white px-6 py-3.5 rounded-full border-2 border-[#2D2D2D] text-base font-semibold bg-[#000237]/60 hover:bg-white/10"
                     >
-                      Back
+                      {t("back")}
                     </button>
                     <button
                       type="button"
@@ -221,7 +225,7 @@ export default function TeacherRegisterClient() {
                           await verifyEmailCode();
                           router.push("/teacher");
                         } catch (e: any) {
-                          setError(e?.message || "Verification failed.");
+                          setError(e?.message || t("verificationFailed"));
                         } finally {
                           setSubmitting(false);
                         }
@@ -231,7 +235,7 @@ export default function TeacherRegisterClient() {
                         code.trim().length !== 6 || submitting ? "opacity-60 cursor-not-allowed" : "",
                       ].join(" ")}
                     >
-                      {submitting ? "Verifying..." : "Verify & Continue"}
+                      {submitting ? t("verifying") : t("verifyAndContinue")}
                     </button>
                   </div>
                 </div>

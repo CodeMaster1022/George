@@ -4,6 +4,8 @@ import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { apiJson } from "@/utils/backend";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translate, type SupportedLanguage } from "./translate";
 
 type ChartDay = { date: string; registrations: number; bookings: number };
 
@@ -23,6 +25,8 @@ type Stats = {
 };
 
 export default function AdminDashboardPage() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [stats, setStats] = React.useState<Stats | null>(null);
@@ -34,7 +38,7 @@ export default function AdminDashboardPage() {
       const r = await apiJson<Stats>("/admin/stats");
       setLoading(false);
       if (!r.ok) {
-        setError(r.error ?? "Failed to load stats");
+        setError(r.error ?? t("failedToLoadStats"));
         return;
       }
       setStats(r.data);
@@ -59,7 +63,7 @@ export default function AdminDashboardPage() {
       <AdminLayout>
         <div className="p-8">
           <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-6">
-            {error ?? "Failed to load dashboard"}
+            {error ?? t("failedToLoadDashboard")}
           </div>
         </div>
       </AdminLayout>
@@ -82,9 +86,9 @@ export default function AdminDashboardPage() {
 
   const totalAdmins = Math.max(0, stats.totalUsers - stats.totalStudents - stats.totalTeachers);
   const donutData = [
-    { label: "Students", value: stats.totalStudents, color: "#3b82f6" },
-    { label: "Teachers", value: stats.totalTeachers, color: "#f97316" },
-    { label: "Admins", value: totalAdmins, color: "#22c55e" },
+    { labelKey: "students", value: stats.totalStudents, color: "#3b82f6" },
+    { labelKey: "teachers", value: stats.totalTeachers, color: "#f97316" },
+    { labelKey: "admins", value: totalAdmins, color: "#22c55e" },
   ].filter((d) => d.value > 0);
   const donutTotal = donutData.reduce((s, d) => s + d.value, 0) || 1;
 
@@ -92,35 +96,35 @@ export default function AdminDashboardPage() {
     <AdminLayout>
       <div className="p-6 md:p-8 bg-gray-50/80 min-h-full">
         <div className="mb-8">
-          <h1 className="text-gray-900 text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-gray-500">Overview and key metrics</p>
+          <h1 className="text-gray-900 text-3xl font-bold tracking-tight">{t("dashboard")}</h1>
+          <p className="mt-1 text-gray-500">{t("overviewAndMetrics")}</p>
         </div>
 
         {/* KPI cards with trend */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
           <KPICard
-            title="Total Users"
+            title={t("totalUsers")}
             value={stats.totalUsers.toLocaleString()}
             change={regPct}
-            changeLabel="from previous 30 days"
+            changeLabel={t("fromPrevious30Days")}
           />
           <KPICard
-            title="New signups"
+            title={t("newSignups")}
             value={(stats.last30Registrations ?? 0).toLocaleString()}
             change={regPct}
-            changeLabel="from previous 30 days"
+            changeLabel={t("fromPrevious30Days")}
           />
           <KPICard
-            title="Total Bookings"
+            title={t("totalBookings")}
             value={stats.totalBookings.toLocaleString()}
             change={bookPct}
-            changeLabel="from previous 30 days"
+            changeLabel={t("fromPrevious30Days")}
           />
           <KPICard
-            title="Bookings (30d)"
+            title={t("bookings30d")}
             value={(stats.last30Bookings ?? 0).toLocaleString()}
             change={bookPct}
-            changeLabel="from previous 30 days"
+            changeLabel={t("fromPrevious30Days")}
           />
         </div>
 
@@ -129,8 +133,8 @@ export default function AdminDashboardPage() {
           {chartData.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-gray-900 text-lg font-semibold">Activity overview</h2>
-                <span className="text-gray-500 text-sm">Last 30 days</span>
+                <h2 className="text-gray-900 text-lg font-semibold">{t("activityOverview")}</h2>
+                <span className="text-gray-500 text-sm">{t("last30Days")}</span>
               </div>
               <div className="h-64 flex items-end gap-px">
                 {chartData.map((d) => (
@@ -157,11 +161,11 @@ export default function AdminDashboardPage() {
               <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span className="text-gray-600 text-sm">Registrations</span>
+                  <span className="text-gray-600 text-sm">{t("registrations")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-gray-600 text-sm">Bookings</span>
+                  <span className="text-gray-600 text-sm">{t("bookings")}</span>
                 </div>
               </div>
             </div>
@@ -169,8 +173,8 @@ export default function AdminDashboardPage() {
 
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-900 text-lg font-semibold">Weekly activity</h2>
-              <span className="text-gray-500 text-sm">This week</span>
+              <h2 className="text-gray-900 text-lg font-semibold">{t("weeklyActivity")}</h2>
+              <span className="text-gray-500 text-sm">{t("thisWeek")}</span>
             </div>
             <div className="h-64 flex items-end gap-2">
               {last7.map((d, i) => {
@@ -193,7 +197,7 @@ export default function AdminDashboardPage() {
                 );
               })}
             </div>
-            <p className="text-gray-500 text-xs mt-2">Registrations + bookings per day</p>
+            <p className="text-gray-500 text-xs mt-2">{t("registrationsBookingsPerDay")}</p>
           </div>
         </div>
 
@@ -201,12 +205,12 @@ export default function AdminDashboardPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-900 text-lg font-semibold">Recent registrations</h2>
+              <h2 className="text-gray-900 text-lg font-semibold">{t("recentRegistrations")}</h2>
               <Link
                 href="/admin/users"
                 className="text-blue-600 text-sm font-medium hover:underline"
               >
-                View all
+                {t("viewAll")}
               </Link>
             </div>
             <div className="space-y-1">
@@ -216,31 +220,31 @@ export default function AdminDashboardPage() {
                     key={u.email + u.createdAt}
                     email={u.email}
                     role={u.role}
-                    time={formatTimeAgo(u.createdAt)}
+                    time={formatTimeAgo(u.createdAt, t)}
                   />
                 ))
               ) : (
-                <p className="text-gray-500 text-sm py-4">No recent registrations</p>
+                <p className="text-gray-500 text-sm py-4">{t("noRecentRegistrations")}</p>
               )}
             </div>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-900 text-lg font-semibold">User breakdown</h2>
-              <span className="text-gray-500 text-sm">All time</span>
+              <h2 className="text-gray-900 text-lg font-semibold">{t("userBreakdown")}</h2>
+              <span className="text-gray-500 text-sm">{t("allTime")}</span>
             </div>
             <div className="flex items-center gap-8">
               <DonutChart data={donutData} total={donutTotal} />
               <div className="flex-1 space-y-2">
                 {donutData.map((d) => (
-                  <div key={d.label} className="flex items-center justify-between text-sm">
+                  <div key={d.labelKey} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span
                         className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: d.color }}
                       />
-                      <span className="text-gray-700">{d.label}</span>
+                      <span className="text-gray-700">{t(d.labelKey)}</span>
                     </div>
                     <span className="text-gray-900 font-medium">
                       {d.value} ({Math.round((d.value / donutTotal) * 100)}%)
@@ -254,26 +258,26 @@ export default function AdminDashboardPage() {
 
         {/* Quick actions - compact */}
         <div className="mt-6 flex flex-wrap gap-2">
-          <QuickAction href="/admin/users" label="Users" icon="users" />
-          <QuickAction href="/admin/teachers" label="Teachers" icon="teacher" />
-          <QuickAction href="/admin/bookings" label="Bookings" icon="calendar" />
-          <QuickAction href="/admin/forum" label="Forum" icon="forum" />
-          <QuickAction href="/admin/finance" label="Finance" icon="money" />
-          <QuickAction href="/admin/settings" label="Settings" icon="settings" />
+          <QuickAction href="/admin/users" label={t("users")} icon="users" />
+          <QuickAction href="/admin/teachers" label={t("teachers")} icon="teacher" />
+          <QuickAction href="/admin/bookings" label={t("bookings")} icon="calendar" />
+          <QuickAction href="/admin/forum" label={t("forum")} icon="forum" />
+          <QuickAction href="/admin/finance" label={t("finance")} icon="money" />
+          <QuickAction href="/admin/settings" label={t("settings")} icon="settings" />
         </div>
       </div>
     </AdminLayout>
   );
 }
 
-function formatTimeAgo(iso: string): string {
+function formatTimeAgo(iso: string, t: (key: string) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const sec = Math.floor((now.getTime() - d.getTime()) / 1000);
-  if (sec < 60) return "Just now";
-  if (sec < 3600) return `${Math.floor(sec / 60)}m ago`;
-  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`;
-  if (sec < 604800) return `${Math.floor(sec / 86400)}d ago`;
+  if (sec < 60) return t("justNow");
+  if (sec < 3600) return `${Math.floor(sec / 60)}${t("timeAgoM")}`;
+  if (sec < 86400) return `${Math.floor(sec / 3600)}${t("timeAgoH")}`;
+  if (sec < 604800) return `${Math.floor(sec / 86400)}${t("timeAgoD")}`;
   return d.toLocaleDateString();
 }
 
@@ -359,7 +363,7 @@ function DonutChart({
   data,
   total,
 }: {
-  data: { label: string; value: number; color: string }[];
+  data: { labelKey: string; value: number; color: string }[];
   total: number;
 }) {
   const size = 120;
@@ -375,7 +379,7 @@ function DonutChart({
           const dash = `${len} ${2 * Math.PI * r}`;
           const result = (
             <circle
-              key={d.label}
+              key={d.labelKey}
               cx={size / 2}
               cy={size / 2}
               r={r}
