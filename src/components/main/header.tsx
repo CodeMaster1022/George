@@ -215,7 +215,7 @@ const Header = () => {
 
         {/* Hero: left content + right UFO */}
         {isHome ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center relative z-10 min-h-[calc(100vh-70px)] pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-36 px-4 md:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center relative z-0 min-h-[calc(100vh-70px)] pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-36 px-4 md:px-8">
             <div className="flex flex-col items-start text-left gap-8 max-w-2xl pb-4 md:pb-8">
               <div className="space-y-3">
                 <h1 className="hero-title text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight drop-shadow-2xl">
