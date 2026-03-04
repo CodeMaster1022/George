@@ -854,7 +854,7 @@ canvas {
 
 /*footer*/
 .site-footer {
-  padding-top: 110px;
+  /* padding-top: 110px; */
   padding-bottom: 0;
 }
 
@@ -1668,4 +1668,18 @@ canvas {
     0 0 20px rgba(255, 255, 255, 0.5),
     0 0 40px rgba(255, 255, 255, 0.3),
     0 0 60px rgba(203, 73, 19, 0.4);
+}
+
+/* Photo flow marquee */
+@keyframes photo-flow {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.photo-flow-track {
+  animation: photo-flow 40s linear infinite;
 }

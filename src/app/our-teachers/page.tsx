@@ -94,6 +94,17 @@ const TEACHERS = [
   }
 ];
 
+/* Photos for CTA flow strip – add your image paths here */
+const CTA_PHOTOS = [
+  "/img/teach.png",
+  "/img/te2.png",
+  "/img/te3.png",
+  "/img/te4.png",
+  "/img/te5.png",
+  "/img/te6.png",
+  "/img/te7.png",
+];
+
 export default function OurTeachersPage() {
   const { t } = useLanguage();
   
@@ -451,18 +462,63 @@ export default function OurTeachersPage() {
 
       {/* CTA strip */}
       <section className="relative z-10">
-        <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-[#B4005A]">
-          <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-10 md:py-12 text-center">
-            <div className="text-white text-xl md:text-3xl font-semibold">
-              {t("joinClubCta")}
-            </div>
-            <div className="mt-5 flex justify-center">
-              <Link
-                href="/contact"
-                className="text-white cursor-pointer px-7 py-3 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base"
+        <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y-[5px] border-[#2D2D2D] bg-setting bg-[url('/img/bg6.jpg')]">
+          <div className="max-w-[1700px] mx-auto p-left p-right px-6 md:px-12 py-16 md:py-24">
+            <div className="flex flex-col items-center gap-14 md:gap-20 text-center">
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
               >
-                {t("bookFreeTrialNow")}
-              </Link>
+                <h2 className="text-white text-2xl md:text-5xl font-semibold">
+                  {t("joinClubCta")}
+                </h2>
+                <p className="text-white/80 mt-4 md:text-lg max-w-[700px] mx-auto">
+                  {t("experiencedEducators")}
+                </p>
+              </motion.div>
+
+              <div className="w-full relative overflow-hidden py-6 md:py-8 group">
+                {/* Edge fade masks for smoother flow */}
+                <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-[#0a0a12] to-transparent z-10 pointer-events-none" aria-hidden="true" />
+                <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-[#0a0a12] to-transparent z-10 pointer-events-none" aria-hidden="true" />
+                <div className="photo-flow-track flex gap-6 md:gap-8 w-max group-hover:[animation-play-state:paused]">
+                  {[...CTA_PHOTOS, ...CTA_PHOTOS].map((src, i) => (
+                    <motion.div
+                      key={`${src}-${i}`}
+                      className="flex-shrink-0 w-[340px] md:w-[400px] lg:w-[460px] bg-white/10 border-[5px] border-[#2D2D2D] rounded-[22px] overflow-hidden
+                        hover:border-[#0058C9] hover:bg-white/15 hover:shadow-2xl hover:shadow-[#0058C9]/30
+                        transition-all duration-300"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <img
+                        src={src}
+                        alt=""
+                        className="w-full h-auto object-cover aspect-video"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="flex justify-center"
+              >
+                <Link
+                  href="/contact"
+                  className="text-white cursor-pointer px-8 py-3.5 rounded-full bg-[#0058C9] hover:bg-[#0058C9]/90 border-2 border-[#2D2D2D] text-sm md:text-base
+                    hover:shadow-lg hover:shadow-[#0058C9]/40 transition-all duration-300"
+                >
+                  {t("bookFreeTrialNow")}
+                </Link>
+              </motion.div>
             </div>
           </div>
         </div>
