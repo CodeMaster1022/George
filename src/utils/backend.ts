@@ -1,8 +1,8 @@
 export function backendBaseUrl() {
   const defaultUrl =
     process.env.NODE_ENV === "development"
-      ? "https://georgebackend-2.onrender.com"
-      : "https://georgebackend-2.onrender.com";
+      ? "http://localhost:4000"
+      : "http://localhost:4000";
   return (process.env.NEXT_PUBLIC_BACKEND_URL || defaultUrl).replace(/\/+$/, "");
 }
 

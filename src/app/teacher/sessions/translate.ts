@@ -21,6 +21,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     priceCredits: "Price (credits)",
     meetingLink: "Meeting link",
     meetingLinkPlaceholder: "https://...",
+    presentationPdfUrls: "Presentation PDFs (BBB)",
+    presentationPdfUrlsPlaceholder: "https://example.com/slides.pdf",
+    presentationPdfHint: "Optional. Public HTTPS URLs. Shown when the student joins the BigBlueButton meeting. First PDF is shown by default.",
+    addAnotherPdf: "Add another PDF URL",
     creating: "Creating...",
     createSlot: "Create slot",
 
@@ -45,6 +49,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     reopenSlot: "Re-open",
     cancelSlot: "Cancel slot",
     copy: "Copy",
+    presentationPdfsCount: "{{count}} PDF(s)",
+    editPresentationPdfs: "Edit presentation PDFs",
+    save: "Save",
+    cancel: "Cancel",
 
     // Empty state
     noSessionsTitle: "No sessions in this range",
@@ -88,6 +96,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     priceCredits: "Precio (créditos)",
     meetingLink: "Enlace de reunión",
     meetingLinkPlaceholder: "https://...",
+    presentationPdfUrls: "PDFs de presentación (BBB)",
+    presentationPdfUrlsPlaceholder: "https://ejemplo.com/diapositivas.pdf",
+    presentationPdfHint: "Opcional. URLs públicas HTTPS. Se muestran cuando el estudiante entra a la reunión BigBlueButton. El primer PDF se muestra por defecto.",
+    addAnotherPdf: "Añadir otro PDF",
     creating: "Creando...",
     createSlot: "Crear turno",
 
@@ -112,6 +124,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     reopenSlot: "Reabrir",
     cancelSlot: "Cancelar turno",
     copy: "Copiar",
+    presentationPdfsCount: "{{count}} PDF(s)",
+    editPresentationPdfs: "Editar PDFs de presentación",
+    save: "Guardar",
+    cancel: "Cancelar",
 
     // Empty state
     noSessionsTitle: "No hay sesiones en este rango",
