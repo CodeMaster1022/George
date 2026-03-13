@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import TeacherShell from "./TeacherShell";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import JoinMeetingButton, { getMeetingTimeStatus } from "@/components/meeting/JoinMeetingButton";
 import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type BookingRow = {
   id: string;
@@ -29,6 +31,8 @@ type Report = {
 
 export default function TeacherBookingsClient() {
   const router = useRouter();
+  const { t } = useLanguage();
+  const [generatingLinkId, setGeneratingLinkId] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [bookings, setBookings] = React.useState<BookingRow[]>([]);
@@ -116,6 +120,16 @@ export default function TeacherBookingsClient() {
   const activeBooking = bookings.find((b) => b.id === selected) || null;
   const activeJoinHref = safeJoinHref(activeBooking?.session?.meetingLink);
 
+  async function handleGenerateMeetingLink(bookingId: string) {
+    setGeneratingLinkId(bookingId);
+    const r = await apiJson<{ meetingLink: string }>(`/teacher/bookings/${encodeURIComponent(bookingId)}/generate-meeting-link`, {
+      method: "POST",
+      auth: true,
+    });
+    setGeneratingLinkId("");
+    if (r.ok) load();
+  }
+
   return (
     <TeacherShell title="Bookings" subtitle="View upcoming bookings and write class reports.">
       {error ? (
@@ -173,25 +187,44 @@ export default function TeacherBookingsClient() {
                       ) : null}
                     </button>
 
-                    {safeJoinHref(b.session?.meetingLink) ? (
-                      <a
-                        href={safeJoinHref(b.session?.meetingLink) as string}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="shrink-0 px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0b67de] text-white text-xs font-extrabold uppercase flex items-center justify-center"
-                      >
-                        Join
-                      </a>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="shrink-0 px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-white/10 text-white/70 text-xs font-extrabold uppercase flex items-center justify-center opacity-60"
-                        title="No meeting link yet."
-                      >
-                        Join
-                      </button>
-                    )}
+                    {b.status === "booked" && b.session ? (
+                      (() => {
+                        const hasLink = !!(b.session.meetingLink && safeJoinHref(b.session.meetingLink));
+                        const canGenerate = getMeetingTimeStatus(b.session.startAt, b.session.endAt) === "active";
+                        if (hasLink) {
+                          return (
+                            <div className="shrink-0 flex flex-col gap-2">
+                              <JoinMeetingButton
+                                startAt={b.session.startAt}
+                                endAt={b.session.endAt}
+                                href={safeJoinHref(b.session.meetingLink) as string}
+                                t={t}
+                                className="px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0b67de] text-white text-xs font-extrabold uppercase flex items-center justify-center"
+                              >
+                                {t("join")}
+                              </JoinMeetingButton>
+                            </div>
+                          );
+                        }
+                        if (canGenerate) {
+                          return (
+                            <div className="shrink-0">
+                              <button
+                                type="button"
+                                disabled={generatingLinkId === b.id}
+                                onClick={() => handleGenerateMeetingLink(b.id)}
+                                className="px-4 py-3 rounded-xl border-2 border-[#2D2D2D] bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold uppercase flex items-center justify-center disabled:opacity-60"
+                              >
+                                {generatingLinkId === b.id ? t("generatingMeetingLink") : t("generateMeetingLink")}
+                              </button>
+                            </div>
+                          );
+                        }
+                        return (
+                          <span className="text-white/60 text-xs">{t("generateMeetingLinkAtTime")}</span>
+                        );
+                      })()
+                    ) : null}
                   </div>
                 ))
               ) : (
@@ -211,15 +244,27 @@ export default function TeacherBookingsClient() {
             {activeBooking ? (
               <div className="mt-4 text-white/80 text-xs">
                 <div className="flex items-center justify-between gap-3">
-                  {activeJoinHref ? (
-                    <a
+                  {activeJoinHref && activeBooking.session ? (
+                    <JoinMeetingButton
+                      startAt={activeBooking.session.startAt}
+                      endAt={activeBooking.session.endAt}
                       href={activeJoinHref}
-                      target="_blank"
-                      rel="noreferrer noopener"
+                      t={t}
                       className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-[#0058C9] hover:bg-[#0b67de] text-white text-xs font-extrabold uppercase"
                     >
-                      Join
-                    </a>
+                      {t("join")}
+                    </JoinMeetingButton>
+                  ) : activeBooking.session && getMeetingTimeStatus(activeBooking.session.startAt, activeBooking.session.endAt) === "active" ? (
+                    <button
+                      type="button"
+                      disabled={generatingLinkId === activeBooking.id}
+                      onClick={() => handleGenerateMeetingLink(activeBooking.id)}
+                      className="px-4 py-2 rounded-xl border-2 border-[#2D2D2D] bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold uppercase disabled:opacity-60"
+                    >
+                      {generatingLinkId === activeBooking.id ? t("generatingMeetingLink") : t("generateMeetingLink")}
+                    </button>
+                  ) : activeBooking.session ? (
+                    <span className="text-white/60 text-xs">{t("generateMeetingLinkAtTime")}</span>
                   ) : null}
                 </div>
               </div>
@@ -321,7 +366,7 @@ function fmt(s: string) {
   }
 }
 
-function safeJoinHref(raw?: string | null) {
+function safeJoinHref(raw?: string | null, immediate?: boolean) {
   const v = (raw ?? "").trim();
   if (!v) return null;
   const base = v.startsWith("http://") || v.startsWith("https://") ? v : `https://${v.replace(/^\/+/, "")}`;
@@ -333,6 +378,7 @@ function safeJoinHref(raw?: string | null) {
       if (token) {
         const u = new URL(base);
         if (!u.searchParams.get("token")) u.searchParams.set("token", token);
+        if (immediate) u.searchParams.set("immediate", "1");
         return u.toString();
       }
     }

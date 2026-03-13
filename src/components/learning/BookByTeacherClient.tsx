@@ -234,7 +234,9 @@ export default function BookByTeacherClient() {
       setSessions([]);
       return;
     }
-    const next = (((r.data as any)?.sessions ?? []) as Session[]).filter((s) => s.status === "open");
+    // Only show approved (open) slots; never show requested (pending admin approval)
+    const raw = ((r.data as any)?.sessions ?? []) as Session[];
+    const next = raw.filter((s) => s.status === "open");
     setSessions(next);
 
     // Pick first available day as default (so calendar + times show immediately)

@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import JoinMeetingButton, { getMeetingTimeStatus } from "@/components/meeting/JoinMeetingButton";
 import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -51,6 +52,7 @@ export default function TeacherBookingsPage() {
   const [ratingSaving, setRatingSaving] = React.useState(false);
   const [bookingFilter, setBookingFilter] = React.useState<"upcoming" | "history">("upcoming");
   const [chatModalOpen, setChatModalOpen] = React.useState(false);
+  const [generatingLinkId, setGeneratingLinkId] = React.useState<string>("");
   const { getUnreadCount } = useUnreadLessonChat();
 
   const filteredBookings = React.useMemo(() => {
@@ -182,6 +184,21 @@ export default function TeacherBookingsPage() {
   const activeJoinHref = safeJoinHref(activeBooking?.session?.meetingLink);
   const ratingModalBooking = ratingModalBookingId ? bookings.find((b) => b.id === ratingModalBookingId) : null;
 
+  async function handleGenerateMeetingLink(bookingId: string) {
+    setGeneratingLinkId(bookingId);
+    setError(null);
+    const r = await apiJson<{ meetingLink: string }>(`/teacher/bookings/${encodeURIComponent(bookingId)}/generate-meeting-link`, {
+      method: "POST",
+      auth: true,
+    });
+    setGeneratingLinkId("");
+    if (!r.ok) {
+      setError(r.error ?? "Failed to generate meeting link");
+      return;
+    }
+    await load();
+  }
+
   if (loading) {
     return (
       <main className="min-h-[calc(100vh-107px)] bg-gray-50">
@@ -228,13 +245,13 @@ export default function TeacherBookingsPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Bookings List */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start justify-between gap-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <div>
+                  <div className="min-w-0">
                     <h2 className="text-gray-900 text-lg font-semibold">
                       {bookingFilter === "upcoming" ? t("upcoming") : t("history")}
                     </h2>
@@ -245,7 +262,7 @@ export default function TeacherBookingsPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+                <div className="flex rounded-lg border border-gray-200 p-0.5 bg-gray-50 shrink-0">
                   <button
                     type="button"
                     onClick={() => setBookingFilter("upcoming")}
@@ -268,13 +285,13 @@ export default function TeacherBookingsPage() {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="space-y-3">
                 {filteredBookings.length ? (
                   filteredBookings.map((b) => (
                     <div
                       key={b.id}
-                      className={`flex items-stretch gap-3 p-4 rounded-lg border transition-all cursor-pointer ${
+                      className={`flex flex-col gap-3 sm:flex-row sm:items-stretch p-4 rounded-lg border transition-all cursor-pointer ${
                         selected === b.id
                           ? "border-[#0058C9] bg-blue-50 ring-2 ring-[#0058C9]/20"
                           : "border-gray-200 bg-white hover:bg-gray-50"
@@ -375,20 +392,59 @@ export default function TeacherBookingsPage() {
                             {t("rateStudent")}
                           </button>
                         )}
-                        {safeJoinHref(b.session?.meetingLink) ? (
-                          <a
-                            href={safeJoinHref(b.session?.meetingLink) as string}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center justify-center px-4 py-2 rounded-lg bg-[#0058C9] hover:bg-[#0046A3] text-white text-sm font-medium transition-colors"
-                          >
-                            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            {t("join")}
-                          </a>
-                        ) : (
+                        {b.status === "booked" && b.session ? (
+                          (() => {
+                            const hasLink = !!(b.session!.meetingLink && safeJoinHref(b.session!.meetingLink));
+                            const timeStatus = getMeetingTimeStatus(b.session!.startAt, b.session!.endAt);
+                            const canGenerate = timeStatus === "active";
+                            if (hasLink) {
+                              return (
+                                <div className="flex flex-col gap-2 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                                  <JoinMeetingButton
+                                    startAt={b.session!.startAt}
+                                    endAt={b.session!.endAt}
+                                    href={safeJoinHref(b.session!.meetingLink) as string}
+                                    t={t}
+                                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#0058C9] hover:bg-[#0046A3] text-white text-sm font-medium transition-colors"
+                                  >
+                                    <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    {t("join")}
+                                  </JoinMeetingButton>
+                                </div>
+                              );
+                            }
+                            if (canGenerate) {
+                              return (
+                                <div className="flex flex-col gap-2 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    type="button"
+                                    disabled={generatingLinkId === b.id}
+                                    onClick={() => handleGenerateMeetingLink(b.id)}
+                                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
+                                  >
+                                    {generatingLinkId === b.id ? (
+                                      t("generatingMeetingLink")
+                                    ) : (
+                                      <>
+                                        <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                        </svg>
+                                        {t("generateMeetingLink")}
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              );
+                            }
+                            return (
+                              <span className="text-gray-500 text-sm" title={t("generateMeetingLinkAtTime")}>
+                                {t("generateMeetingLinkAtTime")}
+                              </span>
+                            );
+                          })()
+                        ) : b.status === "booked" ? (
                           <button
                             type="button"
                             disabled
@@ -400,7 +456,7 @@ export default function TeacherBookingsPage() {
                             </svg>
                             {t("join")}
                           </button>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   ))
@@ -418,19 +474,19 @@ export default function TeacherBookingsPage() {
 
           {/* Class Report */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gray-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <div>
+                <div className="min-w-0">
                   <h2 className="text-gray-900 text-lg font-semibold">{t("classReport")}</h2>
                   <p className="text-gray-500 text-sm">{t("classReportDesc")}</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {!selected ? (
                 <div className="text-center py-12 text-gray-500 text-sm">
                   <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -775,7 +831,7 @@ function formatSessionTime(startAt: string, endAt: string): string {
   }
 }
 
-function safeJoinHref(raw?: string | null) {
+function safeJoinHref(raw?: string | null, immediate?: boolean) {
   const v = (raw ?? "").trim();
   if (!v) return null;
   const base = v.startsWith("http://") || v.startsWith("https://") ? v : `https://${v.replace(/^\/+/, "")}`;
@@ -787,6 +843,7 @@ function safeJoinHref(raw?: string | null) {
       if (token) {
         const u = new URL(base);
         if (!u.searchParams.get("token")) u.searchParams.set("token", token);
+        if (immediate) u.searchParams.set("immediate", "1");
         return u.toString();
       }
     }

@@ -5,6 +5,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { apiJson, getAuthUser } from "@/utils/backend";
 import LessonChatModal from "@/components/lesson-chat/LessonChatModal";
+import JoinMeetingButton from "@/components/meeting/JoinMeetingButton";
 import { useUnreadLessonChat } from "@/contexts/UnreadLessonChatContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translate, type SupportedLanguage } from "@/app/ebluelearning/class_list/translate";
@@ -41,7 +42,7 @@ type ClassReport = {
 
 export default function ClassListClient() {
   const router = useRouter();
-  const { language } = useLanguage();
+  const { language, t: tContext } = useLanguage();
   const t = (key: string) => translate(key, language);
   const [open, setOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<Filter>("all");
@@ -387,7 +388,17 @@ export default function ClassListClient() {
                                 </div>
                                 <div className="mt-1">
                                   <span className="font-extrabold text-[#212429]">{t("meetingLabel")}</span>{" "}
-                                  {joinHref ? (
+                                  {joinHref && b.session?.startAt && b.session?.endAt ? (
+                                    <JoinMeetingButton
+                                      startAt={b.session.startAt}
+                                      endAt={b.session.endAt}
+                                      href={joinHref}
+                                      t={tContext}
+                                      className="text-[#0058C9] underline bg-transparent border-0 p-0 cursor-pointer font-inherit text-inherit"
+                                    >
+                                      {t("openLink")}
+                                    </JoinMeetingButton>
+                                  ) : joinHref ? (
                                     <a
                                       className="text-[#0058C9] underline"
                                       href={joinHref}
