@@ -8,14 +8,6 @@ import toast from "react-hot-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translate, type SupportedLanguage } from "./translate";
 
-function DocumentIcon() {
-  return (
-    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-    </svg>
-  );
-}
-
 type Session = {
   _id: string;
   startAt: string;
@@ -23,7 +15,6 @@ type Session = {
   status: "open" | "booked" | "cancelled";
   priceCredits: number;
   meetingLink?: string;
-  presentationUrls?: string[];
 };
 
 export default function TeacherSessionsPage() {
@@ -47,7 +38,6 @@ export default function TeacherSessionsPage() {
     endAt: new Date(Date.now() + 2 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString().slice(0, 16),
     priceCredits: 1,
     meetingLink: "",
-    presentationUrls: [""] as string[],
   });
 
   const [gen, setGen] = React.useState({
@@ -95,9 +85,6 @@ export default function TeacherSessionsPage() {
   async function createManual() {
     setBusy(true);
     setError(null);
-    const presentationUrls = manual.presentationUrls
-      .map((u) => u.trim())
-      .filter((u) => u && u.toLowerCase().startsWith("https://"));
     const r = await apiJson("/teacher/sessions", {
       method: "POST",
       auth: true,
@@ -106,7 +93,6 @@ export default function TeacherSessionsPage() {
         endAt: new Date(manual.endAt).toISOString(),
         priceCredits: Number(manual.priceCredits) || 1,
         meetingLink: manual.meetingLink,
-        ...(presentationUrls.length ? { presentationUrls } : {}),
       }),
     });
     setBusy(false);
@@ -302,50 +288,6 @@ export default function TeacherSessionsPage() {
                     />
                   </Field>
                 </div>
-                <div className="pt-4 border-t border-gray-100 grid gap-2 md:col-span-2">
-                  <label className="flex items-center gap-1.5 text-gray-700 text-sm font-medium">
-                    <DocumentIcon />
-                    {t("presentationPdfUrls")}
-                  </label>
-                  <p className="text-gray-500 text-xs mb-1">{t("presentationPdfHint")}</p>
-                  {manual.presentationUrls.map((url, i) => (
-                    <div key={i} className="flex gap-2">
-                      <input
-                        type="url"
-                        value={url}
-                        onChange={(e) =>
-                          setManual((s) => ({
-                            ...s,
-                            presentationUrls: s.presentationUrls.map((u, j) => (j === i ? e.target.value : u)),
-                          }))
-                        }
-                        placeholder={t("presentationPdfUrlsPlaceholder")}
-                        className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
-                      />
-                      {manual.presentationUrls.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setManual((s) => ({
-                              ...s,
-                              presentationUrls: s.presentationUrls.filter((_, j) => j !== i),
-                            }))
-                          }
-                          className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 text-sm hover:bg-gray-50 shrink-0"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setManual((s) => ({ ...s, presentationUrls: [...s.presentationUrls, ""] }))}
-                    className="text-sm text-[#0058C9] hover:underline w-fit"
-                  >
-                    + {t("addAnotherPdf")}
-                  </button>
-                </div>
                 <div className="mt-4">
                   <button
                     type="button"
@@ -516,14 +458,11 @@ function SessionRow({
   const t = (key: string) => translate(key, language);
   const [meetingLink, setMeetingLink] = React.useState(s.meetingLink ?? "");
   const [price, setPrice] = React.useState(s.priceCredits);
-  const [presentationUrls, setPresentationUrls] = React.useState<string[]>(Array.isArray(s.presentationUrls) ? s.presentationUrls : []);
-  const [showPdfEdit, setShowPdfEdit] = React.useState(false);
 
   React.useEffect(() => {
     setMeetingLink(s.meetingLink ?? "");
     setPrice(s.priceCredits);
-    setPresentationUrls(Array.isArray(s.presentationUrls) ? s.presentationUrls : []);
-  }, [s.meetingLink, s.priceCredits, s.presentationUrls]);
+  }, [s.meetingLink, s.priceCredits]);
 
   const saveMeetingLink = () => {
     const v = meetingLink.trim();
@@ -533,14 +472,6 @@ function SessionRow({
   const savePrice = () => {
     if (!Number.isFinite(price) || price < 1 || price === s.priceCredits) return;
     onPatch(s._id, { priceCredits: price });
-  };
-  const savePresentationUrls = () => {
-    const urls = presentationUrls.map((u) => u.trim()).filter((u) => u && u.toLowerCase().startsWith("https://"));
-    const current = Array.isArray(s.presentationUrls) ? s.presentationUrls : [];
-    if (urls.length !== current.length || urls.some((u, i) => u !== current[i])) {
-      onPatch(s._id, { presentationUrls: urls });
-    }
-    setShowPdfEdit(false);
   };
 
   return (
@@ -579,11 +510,6 @@ function SessionRow({
                 >
                   {t("copyLink")}
                 </button>
-              )}
-              {(Array.isArray(s.presentationUrls) ? s.presentationUrls : []).length > 0 && (
-                <span className="text-gray-500 text-xs">
-                  {t("presentationPdfsCount").replace("{{count}}", String(s.presentationUrls!.length))}
-                </span>
               )}
             </div>
           </div>
@@ -638,84 +564,6 @@ function SessionRow({
           />
         </div>
       </div>
-      {(showPdfEdit || (Array.isArray(s.presentationUrls) && s.presentationUrls!.length > 0)) && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-gray-600 text-xs font-medium">{t("presentationPdfUrls")}</span>
-            {!showPdfEdit && (
-              <button
-                type="button"
-                onClick={() => setShowPdfEdit(true)}
-                className="text-xs text-[#0058C9] hover:underline"
-              >
-                {t("editPresentationPdfs")}
-              </button>
-            )}
-          </div>
-          {showPdfEdit ? (
-            <div className="space-y-2">
-              {presentationUrls.map((url, i) => (
-                <div key={i} className="flex gap-2">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={(e) => setPresentationUrls((prev) => prev.map((u, j) => (j === i ? e.target.value : u)))}
-                    placeholder={t("presentationPdfUrlsPlaceholder")}
-                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:border-[#0058C9] focus:ring-2 focus:ring-[#0058C9]/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPresentationUrls((prev) => prev.filter((_, j) => j !== i))}
-                    className="px-2 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 text-sm hover:bg-gray-50 shrink-0"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPresentationUrls((prev) => [...prev, ""])}
-                  className="text-sm text-[#0058C9] hover:underline"
-                >
-                  + {t("addAnotherPdf")}
-                </button>
-                <button
-                  type="button"
-                  onClick={savePresentationUrls}
-                  className="px-3 py-1.5 rounded-lg bg-[#0058C9] text-white text-sm hover:bg-[#0046A3]"
-                >
-                  {t("save")}
-                </button>
-                <button type="button" onClick={() => { setShowPdfEdit(false); setPresentationUrls(Array.isArray(s.presentationUrls) ? s.presentationUrls : []); }} className="text-gray-600 text-sm hover:underline">
-                  {t("cancel")}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <ul className="text-gray-600 text-xs space-y-0.5">
-              {s.presentationUrls!.map((u, i) => (
-                <li key={i} className="truncate" title={u}>
-                  <a href={u} target="_blank" rel="noopener noreferrer" className="text-[#0058C9] hover:underline truncate inline-block max-w-full">
-                    {u}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-      {!showPdfEdit && (Array.isArray(s.presentationUrls) ? s.presentationUrls : []).length === 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={() => { setShowPdfEdit(true); setPresentationUrls([""]); }}
-            className="text-xs text-[#0058C9] hover:underline"
-          >
-            + {t("presentationPdfUrls")}
-          </button>
-        </div>
-      )}
     </li>
   );
 }
@@ -789,7 +637,6 @@ function Field({ label, icon, children }: { label: string; icon?: string; childr
         {icon === "calendar" && <CalendarIcon />}
         {icon === "money" && <MoneyIcon />}
         {icon === "link" && <LinkIcon />}
-        {icon === "document" && <DocumentIcon />}
         {label}
       </label>
       {children}
